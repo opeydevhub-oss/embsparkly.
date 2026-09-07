@@ -425,13 +425,6 @@
 
       if (itemsError) throw new Error(itemsError.message);
 
-      for (const item of validCart) {
-        await supabaseClient.rpc("decrement_stock", {
-          product_id_input: item.id,
-          quantity_input: item.quantity
-        });
-      }
-
       localStorage.removeItem(CART_KEY);
 
       window.location.href = "order-confirmation.html?order_id=" + orderRow.id;
