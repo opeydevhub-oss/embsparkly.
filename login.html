@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMB_Sparkly | Turkey, Dubai & African Wears</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
+    --gold: #c9a227;
+    --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  a { text-decoration: none; color: inherit; }
+
+  header {
+    background: var(--deep-green);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-brand img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .brand-name {
+    color: var(--gold-light);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .icon-btn {
+    color: var(--cream);
+    font-size: 1.2rem;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .cart-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: var(--gold);
+    color: var(--deep-green-dark);
+    font-size: 0.65rem;
+    font-weight: 600;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-bar {
+    margin-top: 12px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 24px;
+    border: 1px solid rgba(201,162,39,0.4);
+    background: rgba(255,255,255,0.08);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  .search-bar input::placeholder { color: rgba(250,246,238,0.55); }
+
+  .search-bar input:focus {
+    border-color: var(--gold);
+    background: rgba(255,255,255,0.12);
+  }
+
+  .hero {
+    position: relative;
+    background: var(--deep-green-dark);
+    color: var(--cream);
+    padding: 56px 20px 48px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('image/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-logo {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--gold);
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 10px;
+  }
+
+  .hero p {
+    max-width: 480px;
+    margin: 0 auto;
+    font-size: 0.95rem;
+    color: rgba(250,246,238,0.8);
+  }
+
+  .hero-tags {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .hero-tags span {
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border: 1px solid rgba(201,162,39,0.5);
+    border-radius: 16px;
+    color: var(--gold-light);
+  }
+
+  .categories {
+    padding: 44px 20px 56px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-heading {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .section-heading h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--deep-green);
+  }
+
+  .section-heading p {
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .category-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 960px) {
+    .category-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .category-card {
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 6px;
+    padding: 22px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .category-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-3px);
+  }
+
+  .category-card .cat-icon {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    color: var(--gold);
+  }
+
+  .category-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--deep-green);
+  }
+
+  .new-arrivals {
+    padding: 0 20px 56px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .new-arrivals-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .new-arrivals-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 960px) {
+    .new-arrivals-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .arrival-card {
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    display: block;
+  }
+
+  .arrival-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+
+  .arrival-card .img-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #eee;
+    overflow: hidden;
+  }
+
+  .arrival-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .arrival-card .info { padding: 10px 12px 14px; }
+
+  .arrival-card h3 {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--charcoal);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .arrival-card .price {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    color: var(--deep-green);
+    font-size: 1.1rem;
+    margin-top: 3px;
+  }
+
+  .view-all-wrap { text-align: center; margin-top: 24px; }
+
+  .view-all-btn {
+    display: inline-block;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 11px 26px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  footer {
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 40px 20px 24px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  .footer-brand .brand-name { font-size: 1.3rem; }
+
+  .footer-brand p {
+    font-size: 0.82rem;
+    margin-top: 8px;
+    max-width: 260px;
+    color: rgba(250,246,238,0.55);
+  }
+
+  .footer-col h4 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gold-light);
+    margin-bottom: 10px;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+  }
+
+  .footer-col a, .footer-col p {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: rgba(250,246,238,0.75);
+  }
+
+  .footer-socials {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .footer-socials a {
+    border: 1px solid rgba(201,162,39,0.4);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--gold-light);
+  }
+
+  .footer-bottom {
+    text-align: center;
+    font-size: 0.75rem;
+    color: rgba(250,246,238,0.4);
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(250,246,238,0.08);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a href="#" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
+    </a>
+    <div class="header-icons">
+      <span class="icon-btn" title="Account">&#9782;</span>
+      <span class="icon-btn" title="Cart">
+        &#128722;
+        <span class="cart-count">0</span>
+      </span>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="home-search" placeholder="Search products, e.g. 'Ankara gown', 'gele'...">
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <img src="image/logo.jpg" alt="EMB_Sparkly" class="hero-logo">
+    <h1>Turkey. Dubai. African. Sparkly.</h1>
+    <p>Curated wears, jewelries, bags and shoes, sourced with care and styled for you.</p>
+    <div class="hero-tags">
+      <span>Turkey Wears</span>
+      <span>Dubai Wears</span>
+      <span>African Ready-to-Wear</span>
+      <span>Designer Bags</span>
+    </div>
+  </div>
+</section>
+
+<section class="categories" id="categories">
+  <div class="section-heading">
+    <h2>Shop by Category</h2>
+    <p>Tap a category to browse</p>
+  </div>
+  <div class="category-grid">
+    <a class="category-card" href="catalog.html?category=turkey-wears" data-category="turkey-wears">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Turkey Wears</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=dubai-wears" data-category="dubai-wears">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Dubai Wears</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=african-ready-to-wear" data-category="african-ready-to-wear">
+      <div class="cat-icon">&#10022;</div>
+      <h3>African Ready-to-Wear</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=women" data-category="women">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Women</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=wigs" data-category="wigs">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Wigs</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=men" data-category="men">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Men</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=children" data-category="children">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Children</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=jewelries" data-category="jewelries">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Jewelries</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=bags" data-category="bags">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Bags &amp; Purses</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=glasses" data-category="glasses">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Glasses</h3>
+    </a>
+    <a class="category-card" href="catalog.html?category=shoes" data-category="shoes">
+      <div class="cat-icon">&#10022;</div>
+      <h3>Shoes</h3>
+    </a>
+  </div>
+</section>
+
+<section class="new-arrivals" id="new-arrivals">
+  <div class="section-heading">
+    <h2>New Arrivals</h2>
+    <p>Fresh in the store</p>
+  </div>
+  <div class="new-arrivals-grid" id="new-arrivals-grid">
+    <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
+  </div>
+  <div class="view-all-wrap">
+    <a href="catalog.html" class="view-all-btn">View All Products</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="header-brand">
+        <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+        <span class="brand-name">EMB_Sparkly</span>
+      </div>
+      <p>Turkey Wears | Dubai Wears | African Ready-to-Wear | Adult &amp; Children Wears | Jewelries | Designer Bags | Male &amp; Female Shoes</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="#categories">Categories</a>
+      <a href="#new-arrivals">New Arrivals</a>
+      <a

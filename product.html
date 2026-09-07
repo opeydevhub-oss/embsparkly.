@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product | EMB_Sparkly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
+    --gold: #c9a227;
+    --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
+    --success: #2f7a4f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  a { text-decoration: none; color: inherit; }
+
+  header {
+    background: var(--deep-green);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-brand img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+
+  .header-icons { display: flex; align-items: center; gap: 16px; }
+
+  .icon-btn { color: var(--cream); font-size: 1.2rem; position: relative; cursor: pointer; }
+
+  .cart-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: var(--gold);
+    color: var(--deep-green-dark);
+    font-size: 0.65rem;
+    font-weight: 600;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .breadcrumb {
+    max-width: 1000px;
+    margin: 16px auto 0;
+    padding: 0 16px;
+    font-size: 0.8rem;
+    color: var(--gray);
+  }
+
+  .breadcrumb a { color: var(--deep-green); }
+
+  .product-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px 16px 60px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  @media (min-width: 760px) {
+    .product-wrap { grid-template-columns: 1fr 1fr; gap: 36px; }
+  }
+
+  .product-img-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .product-name { font-size: 1.7rem; font-weight: 600; color: var(--deep-green); }
+
+  .product-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    color: var(--deep-green);
+    margin: 10px 0;
+  }
+
+  .stock-line { font-size: 0.85rem; margin-bottom: 18px; }
+  .stock-line.in-stock { color: var(--success); }
+  .stock-line.low-stock { color: #b5850f; }
+  .stock-line.out-stock { color: #b3413b; }
+
+  .product-desc { font-size: 0.92rem; color: var(--charcoal); margin-bottom: 22px; white-space: pre-line; }
+
+  .qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+
+  .qty-row label { font-size: 0.85rem; }
+
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(13,43,38,0.2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .qty-controls button {
+    background: #fff;
+    border: none;
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--deep-green);
+  }
+
+  .qty-controls span {
+    width: 36px;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .add-cart-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .add-cart-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .add-cart-btn:hover:not(:disabled) { background: var(--deep-green-dark); }
+
+  .add-feedback {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--success);
+    display: none;
+    text-align: center;
+  }
+
+  .whatsapp-inline {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.82rem;
+    color: var(--gray);
+  }
+
+  .whatsapp-inline a { color: var(--deep-green); font-weight: 600; }
+
+  .empty-state { text-align: center; color: var(--gray); font-size: 0.9rem; padding: 60px 20px; }
+
+  footer {
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
+    </a>
+    <div class="header-icons">
+      <a href="cart.html" class="icon-btn" title="Cart">
+        &#128722;
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <a href="index.html">Home</a> &rsaquo; <a href="catalog.html">Shop</a> &rsaquo; <span id="breadcrumb-name">Product</span>
+</div>
+
+<div id="product-container">
+  <div class="empty-state">Loading product...</div>
+</div>
+
+<footer>
+  <div style="margin-bottom:10px;">
+    <a href="returns.html" style="color: var(--gold-light); font-size: 0.85rem;">Returns &amp; Refunds</a>
+  </div>
+  &copy; 2026 EMB_Sparkly. All rights reserved.
+</footer>
+<script>
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const CART_KEY = "emb_sparkly_cart";
+
+  function getCart() {
+    try {
+      return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  function updateCartCountBadge() {
+    const cart = getCart();
+    const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById("cart-count").textContent = totalQty;
+  }
+
+  updateCartCountBadge();
+
+  function getProductIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+  }
+
+  let currentProduct = null;
+  let selectedQty = 1;
+
+  async function loadProduct() {
+    const productId = getProductIdFromUrl();
+    const container = document.getElementById("product-container");
+
+    if (!productId) {
+      container.innerHTML = '<div class="empty-state">No product selected.</div>';
+      return;
+    }
+
+    const { data: product, error } = await supabaseClient
+      .from("products")
+      .select("id, name, description, price, image_url, stock")
+      .eq("id", productId)
+      .single();
+
+    if (error || !product) {
+      container.innerHTML = '<div class="empty-state">This product could not be found.</div>';
+      return;
+    }
+
+    currentProduct = product;
+    document.title = product.name + " | EMB_Sparkly";
+    document.getElementById("breadcrumb-name").textContent = product.name;
+
+    let stockHtml = "";
+    if (product.stock <= 0) {
+      stockHtml = '<div class="stock-line out-stock">Out of stock</div>';
+    } else if (product.stock <= 2) {
+      stockHtml = `<div class="stock-line low-stock">Only ${product.stock} left in stock</div>`;
+    } else {
+      stockHtml = '<div class="stock-line in-stock">In stock</div>';
+    }
+
+    container.innerHTML = `
+      <div class="product-wrap">
+        <div class="product-img-wrap">
+          <img src="${product.image_url}" alt="${product.name}">
+        </div>
+        <div class="product-info">
+          <h1 class="product-name">${product.name}</h1>
+          <div class="product-price">$${Number(product.price).toFixed(2)}</div>
+          ${stockHtml}
+          <div class="product-desc">${product.description || "No description provided yet."}</div>
+
+          <div class="qty-row">
+            <label>Quantity</label>
+            <div class="qty-controls">
+              <button type="button" id="qty-minus">-</button>
+              <span id="qty-value">1</span>
+              <button type="button" id="qty-plus">+</button>
+            </div>
+          </div>
+
+          <button class="add-cart-btn" id="add-cart-btn" ${product.stock <= 0 ? "disabled" : ""}>
+            ${product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+          </button>
+          <div class="add-feedback" id="add-feedback">Added to cart.</div>
+
+          <div class="whatsapp-inline">
+            Questions about this item? <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">Ask on WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    `;
+
+    setupQuantityControls();
+    setupAddToCart();
+  }
+
+  function setupQuantityControls() {
+    const qtyValueEl = document.getElementById("qty-value");
+    selectedQty = 1;
+
+    document.getElementById("qty-minus").addEventListener("click", function() {
+      if (selectedQty > 1) {
+        selectedQty--;
+        qtyValueEl.textContent = selectedQty;
+      }
+    });
+
+    document.getElementById("qty-plus").addEventListener("click", function() {
+      if (selectedQty < currentProduct.stock) {
+        selectedQty++;
+        qtyValueEl.textContent = selectedQty;
+      }
+    });
+  }
+
+  function setupAddToCart() {
+    document.getElementById("add-cart-btn").addEventListener("click", function() {
+      const cart = getCart();
+      const existingItem = cart.find(item => item.id === currentProduct.id);
+
+      if (existingItem) {
+        existingItem.quantity = Math.min(existingItem.quantity + selectedQty, currentProduct.stock);
+      } else {
+        cart.push({
+          id: currentProduct.id,
+          name: currentProduct.name,
+          price: currentProduct.price,
+          image_url: currentProduct.image_url,
+          quantity: selectedQty
+        });
+      }
+
+      saveCart(cart);
+      updateCartCountBadge();
+
+      const feedbackEl = document.getElementById("add-feedback");
+      feedbackEl.style.display = "block";
+      setTimeout(() => { feedbackEl.style.display = "none"; }, 2000);
+    });
+  }
+
+  loadProduct();
+</script>
+
+</body>
+</html>

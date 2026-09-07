@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | EMB_Sparkly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
+    --gold: #c9a227;
+    --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
+    --error: #b3413b;
+    --success: #2f7a4f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  a { text-decoration: none; color: inherit; }
+
+  header {
+    background: var(--deep-green);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-brand img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+
+  .page-wrap { max-width: 700px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 6px; }
+  .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 22px; }
+
+  .notice-box {
+    background: #fffaf0;
+    border: 1px solid rgba(181,133,15,0.3);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 0.83rem;
+    color: #6b5410;
+    margin-bottom: 22px;
+  }
+
+  .notice-box a { color: var(--deep-green); font-weight: 600; }
+
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid rgba(13,43,38,0.08);
+    margin-bottom: 20px;
+  }
+
+  .card h2 { font-size: 1.05rem; color: var(--deep-green); margin-bottom: 14px; }
+
+  label { display: block; font-size: 0.8rem; margin-bottom: 5px; margin-top: 14px; }
+  label:first-of-type { margin-top: 0; }
+
+  input, textarea, select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 1px solid rgba(13,43,38,0.18);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    background: #fff;
+    color: var(--charcoal);
+  }
+
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 60px; }
+
+  .order-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(13,43,38,0.06);
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+
+  .summary-row.total {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--deep-green);
+    border-top: 1px solid rgba(13,43,38,0.1);
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+
+  .place-order-btn {
+    width: 100%;
+    margin-top: 4px;
+    padding: 13px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .place-order-btn:hover:not(:disabled) { background: var(--deep-green-dark); }
+  .place-order-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .form-message { margin-top: 12px; font-size: 0.83rem; display: none; text-align: center; }
+  .form-message.error { color: var(--error); display: block; }
+  .form-message.success { color: var(--success); display: block; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.9rem;
+    padding: 60px 20px;
+  }
+
+  .empty-state a {
+    display: inline-block;
+    margin-top: 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  footer {
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
+    </a>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="page-title">Checkout</div>
+  <div class="page-subtitle">Fill in your details to place your order</div>
+
+  <div class="notice-box">
+    We currently ship to US states only. If you are outside the US, please
+    <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">contact us on WhatsApp</a>
+    to arrange your order instead of checking out here.
+  </div>
+
+  <div id="checkout-container">
+    <div class="empty-state">Loading checkout...</div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 EMB_Sparkly. All rights reserved.
+</footer>
+
+<script>
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const CART_KEY = "emb_sparkly_cart";
+
+  function getCart() {
+    try {
+      return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  function calculateShipping(totalWeightKg) {
+    if (totalWeightKg <= 0) return 0;
+    if (totalWeightKg <= 0.8) return 5;
+    if (totalWeightKg <= 1.5) return 10;
+    if (totalWeightKg <= 2) return 15;
+    const extraSteps = Math.ceil((totalWeightKg - 2) / 0.8);
+    return 15 + (extraSteps * 5);
+  }
+
+  const US_STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
+
+  let validCart = [];
+  let subtotal = 0;
+  let shipping = 0;
+  let total = 0;
+  let currentUser = null;
+
+  async function initCheckout() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const container = document.getElementById("checkout-container");
+
+    if (!session) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Please log in or sign up to continue with checkout.
+          <br>
+          <a href="login.html?redirect=checkout.html">Log In / Sign Up</a>
+        </div>
+      `;
+      return;
+    }
+
+    currentUser = session.user;
+
+    const cart = getCart();
+    if (cart.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Your cart is empty.
+          <br>
+          <a href="catalog.html">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
+
+    const ids = cart.map(item => item.id);
+    const { data: liveProducts, error } = await supabaseClient
+      .from("products")
+      .select("id, name, price, stock, weight_kg")
+      .in("id", ids);
+
+    if (error || !liveProducts) {
+      container.innerHTML = '<div class="empty-state">Could not load your cart right now.</div>';
+      return;
+    }
+
+    validCart = [];
+    cart.forEach(function(item) {
+      const liveProduct = liveProducts.find(p => p.id === item.id);
+      if (!liveProduct || liveProduct.stock <= 0) return;
+      const cappedQty = Math.min(item.quantity, liveProduct.stock);
+      validCart.push({
+        id: liveProduct.id,
+        name: liveProduct.name,
+        price: liveProduct.price,
+        weight_kg: liveProduct.weight_kg || 0.5,
+        quantity: cappedQty
+      });
+    });
+
+    if (validCart.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Your cart is empty.
+          <br>
+          <a href="catalog.html">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
+
+    subtotal = 0;
+    let totalWeight = 0;
+    let itemsHtml = "";
+
+    validCart.forEach(function(item) {
+      const lineTotal = item.price * item.quantity;
+      subtotal += lineTotal;
+      totalWeight += item.weight_kg * item.quantity;
+      itemsHtml += `
+        <div class="order-line">
+          <span>${item.quantity} x ${item.name}</span>
+          <span>$${lineTotal.toFixed(2)}</span>
+        </div>
+      `;
+    });
+
+    shipping = calculateShipping(totalWeight);
+    total = subtotal + shipping;
+
+    let statesOptionsHtml = '<option value="">Select your state</option>';
+    US_STATES.forEach(function(state) {
+      statesOptionsHtml += `<option value="${state}">${state}</option>`;
+    });
+
+    container.innerHTML = `
+      <div class="card">
+        <h2>Order Summary</h2>
+        ${itemsHtml}
+        <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>$${shipping.toFixed(2)}</span></div>
+        <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+      </div>
+
+      <div class="card">
+        <h2>Shipping Details</h2>
+        <form id="checkout-form">
+          <label for="c-fullname">Full Name</label>
+          <input type="text" id="c-fullname" required placeholder="Your full name">
+
+          <label for="c-phone">Phone Number</label>
+          <input type="tel" id="c-phone" required placeholder="e.g. +1 555 123 4567">
+
+          <label for="c-street">Street Address</label>
+          <input type="text" id="c-street" required placeholder="House number and street">
+
+          <label for="c-city">City</label>
+          <input type="text" id="c-city" required placeholder="City">
+
+          <label for="c-state">State</label>
+          <select id="c-state" required>${statesOptionsHtml}</select>
+
+          <label for="c-zip">ZIP Code</label>
+          <input type="text" id="c-zip" required placeholder="ZIP code">
+
+          <label for="c-notes">Order Notes (optional)</label>
+          <textarea id="c-notes" placeholder="Sizing preferences, delivery instructions, etc."></textarea>
+
+          <button type="submit" class="place-order-btn" id="place-order-btn">Place Order</button>
+          <div class="form-message" id="form-message"></div>
+        </form>
+      </div>
+    `;
+
+    document.getElementById("checkout-form").addEventListener("submit", handlePlaceOrder);
+  }
+
+  async function handlePlaceOrder(e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById("place-order-btn");
+    const messageEl = document.getElementById("form-message");
+    submitBtn.disabled = true;
+    messageEl.style.display = "none";
+
+    try {
+      const fullName = document.getElementById("c-fullname").value.trim();
+      const phone = document.getElementById("c-phone").value.trim();
+      const street = document.getElementById("c-street").value.trim();
+      const city = document.getElementById("c-city").value.trim();
+      const state = document.getElementById("c-state").value;
+      const zip = document.getElementById("c-zip").value.trim();
+      const notes = document.getElementById("c-notes").value.trim();
+
+      if (!state) throw new Error("Please select your state.");
+
+      const shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
+
+      const { data: orderRow, error: orderError } = await supabaseClient
+        .from("orders")
+        .insert({
+          user_id: currentUser.id,
+          status: "pending",
+          total: total,
+          shipping_address: shippingAddress,
+          phone: phone,
+          customer_notes: notes,
+          customer_email: currentUser.email
+        })
+        .select()
+        .single();
+
+      if (orderError) throw new Error(orderError.message);
+
+      const orderItemsPayload = validCart.map(function(item) {
+        return {
+          order_id: orderRow.id,
+          product_id: item.id,
+          quantity: item.quantity,
+          price: item.price
+        };
+      });
+
+      const { error: itemsError } = await supabaseClient
+        .from("order_items")
+        .insert(orderItemsPayload);
+
+      if (itemsError) throw new Error(itemsError.message);
+
+      for (const item of validCart) {
+        await supabaseClient.rpc("decrement_stock", {
+          product_id_input: item.id,
+          quantity_input: item.quantity
+        });
+      }
+
+      localStorage.removeItem(CART_KEY);
+
+      window.location.href = "order-confirmation.html?order_id=" + orderRow.id;
+
+    } catch (err) {
+      messageEl.textContent = err.message || "Something went wrong. Please try again.";
+      messageEl.className = "form-message error";
+      submitBtn.disabled = false;
+    }
+  }
+
+  initCheckout();
+</script>
+
+</body>
+</html>

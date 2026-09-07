@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart | EMB_Sparkly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
+    --gold: #c9a227;
+    --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
+    --error: #b3413b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  a { text-decoration: none; color: inherit; }
+
+  header {
+    background: var(--deep-green);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-brand img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+
+  .page-wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 20px; }
+
+  .cart-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(13,43,38,0.08);
+    align-items: center;
+  }
+
+  .cart-item img {
+    width: 66px;
+    height: 66px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #eee;
+    flex-shrink: 0;
+  }
+
+  .cart-item .info { flex: 1; min-width: 0; }
+
+  .cart-item h3 {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cart-item .unit-price { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(13,43,38,0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .qty-controls button {
+    background: #fff;
+    border: none;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--deep-green);
+  }
+
+  .qty-controls span { width: 28px; text-align: center; font-size: 0.85rem; }
+
+  .line-total {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--deep-green);
+    width: 62px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--error);
+    font-size: 0.72rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .summary-card {
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 26px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: var(--charcoal);
+  }
+
+  .summary-row.total {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--deep-green);
+    border-top: 1px solid rgba(13,43,38,0.1);
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+
+  .shipping-note { font-size: 0.75rem; color: var(--gray); margin-top: 4px; }
+
+  .checkout-btn {
+    width: 100%;
+    margin-top: 18px;
+    padding: 13px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .checkout-btn:hover { background: var(--deep-green-dark); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.9rem;
+    padding: 60px 20px;
+  }
+
+  .empty-state a {
+    display: inline-block;
+    margin-top: 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  footer {
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
+    </a>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="page-title">Your Cart</div>
+  <div id="cart-container">
+    <div class="empty-state">Loading cart...</div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 EMB_Sparkly. All rights reserved.
+</footer>
+
+<script>
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const CART_KEY = "emb_sparkly_cart";
+
+  function getCart() {
+    try {
+      return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  function calculateShipping(totalWeightKg) {
+    if (totalWeightKg <= 0) return 0;
+    if (totalWeightKg <= 0.8) return 5;
+    if (totalWeightKg <= 1.5) return 10;
+    if (totalWeightKg <= 2) return 15;
+    const extraSteps = Math.ceil((totalWeightKg - 2) / 0.8);
+    return 15 + (extraSteps * 5);
+  }
+
+  async function renderCart() {
+    const container = document.getElementById("cart-container");
+    const cart = getCart();
+
+    if (cart.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Your cart is empty.
+          <br>
+          <a href="catalog.html">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
+
+    const ids = cart.map(item => item.id);
+    const { data: liveProducts, error } = await supabaseClient
+      .from("products")
+      .select("id, name, price, image_url, stock, weight_kg")
+      .in("id", ids);
+
+    if (error || !liveProducts) {
+      container.innerHTML = '<div class="empty-state">Could not load your cart right now.</div>';
+      return;
+    }
+
+    let cartChanged = false;
+    const validCart = [];
+
+    cart.forEach(function(item) {
+      const liveProduct = liveProducts.find(p => p.id === item.id);
+      if (!liveProduct || liveProduct.stock <= 0) {
+        cartChanged = true;
+        return;
+      }
+      const cappedQty = Math.min(item.quantity, liveProduct.stock);
+      if (cappedQty !== item.quantity) cartChanged = true;
+
+      validCart.push({
+        id: liveProduct.id,
+        name: liveProduct.name,
+        price: liveProduct.price,
+        image_url: liveProduct.image_url,
+        stock: liveProduct.stock,
+        weight_kg: liveProduct.weight_kg || 0.5,
+        quantity: cappedQty
+      });
+    });
+
+    if (cartChanged) saveCart(validCart);
+
+    if (validCart.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Your cart is empty.
+          <br>
+          <a href="catalog.html">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
+
+    let subtotal = 0;
+    let totalWeight = 0;
+
+    let itemsHtml = "";
+    validCart.forEach(function(item) {
+      const lineTotal = item.price * item.quantity;
+      subtotal += lineTotal;
+      totalWeight += item.weight_kg * item.quantity;
+
+      itemsHtml += `
+        <div class="cart-item" data-id="${item.id}">
+          <img src="${item.image_url}" alt="${item.name}">
+          <div class="info">
+            <h3>${item.name}</h3>
+            <div class="unit-price">$${Number(item.price).toFixed(2)} each</div>
+          </div>
+          <div class="qty-controls">
+            <button type="button" class="qty-minus" data-id="${item.id}">-</button>
+            <span>${item.quantity}</span>
+            <button type="button" class="qty-plus" data-id="${item.id}">+</button>
+          </div>
+          <div class="line-total">$${lineTotal.toFixed(2)}</div>
+          <button class="remove-btn" data-id="${item.id}">Remove</button>
+        </div>
+      `;
+    });
+
+    const shipping = calculateShipping(totalWeight);
+    const total = subtotal + shipping;
+
+    container.innerHTML = `
+      <div class="cart-items">${itemsHtml}</div>
+      <div class="summary-card">
+        <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>$${shipping.toFixed(2)}</span></div>
+        <div class="shipping-note">Based on total package weight (${totalWeight.toFixed(2)}kg). Ships to US states only.</div>
+        <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+        <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+      </div>
+    `;
+
+    attachCartEvents();
+  }
+
+  function attachCartEvents() {
+    document.querySelectorAll(".qty-minus").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        changeQuantity(btn.dataset.id, -1);
+      });
+    });
+
+    document.querySelectorAll(".qty-plus").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        changeQuantity(btn.dataset.id, 1);
+      });
+    });
+
+    document.querySelectorAll(".remove-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const cart = getCart().filter(item => item.id !== btn.dataset.id);
+        saveCart(cart);
+        renderCart();
+      });
+    });
+
+    const checkoutBtn = document.getElementById("checkout-btn");
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener("click", function() {
+        window.location.href = "checkout.html";
+      });
+    }
+  }
+
+  function changeQuantity(id, delta) {
+    const cart = getCart();
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+
+    item.quantity += delta;
+    if (item.quantity < 1) {
+      const filteredCart = cart.filter(i => i.id !== id);
+      saveCart(filteredCart);
+    } else {
+      saveCart(cart);
+    }
+    renderCart();
+  }
+
+  renderCart();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders | EMB_Sparkly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
+    --gold: #c9a227;
+    --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
+    --success: #2f7a4f;
+    --warning: #b5850f;
+    --error: #b3413b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  a { text-decoration: none; color: inherit; }
+
+  header {
+    background: var(--deep-green);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-brand img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+
+  .logout-btn {
+    background: transparent;
+    border: 1px solid rgba(201,162,39,0.5);
+    color: var(--gold-light);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .page-wrap { max-width: 800px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 20px; }
+
+  .order-card {
+    border: 1px solid rgba(13,43,38,0.1);
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    margin-bottom: 14px;
+  }
+
+  .order-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .order-id { font-size: 0.78rem; color: var(--gray); }
+  .order-date { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+  .order-total { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.2rem; color: var(--deep-green); }
+
+  .status-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    margin-top: 4px;
+  }
+
+  .status-pending { background: #fdf3d9; color: var(--warning); }
+  .status-processing { background: #e4edf7; color: #2a5da0; }
+  .status-shipped { background: #e6f0ff; color: #3255a8; }
+  .status-delivered { background: #e3f3e8; color: var(--success); }
+  .status-cancelled { background: #fdecea; color: var(--error); }
+
+  .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
+  .order-items-list div { padding: 2px 0; }
+
+  .order-meta { font-size: 0.78rem; color: var(--gray); margin-top: 8px; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.9rem;
+    padding: 60px 20px;
+  }
+
+  .empty-state a {
+    display: inline-block;
+    margin-top: 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  footer {
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
+    </a>
+    <button class="logout-btn" id="logout-btn" style="display:none;">Log Out</button>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="page-title">My Orders</div>
+  <div id="orders-container">
+    <div class="empty-state">Loading your orders...</div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 EMB_Sparkly. All rights reserved.
+</footer>
+
+<script>
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function loadOrders() {
+    const container = document.getElementById("orders-container");
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      container.innerHTML = `
+        <div class="empty-state">
+          Please log in to view your orders.
+          <br>
+          <a href="login.html?redirect=orders.html">Log In</a>
+        </div>
+      `;
+      return;
+    }
+
+    document.getElementById("logout-btn").style.display = "inline-block";
+
+    const { data: orders, error } = await supabaseClient
+      .from("orders")
+      .select(`
+        id, status, total, created_at, shipping_address, phone,
+        order_items ( quantity, price, products ( name ) )
+      `)
+      .eq("user_id", session.user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      container.innerHTML = '<div class="empty-state">Could not load your orders right now.</div>';
+      return;
+    }
+
+    if (!orders || orders.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          You have not placed any orders yet.
+          <br>
+          <a href="catalog.html">Start Shopping</a>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = "";
+    orders.forEach(function(order) {
+      const shortId = order.id.slice(0, 8);
+      const dateStr = new Date(order.created_at).toLocaleDateString();
+
+      const itemsHtml = (order.order_items || []).map(function(item) {
+        const productName = item.products ? item.products.name : "Item";
+        return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}</div>`;
+      }).join("");
+
+      const card = document.createElement("div");
+      card.className = "order-card";
+      card.innerHTML = `
+        <div class="order-card-top">
+          <div>
+            <div class="order-id">Order #${shortId}</div>
+            <div class="order-date">${dateStr}</div>
+            <span class="status-pill status-${order.status}">${order.status}</span>
+          </div>
+          <div class="order-total">$${Number(order.total).toFixed(2)}</div>
+        </div>
+        <div class="order-items-list">${itemsHtml || "<div>No items recorded</div>"}</div>
+        <div class="order-meta">Ships to: ${order.shipping_address || "N/A"}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById("logout-btn").addEventListener("click", async function() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  });
+
+  loadOrders();
+</script>
+
+</body>
+</html>

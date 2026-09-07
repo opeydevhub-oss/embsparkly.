@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Returns & Refunds | EMB_Sparkly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
+    --gold: #c9a227;
+    --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
+    --success: #2f7a4f;
+    --error: #b3413b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  a { text-decoration: none; color: inherit; }
+
+  header {
+    background: var(--deep-green);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+
+  .header-brand img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+
+  .page-wrap { max-width: 700px; margin: 0 auto; padding: 30px 16px 60px; }
+
+  .page-title { font-size: 1.8rem; font-weight: 600; color: var(--deep-green); margin-bottom: 6px; }
+  .page-subtitle { color: var(--gray); font-size: 0.88rem; margin-bottom: 26px; }
+
+  .window-box {
+    background: #e3f3e8;
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 30px;
+  }
+
+  .window-box .icon {
+    font-size: 1.4rem;
+    color: var(--success);
+    flex-shrink: 0;
+  }
+
+  .window-box h3 { font-size: 1rem; color: var(--success); margin-bottom: 4px; }
+  .window-box p { font-size: 0.85rem; color: #285f3f; }
+
+  .section { margin-bottom: 30px; }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .section-heading .icon { font-size: 1.1rem; }
+  .section-heading.accept .icon { color: var(--success); }
+  .section-heading.reject .icon { color: var(--error); }
+
+  .section-heading h2 { font-size: 1.15rem; color: var(--deep-green); }
+
+  ul.policy-list { list-style: none; padding-left: 0; }
+
+  ul.policy-list li {
+    font-size: 0.9rem;
+    padding: 8px 0 8px 20px;
+    position: relative;
+    color: var(--charcoal);
+  }
+
+  ul.policy-list.accept li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 15px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+
+  ul.policy-list.reject li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 15px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--error);
+  }
+
+  .steps { counter-reset: step; }
+
+  .step-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .step-item .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: rgba(13,43,38,0.3);
+    flex-shrink: 0;
+    width: 28px;
+  }
+
+  .step-item p { font-size: 0.9rem; color: var(--charcoal); }
+
+  .contact-box {
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.1);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 10px;
+  }
+
+  .contact-box h3 { font-size: 0.95rem; color: var(--deep-green); margin-bottom: 6px; }
+  .contact-box p { font-size: 0.85rem; color: var(--gray); margin-bottom: 10px; }
+  .contact-box a {
+    display: inline-block;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 8px 18px;
+    border-radius: 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  footer {
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a href="index.html" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
+    </a>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <div class="page-title">Returns & Refunds</div>
+  <div class="page-subtitle">Please read this before requesting a return</div>
+
+  <div class="window-box">
+    <div class="icon">&#128337;</div>
+    <div>
+      <h3>48-Hour Return Window</h3>
+      <p>Your return window opens the moment your order is marked as delivered. You have 48 hours from that point to request a return.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-heading accept">
+      <span class="icon">&#10004;</span>
+      <h2>What We Accept Returns For</h2>
+    </div>
+    <ul class="policy-list accept">
+      <li>Item significantly different from the photos or description on the product page</li>
+      <li>Undisclosed damage, stains, or defects not mentioned when you ordered</li>
+      <li>Wrong item received</li>
+      <li>Item arrived damaged during shipping</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-heading reject">
+      <span class="icon">&#10006;</span>
+      <h2>What We Don't Accept Returns For</h2>
+    </div>
+    <ul class="policy-list reject">
+      <li>Change of mind after purchase</li>
+      <li>Sizing issues, please check the measurements in the product description carefully before ordering</li>
+      <li>Minor wear consistent with how the item was described</li>
+      <li>Return requests made after the 48-hour window has closed</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-heading">
+      <span class="icon">&#128260;</span>
+      <h2>How to Request a Return</h2>
+    </div>
+    <div class="steps">
+      <div class="step-item">
+        <div class="num">01</div>
+        <p>Message us on WhatsApp within 48 hours of your order being marked delivered, with your order number.</p>
+      </div>
+      <div class="step-item">
+        <div class="num">02</div>
+        <p>Describe the issue and attach clear photos of the item and any damage or defect.</p>
+      </div>
+      <div class="step-item">
+        <div class="num">03</div>
+        <p>We review your request within 24 hours and let you know if it's approved, along with return shipping instructions.</p>
+      </div>
+      <div class="step-item">
+        <div class="num">04</div>
+        <p>Once we receive and inspect the returned item, your refund is processed within 5-7 business days.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-box">
+    <h3>Questions about a return?</h3>
+    <p>If you're unsure whether your issue qualifies, reach out before your window closes.</p>
+    <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">Contact Us on WhatsApp</a>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 EMB_Sparkly. All rights reserved.
+</footer>
+
+</body>
+</html>
