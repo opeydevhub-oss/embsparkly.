@@ -177,6 +177,26 @@
     <div class="message" id="message"></div>
   </form>
 
+  <a href="#" class="back-link" id="forgot-link" style="margin-top:14px;">Forgot password?</a>
+
+  <form id="forgot-form" style="display:none;">
+    <label for="forgot-email">Email</label>
+    <input type="email" id="forgot-email" required placeholder="you@example.com">
+
+    <button type="submit" class="submit-btn" id="forgot-submit-btn">Send Reset Link</button>
+
+    <div class="message" id="forgot-message"></div>
+  </form>
+
+  <form id="reset-form" style="display:none;">
+    <label for="new-password">New Password</label>
+    <input type="password" id="new-password" required placeholder="Enter a new password">
+
+    <button type="submit" class="submit-btn" id="reset-submit-btn">Set New Password</button>
+
+    <div class="message" id="reset-message"></div>
+  </form>
+
   <a href="index.html" class="back-link">&larr; Back to shop</a>
 </div>
 
@@ -237,7 +257,69 @@
     }
 
     submitBtn.disabled = false;
+  });  document.getElementById("forgot-link").addEventListener("click", function(e) {
+    e.preventDefault();
+    document.getElementById("auth-form").style.display = "none";
+    document.querySelector(".tabs").style.display = "none";
+    document.getElementById("forgot-link").style.display = "none";
+    document.getElementById("forgot-form").style.display = "block";
   });
+
+  document.getElementById("forgot-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("forgot-email").value.trim();
+    const messageEl = document.getElementById("forgot-message");
+    const btn = document.getElementById("forgot-submit-btn");
+    btn.disabled = true;
+    messageEl.style.display = "none";
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+
+    if (error) {
+      messageEl.textContent = error.message;
+      messageEl.className = "message error";
+    } else {
+      messageEl.textContent = "Check your email for a reset link.";
+      messageEl.className = "message success";
+    }
+
+    btn.disabled = false;
+  });
+
+  document.getElementById("reset-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const newPassword = document.getElementById("new-password").value;
+    const messageEl = document.getElementById("reset-message");
+    const btn = document.getElementById("reset-submit-btn");
+    btn.disabled = true;
+    messageEl.style.display = "none";
+
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      messageEl.textContent = error.message;
+      messageEl.className = "message error";
+    } else {
+      messageEl.textContent = "Password updated. You can now log in.";
+      messageEl.className = "message success";
+      setTimeout(() => { window.location.href = "login.html"; }, 1500);
+    }
+
+    btn.disabled = false;
+  });
+
+  // If Supabase sent the user back here after clicking a reset email link,
+  // it appends a recovery marker to the URL. Show the reset form instead of login.
+  if (window.location.hash.includes("type=recovery")) {
+    document.getElementById("auth-form").style.display = "none";
+    document.querySelector(".tabs").style.display = "none";
+    document.getElementById("forgot-link").style.display = "none";
+    document.getElementById("reset-form").style.display = "block";
+  }
 </script>
 
 </body>
