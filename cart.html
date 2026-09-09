@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Cart | EMB_Sparkly</title>
+<title>Your Cart | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -68,6 +68,7 @@
     padding: 14px 0;
     border-bottom: 1px solid rgba(13,43,38,0.08);
     align-items: center;
+    flex-wrap: wrap;
   }
 
   .cart-item img {
@@ -79,7 +80,7 @@
     flex-shrink: 0;
   }
 
-  .cart-item .info { flex: 1; min-width: 0; }
+  .cart-item .info { flex: 1; min-width: 140px; }
 
   .cart-item h3 {
     font-family: 'Jost', sans-serif;
@@ -91,6 +92,7 @@
   }
 
   .cart-item .unit-price { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+  .cart-item .variant-line { font-size: 0.76rem; color: var(--gray); margin-top: 2px; }
 
   .qty-controls {
     display: flex;
@@ -207,8 +209,8 @@
 <header>
   <div class="header-top">
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
-      <span class="brand-name">EMB_Sparkly</span>
+      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
+      <span class="brand-name">E.M.B SPARKLY</span>
     </a>
   </div>
 </header>
@@ -221,7 +223,7 @@
 </div>
 
 <footer>
-  &copy; 2026 EMB_Sparkly. All rights reserved.
+  &copy; 2026 E.M.B SPARKLY. All rights reserved.
 </footer>
 
 <script>
@@ -267,7 +269,7 @@
       return;
     }
 
-    const ids = cart.map(item => item.id);
+    const ids = [...new Set(cart.map(item => item.id))];
     const { data: liveProducts, error } = await supabaseClient
       .from("products")
       .select("id, name, price, image_url, stock, weight_kg")
@@ -297,7 +299,9 @@
         image_url: liveProduct.image_url,
         stock: liveProduct.stock,
         weight_kg: liveProduct.weight_kg || 0.5,
-        quantity: cappedQty
+        quantity: cappedQty,
+        size: item.size || "",
+        color: item.color || ""
       });
     });
 
@@ -318,25 +322,31 @@
     let totalWeight = 0;
 
     let itemsHtml = "";
-    validCart.forEach(function(item) {
+    validCart.forEach(function(item, index) {
       const lineTotal = item.price * item.quantity;
       subtotal += lineTotal;
       totalWeight += item.weight_kg * item.quantity;
 
+      const variantParts = [];
+      if (item.size) variantParts.push("Size: " + item.size);
+      if (item.color) variantParts.push("Color: " + item.color);
+      const variantLine = variantParts.length ? `<div class="variant-line">${variantParts.join(" &middot; ")}</div>` : "";
+
       itemsHtml += `
-        <div class="cart-item" data-id="${item.id}">
+        <div class="cart-item" data-index="${index}">
           <img src="${item.image_url}" alt="${item.name}">
           <div class="info">
             <h3>${item.name}</h3>
             <div class="unit-price">$${Number(item.price).toFixed(2)} each</div>
+            ${variantLine}
           </div>
           <div class="qty-controls">
-            <button type="button" class="qty-minus" data-id="${item.id}">-</button>
+            <button type="button" class="qty-minus" data-index="${index}">-</button>
             <span>${item.quantity}</span>
-            <button type="button" class="qty-plus" data-id="${item.id}">+</button>
+            <button type="button" class="qty-plus" data-index="${index}">+</button>
           </div>
           <div class="line-total">$${lineTotal.toFixed(2)}</div>
-          <button class="remove-btn" data-id="${item.id}">Remove</button>
+          <button class="remove-btn" data-index="${index}">Remove</button>
         </div>
       `;
     });
@@ -355,26 +365,27 @@
       </div>
     `;
 
-    attachCartEvents();
+    attachCartEvents(validCart);
   }
 
-  function attachCartEvents() {
+  function attachCartEvents(validCart) {
     document.querySelectorAll(".qty-minus").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        changeQuantity(btn.dataset.id, -1);
+        changeQuantity(parseInt(btn.dataset.index), -1, validCart);
       });
     });
 
     document.querySelectorAll(".qty-plus").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        changeQuantity(btn.dataset.id, 1);
+        changeQuantity(parseInt(btn.dataset.index), 1, validCart);
       });
     });
 
     document.querySelectorAll(".remove-btn").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        const cart = getCart().filter(item => item.id !== btn.dataset.id);
-        saveCart(cart);
+        const index = parseInt(btn.dataset.index);
+        const newCart = validCart.filter((item, i) => i !== index);
+        saveCart(newCart);
         renderCart();
       });
     });
@@ -387,18 +398,21 @@
     }
   }
 
-  function changeQuantity(id, delta) {
-    const cart = getCart();
-    const item = cart.find(i => i.id === id);
+  function changeQuantity(index, delta, validCart) {
+    const newCart = validCart.map(item => Object.assign({}, item));
+    const item = newCart[index];
     if (!item) return;
 
     item.quantity += delta;
+
+    let finalCart;
     if (item.quantity < 1) {
-      const filteredCart = cart.filter(i => i.id !== id);
-      saveCart(filteredCart);
+      finalCart = newCart.filter((it, i) => i !== index);
     } else {
-      saveCart(cart);
+      finalCart = newCart;
     }
+
+    saveCart(finalCart);
     renderCart();
   }
 
