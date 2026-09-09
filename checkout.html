@@ -133,6 +133,49 @@
     margin-top: 10px;
   }
 
+  /* Delivery method selector */
+  .delivery-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .delivery-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid rgba(13,43,38,0.18);
+    border-radius: 6px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .delivery-option:has(input:checked) {
+    border-color: var(--gold);
+    background: #fffaf0;
+  }
+
+  .delivery-option input[type="radio"] {
+    width: auto;
+    margin-top: 3px;
+    accent-color: var(--deep-green);
+  }
+
+  .delivery-option-text { display: flex; flex-direction: column; gap: 2px; }
+  .delivery-option-text strong { font-size: 0.9rem; color: var(--deep-green); }
+  .delivery-option-text span { font-size: 0.78rem; color: var(--gray); }
+
+  .pickup-note {
+    background: #f2f7f4;
+    border: 1px solid rgba(13,43,38,0.12);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    color: var(--deep-green-dark);
+    margin-top: 14px;
+  }
+
   .place-order-btn {
     width: 100%;
     margin-top: 4px;
@@ -238,9 +281,10 @@
 
   let validCart = [];
   let subtotal = 0;
-  let shipping = 0;
+  let shipping = 0;   // "ship to me" cost, calculated from weight
   let total = 0;
   let currentUser = null;
+  let deliveryMethod = "ship"; // "ship" | "pickup"
 
   async function initCheckout() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -344,12 +388,32 @@
         <h2>Order Summary</h2>
         ${itemsHtml}
         <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="summary-row"><span>Shipping</span><span>$${shipping.toFixed(2)}</span></div>
-        <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span id="shipping-amount">$${shipping.toFixed(2)}</span></div>
+        <div class="summary-row total"><span>Total</span><span id="total-amount">$${total.toFixed(2)}</span></div>
       </div>
 
       <div class="card">
-        <h2>Shipping Details</h2>
+        <h2>Delivery Method</h2>
+        <div class="delivery-options">
+          <label class="delivery-option" for="dm-ship">
+            <input type="radio" name="delivery-method" id="dm-ship" value="ship" checked>
+            <div class="delivery-option-text">
+              <strong>Ship to Me</strong>
+              <span>Delivered to your address &mdash; $${shipping.toFixed(2)} shipping</span>
+            </div>
+          </label>
+          <label class="delivery-option" for="dm-pickup">
+            <input type="radio" name="delivery-method" id="dm-pickup" value="pickup">
+            <div class="delivery-option-text">
+              <strong>Local Pickup</strong>
+              <span>Free &mdash; we'll message you on WhatsApp to arrange handoff</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Your Details</h2>
         <form id="checkout-form">
           <label for="c-fullname">Full Name</label>
           <input type="text" id="c-fullname" required placeholder="Your full name">
@@ -357,17 +421,23 @@
           <label for="c-phone">Phone Number</label>
           <input type="tel" id="c-phone" required placeholder="e.g. +1 555 123 4567">
 
-          <label for="c-street">Street Address</label>
-          <input type="text" id="c-street" required placeholder="House number and street">
+          <div id="ship-fields">
+            <label for="c-street">Street Address</label>
+            <input type="text" id="c-street" required placeholder="House number and street">
 
-          <label for="c-city">City</label>
-          <input type="text" id="c-city" required placeholder="City">
+            <label for="c-city">City</label>
+            <input type="text" id="c-city" required placeholder="City">
 
-          <label for="c-state">State</label>
-          <select id="c-state" required>${statesOptionsHtml}</select>
+            <label for="c-state">State</label>
+            <select id="c-state" required>${statesOptionsHtml}</select>
 
-          <label for="c-zip">ZIP Code</label>
-          <input type="text" id="c-zip" required placeholder="ZIP code">
+            <label for="c-zip">ZIP Code</label>
+            <input type="text" id="c-zip" required placeholder="ZIP code">
+          </div>
+
+          <div class="pickup-note" id="pickup-note" style="display:none;">
+            No address needed &mdash; we'll message you on WhatsApp at the phone number above to arrange a pickup time and place.
+          </div>
 
           <label for="c-notes">Order Notes (optional)</label>
           <textarea id="c-notes" placeholder="Sizing preferences, delivery instructions, etc."></textarea>
@@ -378,7 +448,40 @@
       </div>
     `;
 
+    setupDeliveryToggle();
     document.getElementById("checkout-form").addEventListener("submit", handlePlaceOrder);
+  }
+
+  function setupDeliveryToggle() {
+    const shipFields = document.getElementById("ship-fields");
+    const pickupNote = document.getElementById("pickup-note");
+    const streetInput = document.getElementById("c-street");
+    const cityInput = document.getElementById("c-city");
+    const stateSelect = document.getElementById("c-state");
+    const zipInput = document.getElementById("c-zip");
+    const shippingAmountEl = document.getElementById("shipping-amount");
+    const totalAmountEl = document.getElementById("total-amount");
+
+    document.querySelectorAll('input[name="delivery-method"]').forEach(function(radio) {
+      radio.addEventListener("change", function() {
+        deliveryMethod = radio.value;
+        const isPickup = deliveryMethod === "pickup";
+
+        shipFields.style.display = isPickup ? "none" : "block";
+        pickupNote.style.display = isPickup ? "block" : "none";
+
+        streetInput.required = !isPickup;
+        cityInput.required = !isPickup;
+        stateSelect.required = !isPickup;
+        zipInput.required = !isPickup;
+
+        const effectiveShipping = isPickup ? 0 : shipping;
+        const effectiveTotal = subtotal + effectiveShipping;
+
+        shippingAmountEl.textContent = "$" + effectiveShipping.toFixed(2);
+        totalAmountEl.textContent = "$" + effectiveTotal.toFixed(2);
+      });
+    });
   }
 
   async function handlePlaceOrder(e) {
@@ -392,23 +495,36 @@
     try {
       const fullName = document.getElementById("c-fullname").value.trim();
       const phone = document.getElementById("c-phone").value.trim();
-      const street = document.getElementById("c-street").value.trim();
-      const city = document.getElementById("c-city").value.trim();
-      const state = document.getElementById("c-state").value;
-      const zip = document.getElementById("c-zip").value.trim();
       const notes = document.getElementById("c-notes").value.trim();
 
-      if (!state) throw new Error("Please select your state.");
+      let shippingAddress;
+      let effectiveShipping;
 
-      const shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
+      if (deliveryMethod === "pickup") {
+        effectiveShipping = 0;
+        shippingAddress = "Local Pickup - to be arranged via WhatsApp";
+      } else {
+        const street = document.getElementById("c-street").value.trim();
+        const city = document.getElementById("c-city").value.trim();
+        const state = document.getElementById("c-state").value;
+        const zip = document.getElementById("c-zip").value.trim();
+
+        if (!state) throw new Error("Please select your state.");
+
+        effectiveShipping = shipping;
+        shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
+      }
+
+      const effectiveTotal = subtotal + effectiveShipping;
 
       const { data: orderRow, error: orderError } = await supabaseClient
         .from("orders")
         .insert({
           user_id: currentUser.id,
           status: "pending",
-          total: total,
+          total: effectiveTotal,
           shipping_address: shippingAddress,
+          delivery_method: deliveryMethod,
           phone: phone,
           customer_notes: notes,
           customer_email: currentUser.email
