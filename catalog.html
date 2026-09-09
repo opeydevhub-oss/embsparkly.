@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shop | EMB_Sparkly</title>
+<title>Shop | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -56,12 +56,7 @@
     object-fit: cover;
   }
 
-  .brand-name {
-    color: var(--gold-light);
-    font-size: 1.6rem;
-    font-weight: 700;
-    white-space: nowrap;
-  }
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
 
   .header-icons { display: flex; align-items: center; gap: 16px; }
 
@@ -105,7 +100,10 @@
   .search-bar input::placeholder { color: rgba(250,246,238,0.55); }
   .search-bar input:focus { border-color: var(--gold); background: rgba(255,255,255,0.12); }
 
-  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 22px 16px 60px; }
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  .page-title { font-size: 1.5rem; font-weight: 600; color: var(--deep-green); margin-bottom: 4px; }
+  .page-subtitle { font-size: 0.85rem; color: var(--gray); margin-bottom: 18px; }
 
   .filter-bar {
     display: flex;
@@ -124,7 +122,6 @@
     color: var(--gray);
     white-space: nowrap;
     cursor: pointer;
-    flex-shrink: 0;
   }
 
   .filter-chip.active {
@@ -133,16 +130,19 @@
     border-color: var(--deep-green);
   }
 
-  .result-count { font-size: 0.82rem; color: var(--gray); margin-bottom: 14px; }
-
   .product-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
   }
 
-  @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (min-width: 960px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 640px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 960px) {
+    .product-grid { grid-template-columns: repeat(5, 1fr); }
+  }
 
   .product-card {
     background: #fff;
@@ -151,6 +151,7 @@
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.15s ease, border-color 0.15s ease;
+    display: block;
   }
 
   .product-card:hover { transform: translateY(-3px); border-color: var(--gold); }
@@ -160,9 +161,21 @@
     aspect-ratio: 1 / 1;
     background: #eee;
     overflow: hidden;
+    position: relative;
   }
 
   .product-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .out-of-stock-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(179,65,59,0.9);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
 
   .product-card .info { padding: 10px 12px 14px; }
 
@@ -180,23 +193,11 @@
     font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
     color: var(--deep-green);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     margin-top: 3px;
   }
 
-  .product-card .low-stock-tag {
-    display: inline-block;
-    font-size: 0.68rem;
-    color: #b5850f;
-    margin-top: 3px;
-  }
-
-  .empty-state {
-    text-align: center;
-    color: var(--gray);
-    font-size: 0.9rem;
-    padding: 60px 20px;
-  }
+  .empty-state { text-align: center; color: var(--gray); font-size: 0.9rem; padding: 60px 20px; grid-column: 1 / -1; }
 
   footer {
     background: var(--deep-green-dark);
@@ -212,25 +213,27 @@
 <header>
   <div class="header-top">
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
-      <span class="brand-name">EMB_Sparkly</span>
+      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
+      <span class="brand-name">E.M.B SPARKLY</span>
     </a>
     <div class="header-icons">
-      <span class="icon-btn" title="Account">&#9782;</span>
-      <span class="icon-btn" title="Cart">
+      <a href="cart.html" class="icon-btn" title="Cart">
         &#128722;
-        <span class="cart-count">0</span>
-      </span>
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
     </div>
   </div>
   <div class="search-bar">
-    <input type="text" id="search-input" placeholder="Search products, e.g. 'Ankara gown', 'gele'...">
+    <input type="text" id="catalog-search" placeholder="Search products, e.g. 'Ankara gown', 'gele'...">
   </div>
 </header>
 
 <div class="page-wrap">
+  <div class="page-title" id="page-title">Shop All</div>
+  <div class="page-subtitle" id="page-subtitle">Browse everything we have</div>
+
   <div class="filter-bar" id="filter-bar">
-    <div class="filter-chip active" data-category="all">All</div>
+    <div class="filter-chip" data-category="">All</div>
     <div class="filter-chip" data-category="turkey-wears">Turkey Wears</div>
     <div class="filter-chip" data-category="dubai-wears">Dubai Wears</div>
     <div class="filter-chip" data-category="african-ready-to-wear">African Ready-to-Wear</div>
@@ -239,22 +242,18 @@
     <div class="filter-chip" data-category="men">Men</div>
     <div class="filter-chip" data-category="children">Children</div>
     <div class="filter-chip" data-category="jewelries">Jewelries</div>
-    <div class="filter-chip" data-category="bags">Bags</div>
+    <div class="filter-chip" data-category="bags">Bags &amp; Purses</div>
     <div class="filter-chip" data-category="glasses">Glasses</div>
     <div class="filter-chip" data-category="shoes">Shoes</div>
   </div>
 
-  <div class="result-count" id="result-count"></div>
   <div class="product-grid" id="product-grid">
     <div class="empty-state">Loading products...</div>
   </div>
 </div>
 
 <footer>
-  <div style="margin-bottom:10px;">
-    <a href="returns.html" style="color: var(--gold-light); font-size: 0.85rem;">Returns &amp; Refunds</a>
-  </div>
-  &copy; 2026 EMB_Sparkly. All rights reserved.
+  &copy; 2026 E.M.B SPARKLY. All rights reserved.
 </footer>
 
 <script>
@@ -262,112 +261,121 @@
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let allProducts = [];
-  let currentCategory = "all";
-  let currentSearch = "";
+  const CART_KEY = "emb_sparkly_cart";
 
-  const gridEl = document.getElementById("product-grid");
-  const countEl = document.getElementById("result-count");
+  function getCart() {
+    try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+    catch (e) { return []; }
+  }
 
-  async function loadAllProducts() {
-    const { data, error } = await supabaseClient
+  function updateCartCountBadge() {
+    const cart = getCart();
+    const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById("cart-count").textContent = totalQty;
+  }
+
+  updateCartCountBadge();
+
+  const params = new URLSearchParams(window.location.search);
+  let activeCategory = params.get("category") || "";
+  let activeSearch = params.get("search") || "";
+
+  document.getElementById("catalog-search").value = activeSearch;
+
+  function setActiveChip() {
+    document.querySelectorAll(".filter-chip").forEach(function(chip) {
+      chip.classList.toggle("active", chip.dataset.category === activeCategory);
+    });
+  }
+
+  document.querySelectorAll(".filter-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      activeCategory = chip.dataset.category;
+      setActiveChip();
+      updatePageHeading();
+      loadProducts();
+    });
+  });
+
+  document.getElementById("catalog-search").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      activeSearch = e.target.value.trim();
+      updatePageHeading();
+      loadProducts();
+    }
+  });
+
+  function updatePageHeading() {
+    const titleEl = document.getElementById("page-title");
+    const subtitleEl = document.getElementById("page-subtitle");
+
+    if (activeSearch) {
+      titleEl.textContent = 'Results for "' + activeSearch + '"';
+      subtitleEl.textContent = "Search results";
+    } else if (activeCategory) {
+      const chip = document.querySelector('.filter-chip[data-category="' + activeCategory + '"]');
+      titleEl.textContent = chip ? chip.textContent : "Shop";
+      subtitleEl.textContent = "Browsing this category";
+    } else {
+      titleEl.textContent = "Shop All";
+      subtitleEl.textContent = "Browse everything we have";
+    }
+  }
+
+  async function loadProducts() {
+    const gridEl = document.getElementById("product-grid");
+    gridEl.innerHTML = '<div class="empty-state">Loading products...</div>';
+
+    let query = supabaseClient
       .from("products")
-      .select("id, name, description, price, image_url, stock, categories(slug)")
+      .select("id, name, price, image_url, stock, category_id, categories(slug)")
       .order("created_at", { ascending: false });
+
+    if (activeSearch) {
+      query = query.ilike("name", "%" + activeSearch + "%");
+    }
+
+    const { data: products, error } = await query;
 
     if (error) {
       gridEl.innerHTML = '<div class="empty-state">Could not load products right now.</div>';
       return;
     }
 
-    allProducts = data || [];
-    applyFilters();
-  }
-
-  function applyFilters() {
-    let filtered = allProducts;
-
-    if (currentCategory !== "all") {
-      filtered = filtered.filter(p => p.categories && p.categories.slug === currentCategory);
-    }
-
-    if (currentSearch.trim() !== "") {
-      const term = currentSearch.trim().toLowerCase();
-      filtered = filtered.filter(p => {
-        const inName = p.name && p.name.toLowerCase().includes(term);
-        const inDesc = p.description && p.description.toLowerCase().includes(term);
-        return inName || inDesc;
+    let filtered = products || [];
+    if (activeCategory) {
+      filtered = filtered.filter(function(p) {
+        return p.categories && p.categories.slug === activeCategory;
       });
     }
 
-    renderProducts(filtered);
-  }
-
-  function renderProducts(products) {
-    countEl.textContent = products.length + (products.length === 1 ? " item" : " items");
-
-    if (products.length === 0) {
-      gridEl.innerHTML = '<div class="empty-state">No products match. Try a different search or category.</div>';
+    if (filtered.length === 0) {
+      gridEl.innerHTML = '<div class="empty-state">No products found. Try a different category or search term.</div>';
       return;
     }
 
     gridEl.innerHTML = "";
-    products.forEach(function(product) {
+    filtered.forEach(function(product) {
       const card = document.createElement("a");
       card.href = "product.html?id=" + product.id;
       card.className = "product-card";
-      const isLow = product.stock > 0 && product.stock <= 2;
-      const isOut = product.stock <= 0;
       card.innerHTML = `
         <div class="img-wrap">
+          ${product.stock <= 0 ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
           <img src="${product.image_url}" alt="${product.name}">
         </div>
         <div class="info">
           <h3>${product.name}</h3>
           <div class="price">$${Number(product.price).toFixed(2)}</div>
-          ${isOut ? '<span class="low-stock-tag">Out of stock</span>' : (isLow ? '<span class="low-stock-tag">Only ' + product.stock + ' left</span>' : '')}
         </div>
       `;
       gridEl.appendChild(card);
     });
   }
 
-  document.querySelectorAll(".filter-chip").forEach(function(chip) {
-    chip.addEventListener("click", function() {
-      document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
-      currentCategory = chip.dataset.category;
-      applyFilters();
-    });
-  });
-
-  document.getElementById("search-input").addEventListener("input", function(e) {
-    currentSearch = e.target.value;
-    applyFilters();
-  });
-
-  function initFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const catParam = params.get("category");
-    const searchParam = params.get("search");
-
-    if (catParam) {
-      currentCategory = catParam;
-      const matchChip = document.querySelector(`.filter-chip[data-category="${catParam}"]`);
-      if (matchChip) {
-        document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-        matchChip.classList.add("active");
-      }
-    }
-
-    if (searchParam) {
-      currentSearch = searchParam;
-      document.getElementById("search-input").value = searchParam;
-    }
-  }
-
-  initFromUrl();
-  loadAllProducts();
+  setActiveChip();
+  updatePageHeading();
+  loadProducts();
 </script>
 
 </body>
