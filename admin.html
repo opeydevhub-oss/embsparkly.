@@ -471,11 +471,11 @@
         <textarea id="p-description" placeholder="Fabric, sizing, style notes..."></textarea>
 
         <label for="p-image">Product Photo</label>
-        <input type="file" id="p-image" accept="image/*" required>
+        <input type="file" id="p-image" accept="image/*">
 
-        <label for="p-video">Product Video (optional)</label>
+        <label for="p-video">Product Video</label>
         <input type="file" id="p-video" accept="video/*">
-        <div class="field-hint">Shows as a Video tab next to the photo on the product page.</div>
+        <div class="field-hint">Add a photo, a video, or both &mdash; at least one is required.</div>
 
         <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
         <div class="form-message" id="form-message"></div>
@@ -561,7 +561,9 @@
       const imageFile = document.getElementById("p-image").files[0];
       const videoFile = document.getElementById("p-video").files[0];
 
-      if (!imageFile) throw new Error("Please choose a product photo.");
+      if (!imageFile && !videoFile) {
+        throw new Error("Please add a product photo or a video (at least one is required).");
+      }
 
       const { data: categoryRow, error: categoryError } = await supabaseClient
         .from("categories")
@@ -571,20 +573,25 @@
 
       if (categoryError || !categoryRow) throw new Error("Could not find that category.");
 
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      let imageUrl = null;
+      if (imageFile) {
+        const fileExt = imageFile.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-      const { error: uploadError } = await supabaseClient
-        .storage
-        .from("product-image")
-        .upload(fileName, imageFile);
+        const { error: uploadError } = await supabaseClient
+          .storage
+          .from("product-image")
+          .upload(fileName, imageFile);
 
-      if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+        if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
 
-      const { data: publicUrlData } = supabaseClient
-        .storage
-        .from("product-image")
-        .getPublicUrl(fileName);
+        const { data: publicUrlData } = supabaseClient
+          .storage
+          .from("product-image")
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrlData.publicUrl;
+      }
 
       let videoUrl = null;
       if (videoFile) {
@@ -596,13 +603,14 @@
           .from("product-image")
           .upload(videoFileName, videoFile);
 
-        if (!videoUploadError) {
-          const { data: videoPublicUrlData } = supabaseClient
-            .storage
-            .from("product-image")
-            .getPublicUrl(videoFileName);
-          videoUrl = videoPublicUrlData.publicUrl;
-        }
+        if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
+
+        const { data: videoPublicUrlData } = supabaseClient
+          .storage
+          .from("product-image")
+          .getPublicUrl(videoFileName);
+
+        videoUrl = videoPublicUrlData.publicUrl;
       }
 
       const { error: insertError } = await supabaseClient
@@ -616,7 +624,7 @@
           available_sizes: sizesRaw || null,
           available_colors: colorsRaw || null,
           category_id: categoryRow.id,
-          image_url: publicUrlData.publicUrl,
+          image_url: imageUrl,
           video_url: videoUrl
         });
 
@@ -659,8 +667,9 @@
       const isLow = product.stock <= 2;
       const row = document.createElement("div");
       row.className = "product-row" + (isLow ? " low-stock" : "");
+      const thumbSrc = product.image_url || "image/logo.jpg";
       row.innerHTML = `
-        <img src="${product.image_url}" alt="${product.name}">
+        <img src="${thumbSrc}" alt="${product.name}">
         <div class="info">
           <h3>${product.name}</h3>
           <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''}</p>
