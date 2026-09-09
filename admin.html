@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | EMB_Sparkly</title>
+<title>Admin Dashboard | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -139,7 +139,7 @@
   label { display: block; font-size: 0.8rem; margin-bottom: 5px; margin-top: 14px; }
   label:first-of-type { margin-top: 0; }
 
-  .hint { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+  .field-hint { font-size: 0.72rem; color: var(--gray); margin-top: 3px; }
 
   input, textarea, select {
     width: 100%;
@@ -155,6 +155,8 @@
 
   input:focus, textarea:focus, select:focus { border-color: var(--gold); }
   textarea { resize: vertical; min-height: 70px; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
   .submit-btn {
     width: 100%;
@@ -237,15 +239,6 @@
 
   .product-row .info p { font-size: 0.78rem; color: var(--gray); }
 
-  .video-badge {
-    font-size: 0.68rem;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: #e4edf7;
-    color: #2a5da0;
-    margin-left: 4px;
-  }
-
   .stock-badge {
     font-size: 0.7rem;
     padding: 3px 8px;
@@ -303,6 +296,7 @@
 
   .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
   .order-items-list div { padding: 2px 0; }
+  .order-items-list .variant-note { color: var(--gray); font-size: 0.74rem; }
 
   .order-meta { font-size: 0.78rem; color: var(--gray); margin-bottom: 10px; }
   .order-meta div { margin-bottom: 2px; }
@@ -354,7 +348,7 @@
 
 <header>
   <div class="header-brand">
-    <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+    <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
     <span class="brand-name">Admin Dashboard</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
@@ -450,14 +444,28 @@
           <option value="shoes">Shoes</option>
         </select>
 
-        <label for="p-price">Price (USD)</label>
-        <input type="number" id="p-price" min="0" step="0.01" required placeholder="e.g. 45.00">
+        <div class="field-row">
+          <div>
+            <label for="p-price">Price (USD)</label>
+            <input type="number" id="p-price" min="0" step="0.01" required placeholder="e.g. 45.00">
+          </div>
+          <div>
+            <label for="p-stock">Stock Quantity</label>
+            <input type="number" id="p-stock" min="0" step="1" value="1" required>
+          </div>
+        </div>
 
-        <label for="p-stock">Stock Quantity</label>
-        <input type="number" id="p-stock" min="0" step="1" value="1" required>
+        <label for="p-weight">Package Weight (kg)</label>
+        <input type="number" id="p-weight" min="0" step="0.1" value="0.5" required>
+        <div class="field-hint">Used to calculate shipping. 0.2-0.8kg = $5, 0.9-1.5kg = $10, 1.6-2kg = $15.</div>
 
-        <label for="p-weight">Weight (kg)</label>
-        <input type="number" id="p-weight" min="0.1" step="0.1" value="0.5" required>
+        <label for="p-sizes">Available Sizes (optional)</label>
+        <input type="text" id="p-sizes" placeholder="e.g. S, M, L, XL">
+        <div class="field-hint">Comma separated. Leave blank if this item has no sizes (e.g. jewelry, bags).</div>
+
+        <label for="p-colors">Available Colors (optional)</label>
+        <input type="text" id="p-colors" placeholder="e.g. Black, Emerald Green, Gold">
+        <div class="field-hint">Comma separated. Leave blank if this item comes in one color only.</div>
 
         <label for="p-description">Description</label>
         <textarea id="p-description" placeholder="Fabric, sizing, style notes..."></textarea>
@@ -467,7 +475,7 @@
 
         <label for="p-video">Product Video (optional)</label>
         <input type="file" id="p-video" accept="video/*">
-        <div class="hint">Max 50MB. Keep clips short, 10-15 seconds works best.</div>
+        <div class="field-hint">Shows as a Video tab next to the photo on the product page.</div>
 
         <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
         <div class="form-message" id="form-message"></div>
@@ -547,15 +555,13 @@
       const price = parseFloat(document.getElementById("p-price").value);
       const stock = parseInt(document.getElementById("p-stock").value);
       const weight = parseFloat(document.getElementById("p-weight").value);
+      const sizesRaw = document.getElementById("p-sizes").value.trim();
+      const colorsRaw = document.getElementById("p-colors").value.trim();
       const description = document.getElementById("p-description").value.trim();
       const imageFile = document.getElementById("p-image").files[0];
       const videoFile = document.getElementById("p-video").files[0];
 
       if (!imageFile) throw new Error("Please choose a product photo.");
-
-      if (videoFile && videoFile.size > 50 * 1024 * 1024) {
-        throw new Error("That video is too large. Please keep it under 50MB.");
-      }
 
       const { data: categoryRow, error: categoryError } = await supabaseClient
         .from("categories")
@@ -581,24 +587,22 @@
         .getPublicUrl(fileName);
 
       let videoUrl = null;
-
       if (videoFile) {
         const videoExt = videoFile.name.split(".").pop();
         const videoFileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${videoExt}`;
 
         const { error: videoUploadError } = await supabaseClient
           .storage
-          .from("product-videos")
+          .from("product-image")
           .upload(videoFileName, videoFile);
 
-        if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
-
-        const { data: videoPublicUrlData } = supabaseClient
-          .storage
-          .from("product-videos")
-          .getPublicUrl(videoFileName);
-
-        videoUrl = videoPublicUrlData.publicUrl;
+        if (!videoUploadError) {
+          const { data: videoPublicUrlData } = supabaseClient
+            .storage
+            .from("product-image")
+            .getPublicUrl(videoFileName);
+          videoUrl = videoPublicUrlData.publicUrl;
+        }
       }
 
       const { error: insertError } = await supabaseClient
@@ -609,6 +613,8 @@
           price: price,
           stock: stock,
           weight_kg: weight,
+          available_sizes: sizesRaw || null,
+          available_colors: colorsRaw || null,
           category_id: categoryRow.id,
           image_url: publicUrlData.publicUrl,
           video_url: videoUrl
@@ -635,7 +641,7 @@
 
     const { data: products, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url, video_url, stock")
+      .select("id, name, price, image_url, stock")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -657,7 +663,7 @@
         <img src="${product.image_url}" alt="${product.name}">
         <div class="info">
           <h3>${product.name}</h3>
-          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''} ${product.video_url ? '<span class="video-badge">Video</span>' : ''}</p>
+          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''}</p>
         </div>
         <button class="delete-btn" data-id="${product.id}">Delete</button>
       `;
@@ -683,7 +689,7 @@
       .from("orders")
       .select(`
         id, status, total, created_at, shipping_address, phone, customer_notes, customer_email,
-        order_items ( quantity, price, products ( name ) )
+        order_items ( quantity, price, size, color, products ( name ) )
       `)
       .order("created_at", { ascending: false });
 
@@ -737,13 +743,17 @@
 
     const itemsHtml = (order.order_items || []).map(function(item) {
       const productName = item.products ? item.products.name : "Item";
-      return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}</div>`;
+      const variantParts = [];
+      if (item.size) variantParts.push("Size: " + item.size);
+      if (item.color) variantParts.push("Color: " + item.color);
+      const variantNote = variantParts.length ? `<span class="variant-note"> (${variantParts.join(", ")})</span>` : "";
+      return `<div>${item.quantity} x ${productName}${variantNote} - $${Number(item.price).toFixed(2)}</div>`;
     }).join("");
 
     const shortId = order.id.slice(0, 8);
     const dateStr = new Date(order.created_at).toLocaleDateString();
     const phone = order.phone ? order.phone.replace(/[^0-9]/g, "") : "";
-    const waMessage = encodeURIComponent(`Hi, this is EMB_Sparkly regarding your order #${shortId}. Current status: ${order.status}.`);
+    const waMessage = encodeURIComponent(`Hi, this is E.M.B SPARKLY regarding your order #${shortId}. Current status: ${order.status}.`);
     const waLink = phone ? `https://wa.me/${phone}?text=${waMessage}` : null;
 
     card.innerHTML = `
