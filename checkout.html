@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout | EMB_Sparkly</title>
+<title>Checkout | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -110,7 +110,11 @@
     font-size: 0.85rem;
     padding: 6px 0;
     border-bottom: 1px solid rgba(13,43,38,0.06);
+    gap: 10px;
   }
+
+  .order-line .item-label { flex: 1; }
+  .order-line .variant-note { display: block; font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
 
   .summary-row {
     display: flex;
@@ -181,8 +185,8 @@
 <header>
   <div class="header-top">
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
-      <span class="brand-name">EMB_Sparkly</span>
+      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
+      <span class="brand-name">E.M.B SPARKLY</span>
     </a>
   </div>
 </header>
@@ -203,7 +207,7 @@
 </div>
 
 <footer>
-  &copy; 2026 EMB_Sparkly. All rights reserved.
+  &copy; 2026 E.M.B SPARKLY. All rights reserved.
 </footer>
 
 <script>
@@ -219,10 +223,6 @@
     } catch (e) {
       return [];
     }
-  }
-
-  function saveCart(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }
 
   function calculateShipping(totalWeightKg) {
@@ -271,7 +271,7 @@
       return;
     }
 
-    const ids = cart.map(item => item.id);
+    const ids = [...new Set(cart.map(item => item.id))];
     const { data: liveProducts, error } = await supabaseClient
       .from("products")
       .select("id, name, price, stock, weight_kg")
@@ -292,7 +292,9 @@
         name: liveProduct.name,
         price: liveProduct.price,
         weight_kg: liveProduct.weight_kg || 0.5,
-        quantity: cappedQty
+        quantity: cappedQty,
+        size: item.size || "",
+        color: item.color || ""
       });
     });
 
@@ -315,9 +317,15 @@
       const lineTotal = item.price * item.quantity;
       subtotal += lineTotal;
       totalWeight += item.weight_kg * item.quantity;
+
+      const variantParts = [];
+      if (item.size) variantParts.push("Size: " + item.size);
+      if (item.color) variantParts.push("Color: " + item.color);
+      const variantNote = variantParts.length ? `<span class="variant-note">${variantParts.join(" &middot; ")}</span>` : "";
+
       itemsHtml += `
         <div class="order-line">
-          <span>${item.quantity} x ${item.name}</span>
+          <span class="item-label">${item.quantity} x ${item.name}${variantNote}</span>
           <span>$${lineTotal.toFixed(2)}</span>
         </div>
       `;
@@ -415,7 +423,9 @@
           order_id: orderRow.id,
           product_id: item.id,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          size: item.size || null,
+          color: item.color || null
         };
       });
 
