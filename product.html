@@ -103,10 +103,7 @@
 
   .media-col { display: flex; flex-direction: column; gap: 10px; }
 
-  .media-tabs {
-    display: flex;
-    gap: 8px;
-  }
+  .media-tabs { display: flex; gap: 8px; }
 
   .media-tab {
     padding: 6px 14px;
@@ -162,7 +159,7 @@
     font-weight: 500;
   }
 
-  .option-row select, .option-row input {
+  .option-row select {
     width: 100%;
     max-width: 260px;
     padding: 10px 12px;
@@ -175,7 +172,7 @@
     color: var(--charcoal);
   }
 
-  .option-row select:focus, .option-row input:focus { border-color: var(--gold); }
+  .option-row select:focus { border-color: var(--gold); }
 
   .qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
 
@@ -199,11 +196,7 @@
     color: var(--deep-green);
   }
 
-  .qty-controls span {
-    width: 36px;
-    text-align: center;
-    font-size: 0.95rem;
-  }
+  .qty-controls span { width: 36px; text-align: center; font-size: 0.95rem; }
 
   .add-cart-btn {
     width: 100%;
@@ -236,13 +229,7 @@
     text-align: center;
   }
 
-  .whatsapp-inline {
-    display: inline-block;
-    margin-top: 14px;
-    font-size: 0.82rem;
-    color: var(--gray);
-  }
-
+  .whatsapp-inline { display: inline-block; margin-top: 14px; font-size: 0.82rem; color: var(--gray); }
   .whatsapp-inline a { color: var(--deep-green); font-weight: 600; }
 
   .empty-state { text-align: center; color: var(--gray); font-size: 0.9rem; padding: 60px 20px; }
@@ -294,14 +281,10 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const CART_KEY = "emb_sparkly_cart";
-  const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "One Size"];
 
   function getCart() {
-    try {
-      return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-    } catch (e) {
-      return [];
-    }
+    try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+    catch (e) { return []; }
   }
 
   function saveCart(cart) {
@@ -321,8 +304,15 @@
     return params.get("id");
   }
 
+  function parseOptionList(raw) {
+    if (!raw) return [];
+    return raw.split(",").map(s => s.trim()).filter(s => s.length > 0);
+  }
+
   let currentProduct = null;
   let selectedQty = 1;
+  let hasSizes = false;
+  let hasColors = false;
 
   async function loadProduct() {
     const productId = getProductIdFromUrl();
@@ -335,7 +325,7 @@
 
     const { data: product, error } = await supabaseClient
       .from("products")
-      .select("id, name, description, price, image_url, video_url, stock")
+      .select("id, name, description, price, image_url, video_url, stock, available_sizes, available_colors")
       .eq("id", productId)
       .single();
 
@@ -364,10 +354,38 @@
       </div>
     ` : "";
 
-    let sizeOptionsHtml = '<option value="">Select a size</option>';
-    SIZE_OPTIONS.forEach(function(size) {
-      sizeOptionsHtml += `<option value="${size}">${size}</option>`;
-    });
+    const sizeList = parseOptionList(product.available_sizes);
+    const colorList = parseOptionList(product.available_colors);
+    hasSizes = sizeList.length > 0;
+    hasColors = colorList.length > 0;
+
+    let sizeRowHtml = "";
+    if (hasSizes) {
+      let sizeOptionsHtml = '<option value="">Select a size</option>';
+      sizeList.forEach(function(size) {
+        sizeOptionsHtml += `<option value="${size}">${size}</option>`;
+      });
+      sizeRowHtml = `
+        <div class="option-row">
+          <label for="p-size">Size</label>
+          <select id="p-size">${sizeOptionsHtml}</select>
+        </div>
+      `;
+    }
+
+    let colorRowHtml = "";
+    if (hasColors) {
+      let colorOptionsHtml = '<option value="">Select a color</option>';
+      colorList.forEach(function(color) {
+        colorOptionsHtml += `<option value="${color}">${color}</option>`;
+      });
+      colorRowHtml = `
+        <div class="option-row">
+          <label for="p-color">Color</label>
+          <select id="p-color">${colorOptionsHtml}</select>
+        </div>
+      `;
+    }
 
     container.innerHTML = `
       <div class="product-wrap">
@@ -388,15 +406,8 @@
           ${stockHtml}
           <div class="product-desc">${product.description || "No description provided yet."}</div>
 
-          <div class="option-row">
-            <label for="p-size">Size</label>
-            <select id="p-size">${sizeOptionsHtml}</select>
-          </div>
-
-          <div class="option-row">
-            <label for="p-color">Color (optional)</label>
-            <input type="text" id="p-color" placeholder="e.g. Emerald green">
-          </div>
+          ${sizeRowHtml}
+          ${colorRowHtml}
 
           <div class="qty-row">
             <label>Quantity</label>
@@ -410,7 +421,7 @@
           <button class="add-cart-btn" id="add-cart-btn" ${product.stock <= 0 ? "disabled" : ""}>
             ${product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
           </button>
-          <div class="option-error" id="option-error">Please select a size.</div>
+          <div class="option-error" id="option-error">Please select the options above.</div>
           <div class="add-feedback" id="add-feedback">Added to cart.</div>
 
           <div class="whatsapp-inline">
@@ -472,17 +483,27 @@
 
   function setupAddToCart() {
     document.getElementById("add-cart-btn").addEventListener("click", function() {
-      const sizeSelect = document.getElementById("p-size");
-      const colorInput = document.getElementById("p-color");
       const errorEl = document.getElementById("option-error");
 
-      const selectedSize = sizeSelect.value;
-      const selectedColor = colorInput.value.trim();
+      let selectedSize = "";
+      let selectedColor = "";
 
-      if (!selectedSize) {
-        errorEl.style.display = "block";
-        return;
+      if (hasSizes) {
+        selectedSize = document.getElementById("p-size").value;
+        if (!selectedSize) {
+          errorEl.style.display = "block";
+          return;
+        }
       }
+
+      if (hasColors) {
+        selectedColor = document.getElementById("p-color").value;
+        if (!selectedColor) {
+          errorEl.style.display = "block";
+          return;
+        }
+      }
+
       errorEl.style.display = "none";
 
       const cart = getCart();
