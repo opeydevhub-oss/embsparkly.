@@ -406,4 +406,416 @@
     </div>
   </div>
 
-  <div class="tab-panel"
+  <div class="tab-panel" id="tab-orders">
+    <div class="page-title">Orders</div>
+    <div class="page-subtitle">View, update, and follow up on customer orders</div>
+
+    <div class="filter-bar" id="order-filter-bar">
+      <div class="filter-chip active" data-status="all">All</div>
+      <div class="filter-chip" data-status="pending">Pending</div>
+      <div class="filter-chip" data-status="processing">Processing</div>
+      <div class="filter-chip" data-status="shipped">Shipped</div>
+      <div class="filter-chip" data-status="delivered">Delivered</div>
+      <div class="filter-chip" data-status="cancelled">Cancelled</div>
+    </div>
+
+    <div class="order-list" id="orders-full-list">
+      <div class="empty-state">Loading orders...</div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-products">
+    <div class="page-title">Products</div>
+    <div class="page-subtitle">Add new items or manage what is already listed</div>
+
+    <div class="card">
+      <h2>Add a Product</h2>
+      <form id="product-form">
+        <label for="p-name">Product Name</label>
+        <input type="text" id="p-name" required placeholder="e.g. Blue Ankara Gown">
+
+        <label for="p-category">Category</label>
+        <select id="p-category" required>
+          <option value="">Select a category</option>
+          <option value="turkey-wears">Turkey Wears</option>
+          <option value="dubai-wears">Dubai Wears</option>
+          <option value="african-ready-to-wear">African Ready-to-Wear</option>
+          <option value="women">Women</option>
+          <option value="wigs">Wigs</option>
+          <option value="men">Men</option>
+          <option value="children">Children</option>
+          <option value="jewelries">Jewelries</option>
+          <option value="bags">Designer Bags, Purses & Clutches</option>
+          <option value="glasses">Glasses</option>
+          <option value="shoes">Shoes</option>
+        </select>
+
+        <label for="p-price">Price (USD)</label>
+        <input type="number" id="p-price" min="0" step="0.01" required placeholder="e.g. 45.00">
+
+        <label for="p-stock">Stock Quantity</label>
+        <input type="number" id="p-stock" min="0" step="1" value="1" required>
+
+        <label for="p-weight">Weight (kg)</label>
+        <input type="number" id="p-weight" min="0.1" step="0.1" value="0.5" required>
+
+        <label for="p-description">Description</label>
+        <textarea id="p-description" placeholder="Fabric, sizing, style notes..."></textarea>
+
+        <label for="p-image">Product Photo</label>
+        <input type="file" id="p-image" accept="image/*" required>
+
+        <label for="p-video">Product Video (optional)</label>
+        <input type="file" id="p-video" accept="video/*">
+        <div class="hint">Max 50MB. Keep clips short, 10-15 seconds works best.</div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
+        <div class="form-message" id="form-message"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Current Products</h2>
+      <div class="product-list" id="product-list">
+        <div class="empty-state">Loading products...</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+  const ADMIN_UID = "1ec1684c-db5b-4032-a385-ac006a47fc08";
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const gateScreen = document.getElementById("gate-screen");
+  const gateMessage = document.getElementById("gate-message");
+  const gateLoginLink = document.getElementById("gate-login-link");
+  const adminMain = document.getElementById("admin-main");
+
+  async function checkAccess() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      gateMessage.textContent = "You need to log in to view this page.";
+      gateLoginLink.style.display = "inline-block";
+      return;
+    }
+
+    if (session.user.id !== ADMIN_UID) {
+      gateMessage.textContent = "This page is only available to the shop admin.";
+      return;
+    }
+
+    gateScreen.style.display = "none";
+    adminMain.style.display = "block";
+    loadProducts();
+    loadOrders();
+    loadStats();
+  }
+
+  checkAccess();
+
+  document.getElementById("logout-btn").addEventListener("click", async function() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  document.getElementById("product-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById("submit-btn");
+    const messageEl = document.getElementById("form-message");
+    submitBtn.disabled = true;
+    messageEl.style.display = "none";
+
+    try {
+      const name = document.getElementById("p-name").value.trim();
+      const categorySlug = document.getElementById("p-category").value;
+      const price = parseFloat(document.getElementById("p-price").value);
+      const stock = parseInt(document.getElementById("p-stock").value);
+      const weight = parseFloat(document.getElementById("p-weight").value);
+      const description = document.getElementById("p-description").value.trim();
+      const imageFile = document.getElementById("p-image").files[0];
+      const videoFile = document.getElementById("p-video").files[0];
+
+      if (!imageFile) throw new Error("Please choose a product photo.");
+
+      if (videoFile && videoFile.size > 50 * 1024 * 1024) {
+        throw new Error("That video is too large. Please keep it under 50MB.");
+      }
+
+      const { data: categoryRow, error: categoryError } = await supabaseClient
+        .from("categories")
+        .select("id")
+        .eq("slug", categorySlug)
+        .single();
+
+      if (categoryError || !categoryRow) throw new Error("Could not find that category.");
+
+      const fileExt = imageFile.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from("product-image")
+        .upload(fileName, imageFile);
+
+      if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+
+      const { data: publicUrlData } = supabaseClient
+        .storage
+        .from("product-image")
+        .getPublicUrl(fileName);
+
+      let videoUrl = null;
+
+      if (videoFile) {
+        const videoExt = videoFile.name.split(".").pop();
+        const videoFileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${videoExt}`;
+
+        const { error: videoUploadError } = await supabaseClient
+          .storage
+          .from("product-videos")
+          .upload(videoFileName, videoFile);
+
+        if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
+
+        const { data: videoPublicUrlData } = supabaseClient
+          .storage
+          .from("product-videos")
+          .getPublicUrl(videoFileName);
+
+        videoUrl = videoPublicUrlData.publicUrl;
+      }
+
+      const { error: insertError } = await supabaseClient
+        .from("products")
+        .insert({
+          name: name,
+          description: description,
+          price: price,
+          stock: stock,
+          weight_kg: weight,
+          category_id: categoryRow.id,
+          image_url: publicUrlData.publicUrl,
+          video_url: videoUrl
+        });
+
+      if (insertError) throw new Error(insertError.message);
+
+      messageEl.textContent = "Product added successfully.";
+      messageEl.className = "form-message success";
+      document.getElementById("product-form").reset();
+      loadProducts();
+      loadStats();
+
+    } catch (err) {
+      messageEl.textContent = err.message || "Something went wrong.";
+      messageEl.className = "form-message error";
+    }
+
+    submitBtn.disabled = false;
+  });
+
+  async function loadProducts() {
+    const listEl = document.getElementById("product-list");
+
+    const { data: products, error } = await supabaseClient
+      .from("products")
+      .select("id, name, price, image_url, video_url, stock")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      listEl.innerHTML = '<div class="empty-state">Could not load products.</div>';
+      return;
+    }
+
+    if (!products || products.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No products added yet.</div>';
+      return;
+    }
+
+    listEl.innerHTML = "";
+    products.forEach(function(product) {
+      const isLow = product.stock <= 2;
+      const row = document.createElement("div");
+      row.className = "product-row" + (isLow ? " low-stock" : "");
+      row.innerHTML = `
+        <img src="${product.image_url}" alt="${product.name}">
+        <div class="info">
+          <h3>${product.name}</h3>
+          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''} ${product.video_url ? '<span class="video-badge">Video</span>' : ''}</p>
+        </div>
+        <button class="delete-btn" data-id="${product.id}">Delete</button>
+      `;
+      listEl.appendChild(row);
+    });
+
+    document.querySelectorAll(".delete-btn").forEach(function(btn) {
+      btn.addEventListener("click", async function() {
+        const id = btn.getAttribute("data-id");
+        if (!confirm("Delete this product?")) return;
+
+        const { error } = await supabaseClient.from("products").delete().eq("id", id);
+        if (!error) { loadProducts(); loadStats(); }
+      });
+    });
+  }
+
+  let currentFilter = "all";
+  let allOrdersCache = [];
+
+  async function loadOrders() {
+    const { data: orders, error } = await supabaseClient
+      .from("orders")
+      .select(`
+        id, status, total, created_at, shipping_address, phone, customer_notes, customer_email,
+        order_items ( quantity, price, products ( name ) )
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      document.getElementById("orders-full-list").innerHTML = '<div class="empty-state">Could not load orders.</div>';
+      document.getElementById("recent-orders-list").innerHTML = '<div class="empty-state">Could not load orders.</div>';
+      return;
+    }
+
+    allOrdersCache = orders || [];
+    renderOrders();
+    renderRecentOrders();
+  }
+
+  function renderOrders() {
+    const listEl = document.getElementById("orders-full-list");
+    let filtered = allOrdersCache;
+    if (currentFilter !== "all") {
+      filtered = allOrdersCache.filter(o => o.status === currentFilter);
+    }
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No orders in this category yet.</div>';
+      return;
+    }
+
+    listEl.innerHTML = "";
+    filtered.forEach(function(order) {
+      listEl.appendChild(buildOrderCard(order));
+    });
+  }
+
+  function renderRecentOrders() {
+    const listEl = document.getElementById("recent-orders-list");
+    const recent = allOrdersCache.slice(0, 5);
+
+    if (recent.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No orders yet.</div>';
+      return;
+    }
+
+    listEl.innerHTML = "";
+    recent.forEach(function(order) {
+      listEl.appendChild(buildOrderCard(order));
+    });
+  }
+
+  function buildOrderCard(order) {
+    const card = document.createElement("div");
+    card.className = "order-card";
+
+    const itemsHtml = (order.order_items || []).map(function(item) {
+      const productName = item.products ? item.products.name : "Item";
+      return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}</div>`;
+    }).join("");
+
+    const shortId = order.id.slice(0, 8);
+    const dateStr = new Date(order.created_at).toLocaleDateString();
+    const phone = order.phone ? order.phone.replace(/[^0-9]/g, "") : "";
+    const waMessage = encodeURIComponent(`Hi, this is EMB_Sparkly regarding your order #${shortId}. Current status: ${order.status}.`);
+    const waLink = phone ? `https://wa.me/${phone}?text=${waMessage}` : null;
+
+    card.innerHTML = `
+      <div class="order-card-top">
+        <div>
+          <div class="order-id">Order #${shortId} &middot; ${dateStr}</div>
+          <span class="status-pill status-${order.status}">${order.status}</span>
+        </div>
+        <div class="order-total">$${Number(order.total).toFixed(2)}</div>
+      </div>
+      <div class="order-items-list">${itemsHtml || "<div>No items recorded</div>"}</div>
+      <div class="order-meta">
+        ${order.customer_email ? `<div>Email: ${order.customer_email}</div>` : ""}
+        ${order.phone ? `<div>Phone: ${order.phone}</div>` : ""}
+        ${order.shipping_address ? `<div>Ships to: ${order.shipping_address}</div>` : ""}
+        ${order.customer_notes ? `<div>Note: ${order.customer_notes}</div>` : ""}
+      </div>
+      <div class="order-actions">
+        <select data-order-id="${order.id}" class="status-select">
+          <option value="pending" ${order.status === "pending" ? "selected" : ""}>Pending</option>
+          <option value="processing" ${order.status === "processing" ? "selected" : ""}>Processing</option>
+          <option value="shipped" ${order.status === "shipped" ? "selected" : ""}>Shipped</option>
+          <option value="delivered" ${order.status === "delivered" ? "selected" : ""}>Delivered</option>
+          <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
+        </select>
+        ${waLink ? `<a href="${waLink}" target="_blank" class="whatsapp-btn">Notify on WhatsApp</a>` : ""}
+      </div>
+    `;
+
+    const select = card.querySelector(".status-select");
+    select.addEventListener("change", async function() {
+      const newStatus = select.value;
+      const { error } = await supabaseClient
+        .from("orders")
+        .update({ status: newStatus })
+        .eq("id", order.id);
+
+      if (!error) {
+        loadOrders();
+        loadStats();
+      } else {
+        alert("Could not update status: " + error.message);
+      }
+    });
+
+    return card;
+  }
+
+  document.querySelectorAll(".filter-chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentFilter = chip.dataset.status;
+      renderOrders();
+    });
+  });
+
+  async function loadStats() {
+    const { data: orders } = await supabaseClient.from("orders").select("status, total");
+    const { data: products } = await supabaseClient.from("products").select("stock");
+
+    const totalOrders = orders ? orders.length : 0;
+    const pendingOrders = orders ? orders.filter(o => o.status === "pending").length : 0;
+    const revenue = orders ? orders.reduce((sum, o) => sum + Number(o.total || 0), 0) : 0;
+    const lowStock = products ? products.filter(p => p.stock <= 2).length : 0;
+
+    document.getElementById("stat-total-orders").textContent = totalOrders;
+    document.getElementById("stat-pending-orders").textContent = pendingOrders;
+    document.getElementById("stat-revenue").textContent = "$" + revenue.toFixed(2);
+    document.getElementById("stat-low-stock").textContent = lowStock;
+  }
+</script>
+
+</body>
+</html>
