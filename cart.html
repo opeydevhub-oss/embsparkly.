@@ -71,7 +71,8 @@
     flex-wrap: wrap;
   }
 
-  .cart-item img {
+  .cart-item img,
+  .cart-item video {
     width: 66px;
     height: 66px;
     object-fit: cover;
@@ -272,7 +273,7 @@
     const ids = [...new Set(cart.map(item => item.id))];
     const { data: liveProducts, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url, stock, weight_kg")
+      .select("id, name, price, image_url, video_url, stock, weight_kg")
       .in("id", ids);
 
     if (error || !liveProducts) {
@@ -297,6 +298,7 @@
         name: liveProduct.name,
         price: liveProduct.price,
         image_url: liveProduct.image_url,
+        video_url: liveProduct.video_url,
         stock: liveProduct.stock,
         weight_kg: liveProduct.weight_kg || 0.5,
         quantity: cappedQty,
@@ -332,9 +334,15 @@
       if (item.color) variantParts.push("Color: " + item.color);
       const variantLine = variantParts.length ? `<div class="variant-line">${variantParts.join(" &middot; ")}</div>` : "";
 
+      const mediaHtml = item.image_url
+        ? `<img src="${item.image_url}" alt="${item.name}">`
+        : (item.video_url
+          ? `<video src="${item.video_url}" muted loop autoplay playsinline></video>`
+          : `<img src="image/logo.jpg" alt="${item.name}">`);
+
       itemsHtml += `
         <div class="cart-item" data-index="${index}">
-          <img src="${item.image_url}" alt="${item.name}">
+          ${mediaHtml}
           <div class="info">
             <h3>${item.name}</h3>
             <div class="unit-price">$${Number(item.price).toFixed(2)} each</div>
