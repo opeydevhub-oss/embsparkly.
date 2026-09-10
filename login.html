@@ -21,6 +21,9 @@
     --gray: #6b6b64;
     --error: #b3413b;
     --success: #2f7a4f;
+    --weak: #b3413b;
+    --medium: #b8860b;
+    --strong: #2f7a4f;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -71,6 +74,18 @@
   .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 6px; text-align: center; }
   .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 24px; text-align: center; }
 
+  .init-error {
+    display: none;
+    background: #fbeceb;
+    border: 1px solid rgba(179,65,59,0.3);
+    color: var(--error);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
   .mode-toggle {
     display: flex;
     border: 1px solid rgba(13,43,38,0.15);
@@ -89,6 +104,7 @@
     font-weight: 500;
     color: var(--gray);
     cursor: pointer;
+    font-family: 'Jost', sans-serif;
   }
 
   .mode-btn.active {
@@ -121,6 +137,80 @@
 
   input:focus { border-color: var(--gold); }
 
+  .password-wrap {
+    position: relative;
+  }
+
+  .password-wrap input {
+    padding-right: 42px;
+  }
+
+  .eye-toggle {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray);
+  }
+
+  .eye-toggle:hover { color: var(--deep-green); }
+  .eye-toggle svg { width: 18px; height: 18px; }
+
+  .strength-wrap {
+    display: none;
+    margin-top: 8px;
+  }
+
+  .strength-bar-track {
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(13,43,38,0.1);
+    overflow: hidden;
+  }
+
+  .strength-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.2s ease, background 0.2s ease;
+    background: var(--weak);
+  }
+
+  .strength-label {
+    font-size: 0.72rem;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .strength-checklist {
+    list-style: none;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--gray);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .strength-checklist li::before {
+    content: "\2717 ";
+    color: var(--error);
+  }
+
+  .strength-checklist li.met::before {
+    content: "\2713 ";
+    color: var(--success);
+  }
+
+  .strength-checklist li.met { color: var(--charcoal); }
+
   .submit-btn {
     width: 100%;
     margin-top: 20px;
@@ -132,6 +222,7 @@
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
+    font-family: 'Jost', sans-serif;
   }
 
   .submit-btn:hover:not(:disabled) { background: var(--deep-green-dark); }
@@ -180,9 +271,13 @@
   <div class="page-title" id="page-title">Welcome Back</div>
   <div class="page-subtitle" id="page-subtitle">Log in to continue</div>
 
+  <div class="init-error" id="init-error">
+    This page couldn't load properly. Please refresh, or check your internet connection.
+  </div>
+
   <div class="mode-toggle">
-    <button class="mode-btn active" id="mode-login">Log In</button>
-    <button class="mode-btn" id="mode-signup">Sign Up</button>
+    <button type="button" class="mode-btn active" id="mode-login">Log In</button>
+    <button type="button" class="mode-btn" id="mode-signup">Sign Up</button>
   </div>
 
   <div class="card">
@@ -197,7 +292,28 @@
       <input type="email" id="a-email" required placeholder="you@example.com">
 
       <label for="a-password">Password</label>
-      <input type="password" id="a-password" required placeholder="At least 6 characters" minlength="6">
+      <div class="password-wrap">
+        <input type="password" id="a-password" required placeholder="At least 8 characters" minlength="6">
+        <button type="button" class="eye-toggle" id="eye-toggle" aria-label="Show password">
+          <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+
+      <div class="strength-wrap" id="strength-wrap">
+        <div class="strength-bar-track">
+          <div class="strength-bar-fill" id="strength-bar-fill"></div>
+        </div>
+        <div class="strength-label" id="strength-label">Password strength</div>
+        <ul class="strength-checklist" id="strength-checklist">
+          <li id="rule-length">At least 8 characters</li>
+          <li id="rule-upper">One uppercase letter</li>
+          <li id="rule-number">One number</li>
+          <li id="rule-symbol">One symbol</li>
+        </ul>
+      </div>
 
       <button type="submit" class="submit-btn" id="submit-btn">Log In</button>
 
@@ -217,15 +333,33 @@
 </footer>
 
 <script>
+(function () {
 
-  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const initErrorEl = document.getElementById("init-error");
+
+  // Guard: if the Supabase library failed to load (slow connection, ad blocker,
+  // CDN hiccup), show a visible message instead of the whole script dying
+  // silently and leaving every button unresponsive.
+  if (typeof window.supabase === "undefined") {
+    initErrorEl.style.display = "block";
+    return;
+  }
+
+  let supabaseClient;
+  try {
+    const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (err) {
+    initErrorEl.style.display = "block";
+    return;
+  }
 
   const params = new URLSearchParams(window.location.search);
   const redirectTarget = params.get("redirect") || "index.html";
 
   let mode = "login";
+  let passwordVisible = false;
 
   const pageTitle = document.getElementById("page-title");
   const pageSubtitle = document.getElementById("page-subtitle");
@@ -233,20 +367,95 @@
   const modeSignupBtn = document.getElementById("mode-signup");
   const fullnameField = document.getElementById("fullname-field");
   const fullnameInput = document.getElementById("a-fullname");
+  const passwordInput = document.getElementById("a-password");
+  const eyeToggle = document.getElementById("eye-toggle");
+  const eyeIcon = document.getElementById("eye-icon");
+  const strengthWrap = document.getElementById("strength-wrap");
+  const strengthBarFill = document.getElementById("strength-bar-fill");
+  const strengthLabel = document.getElementById("strength-label");
+  const ruleLength = document.getElementById("rule-length");
+  const ruleUpper = document.getElementById("rule-upper");
+  const ruleNumber = document.getElementById("rule-number");
+  const ruleSymbol = document.getElementById("rule-symbol");
   const submitBtn = document.getElementById("submit-btn");
   const switchHint = document.getElementById("switch-hint");
-  const switchLink = document.getElementById("switch-link");
+  let switchLink = document.getElementById("switch-link");
   const messageEl = document.getElementById("form-message");
+
+  const EYE_OPEN = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+  const EYE_CLOSED = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.8 21.8 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-2.16 3.19"></path><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
 
   // If already logged in, skip straight to the redirect target.
   async function checkExistingSession() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) {
-      window.location.href = redirectTarget;
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        window.location.href = redirectTarget;
+      }
+    } catch (err) {
+      // Non-fatal: just stay on the login page if this check fails.
     }
   }
 
   checkExistingSession();
+
+  function evaluatePasswordStrength(pw) {
+    const hasLength = pw.length >= 8;
+    const hasUpper = /[A-Z]/.test(pw);
+    const hasNumber = /[0-9]/.test(pw);
+    const hasSymbol = /[^A-Za-z0-9]/.test(pw);
+
+    ruleLength.classList.toggle("met", hasLength);
+    ruleUpper.classList.toggle("met", hasUpper);
+    ruleNumber.classList.toggle("met", hasNumber);
+    ruleSymbol.classList.toggle("met", hasSymbol);
+
+    const metCount = [hasLength, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+
+    let pct = (metCount / 4) * 100;
+    let color = "var(--weak)";
+    let label = "Weak";
+
+    if (metCount === 4) {
+      color = "var(--strong)";
+      label = "Strong";
+    } else if (metCount >= 2) {
+      color = "var(--medium)";
+      label = "Medium";
+    }
+
+    if (pw.length === 0) {
+      pct = 0;
+      label = "Password strength";
+    }
+
+    strengthBarFill.style.width = pct + "%";
+    strengthBarFill.style.background = color;
+    strengthLabel.textContent = label;
+
+    return { hasLength, hasUpper, hasNumber, hasSymbol, allMet: metCount === 4 };
+  }
+
+  passwordInput.addEventListener("input", function () {
+    if (mode === "signup") {
+      evaluatePasswordStrength(passwordInput.value);
+    }
+  });
+
+  eyeToggle.addEventListener("click", function () {
+    passwordVisible = !passwordVisible;
+    passwordInput.type = passwordVisible ? "text" : "password";
+    eyeIcon.innerHTML = passwordVisible ? EYE_CLOSED : EYE_OPEN;
+    eyeToggle.setAttribute("aria-label", passwordVisible ? "Hide password" : "Show password");
+  });
+
+  function attachSwitchLinkListener() {
+    switchLink = document.getElementById("switch-link");
+    switchLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      setMode(mode === "login" ? "signup" : "login");
+    });
+  }
 
   function setMode(newMode) {
     mode = newMode;
@@ -259,6 +468,8 @@
       modeSignupBtn.classList.remove("active");
       fullnameField.style.display = "none";
       fullnameInput.required = false;
+      passwordInput.placeholder = "Your password";
+      strengthWrap.style.display = "none";
       submitBtn.textContent = "Log In";
       switchHint.innerHTML = 'Don\'t have an account? <a href="#" id="switch-link" style="color: var(--deep-green); font-weight:600;">Sign up</a>';
     } else {
@@ -268,31 +479,28 @@
       modeLoginBtn.classList.remove("active");
       fullnameField.style.display = "block";
       fullnameInput.required = true;
+      passwordInput.placeholder = "At least 8 characters";
+      strengthWrap.style.display = "block";
+      evaluatePasswordStrength(passwordInput.value);
       submitBtn.textContent = "Sign Up";
       switchHint.innerHTML = 'Already have an account? <a href="#" id="switch-link" style="color: var(--deep-green); font-weight:600;">Log in</a>';
     }
 
-    document.getElementById("switch-link").addEventListener("click", function(e) {
-      e.preventDefault();
-      setMode(mode === "login" ? "signup" : "login");
-    });
+    attachSwitchLinkListener();
   }
 
-  modeLoginBtn.addEventListener("click", function() { setMode("login"); });
-  modeSignupBtn.addEventListener("click", function() { setMode("signup"); });
-  switchLink.addEventListener("click", function(e) {
-    e.preventDefault();
-    setMode("signup");
-  });
+  modeLoginBtn.addEventListener("click", function () { setMode("login"); });
+  modeSignupBtn.addEventListener("click", function () { setMode("signup"); });
+  attachSwitchLinkListener();
 
-  document.getElementById("auth-form").addEventListener("submit", async function(e) {
+  document.getElementById("auth-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     submitBtn.disabled = true;
     messageEl.style.display = "none";
 
     const email = document.getElementById("a-email").value.trim();
-    const password = document.getElementById("a-password").value;
+    const password = passwordInput.value;
     const fullName = fullnameInput.value.trim();
 
     try {
@@ -300,6 +508,11 @@
       if (mode === "signup") {
 
         if (!fullName) throw new Error("Please enter your full name.");
+
+        const strength = evaluatePasswordStrength(password);
+        if (!strength.allMet) {
+          throw new Error("Please choose a stronger password (8+ characters, with an uppercase letter, a number, and a symbol).");
+        }
 
         const { data, error } = await supabaseClient.auth.signUp({
           email: email,
@@ -343,6 +556,7 @@
 
   });
 
+})();
 </script>
 
 </body>
