@@ -44,7 +44,6 @@
     color: inherit;
   }
 
-  /* HEADER */
   header {
     background: var(--deep-green);
     padding: 14px 20px;
@@ -109,7 +108,6 @@
     justify-content: center;
   }
 
-  /* BREADCRUMB */
   .breadcrumb {
     max-width: 1000px;
     margin: 16px auto 0;
@@ -122,7 +120,6 @@
     color: var(--deep-green);
   }
 
-  /* PRODUCT */
   .product-wrap {
     max-width: 1000px;
     margin: 0 auto;
@@ -145,7 +142,6 @@
     gap: 10px;
   }
 
-  /* MEDIA TABS */
   .media-tabs {
     display: flex;
     gap: 8px;
@@ -167,7 +163,6 @@
     border-color: var(--deep-green);
   }
 
-  /* PRODUCT IMAGE */
   .product-img-wrap,
   .product-video-wrap {
     width: 100%;
@@ -192,11 +187,6 @@
     background: #000;
   }
 
-  .product-video-wrap {
-    display: none;
-  }
-
-  /* PRODUCT INFORMATION */
   .product-name {
     font-size: 1.7rem;
     font-weight: 600;
@@ -235,7 +225,6 @@
     white-space: pre-line;
   }
 
-  /* OPTIONS */
   .option-row {
     margin-bottom: 16px;
   }
@@ -264,7 +253,6 @@
     border-color: var(--gold);
   }
 
-  /* QUANTITY */
   .qty-row {
     display: flex;
     align-items: center;
@@ -300,7 +288,6 @@
     font-size: 0.95rem;
   }
 
-  /* ADD TO CART */
   .add-cart-btn {
     width: 100%;
     padding: 13px;
@@ -322,7 +309,6 @@
     background: var(--deep-green-dark);
   }
 
-  /* VIEW CART BUTTON */
   .view-cart-btn {
     width: 100%;
     padding: 14px;
@@ -343,7 +329,6 @@
     background: var(--gold-light);
   }
 
-  /* FEEDBACK */
   .add-feedback {
     margin-top: 10px;
     font-size: 0.85rem;
@@ -360,7 +345,6 @@
     text-align: center;
   }
 
-  /* WHATSAPP */
   .whatsapp-inline {
     display: inline-block;
     margin-top: 14px;
@@ -373,7 +357,6 @@
     font-weight: 600;
   }
 
-  /* EMPTY STATE */
   .empty-state {
     text-align: center;
     color: var(--gray);
@@ -381,7 +364,6 @@
     padding: 60px 20px;
   }
 
-  /* FOOTER */
   footer {
     background: var(--deep-green-dark);
     color: rgba(250,246,238,0.75);
@@ -394,7 +376,6 @@
 
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="header-top">
 
@@ -414,7 +395,6 @@
 </header>
 
 
-<!-- BREADCRUMB -->
 <div class="breadcrumb">
   <a href="index.html">Home</a>
   &rsaquo;
@@ -424,7 +404,6 @@
 </div>
 
 
-<!-- PRODUCT -->
 <div id="product-container">
   <div class="empty-state">
     Loading product...
@@ -432,7 +411,6 @@
 </div>
 
 
-<!-- FOOTER -->
 <footer>
   <div style="margin-bottom:10px;">
     <a href="returns.html"
@@ -447,10 +425,6 @@
 
 <script>
 
-  /* =========================
-     SUPABASE
-  ========================= */
-
   const SUPABASE_URL =
     "https://vaicofjsxjrbmirrphcc.supabase.co";
 
@@ -463,10 +437,6 @@
       SUPABASE_ANON_KEY
     );
 
-
-  /* =========================
-     CART
-  ========================= */
 
   const CART_KEY = "emb_sparkly_cart";
 
@@ -514,10 +484,6 @@
   updateCartCountBadge();
 
 
-  /* =========================
-     GET PRODUCT ID
-  ========================= */
-
   function getProductIdFromUrl() {
 
     const params =
@@ -529,10 +495,6 @@
 
   }
 
-
-  /* =========================
-     OPTIONS
-  ========================= */
 
   function parseOptionList(raw) {
 
@@ -548,10 +510,6 @@
   }
 
 
-  /* =========================
-     GLOBAL VARIABLES
-  ========================= */
-
   let currentProduct = null;
 
   let selectedQty = 1;
@@ -560,10 +518,6 @@
 
   let hasColors = false;
 
-
-  /* =========================
-     LOAD PRODUCT
-  ========================= */
 
   async function loadProduct() {
 
@@ -633,10 +587,6 @@
     ).textContent = product.name;
 
 
-    /* =========================
-       STOCK
-    ========================= */
-
     let stockHtml = "";
 
 
@@ -664,12 +614,15 @@
     }
 
 
-    /* =========================
-       MEDIA TABS
-    ========================= */
+    /* MEDIA: only show tabs when BOTH a photo and a video exist.
+       If it is video-only, skip the tabs and just show the video full size.
+       If it is photo-only, skip the tabs and just show the photo. */
+
+    const hasPhoto = !!product.image_url;
+    const hasVideo = !!product.video_url;
 
     const mediaTabsHtml =
-      product.video_url
+      (hasPhoto && hasVideo)
         ? `
           <div class="media-tabs">
 
@@ -690,9 +643,52 @@
         : "";
 
 
-    /* =========================
-       SIZE & COLOR
-    ========================= */
+    const imgBlockHtml =
+      hasPhoto
+        ? `
+          <div
+            class="product-img-wrap"
+            id="img-wrap"
+            style="${(hasVideo && !hasPhoto) ? 'display:none;' : 'display:block;'}">
+
+            <img
+              src="${product.image_url}"
+              alt="${product.name}">
+
+          </div>
+        `
+        : "";
+
+
+    const videoBlockHtml =
+      hasVideo
+        ? `
+          <div
+            class="product-video-wrap"
+            id="video-wrap"
+            style="${hasPhoto ? 'display:none;' : 'display:block;'}">
+
+            <video
+              src="${product.video_url}"
+              controls
+              playsinline
+              ${!hasPhoto ? 'muted autoplay loop' : ''}>
+            </video>
+
+          </div>
+        `
+        : "";
+
+
+    const noMediaHtml =
+      (!hasPhoto && !hasVideo)
+        ? `
+          <div class="product-img-wrap">
+            <img src="image/logo.jpg" alt="${product.name}">
+          </div>
+        `
+        : "";
+
 
     const sizeList =
       parseOptionList(
@@ -788,55 +784,22 @@
     }
 
 
-    /* =========================
-       PRODUCT HTML
-    ========================= */
-
     container.innerHTML = `
 
       <div class="product-wrap">
-
-        <!-- MEDIA -->
 
         <div class="media-col">
 
           ${mediaTabsHtml}
 
-          <div
-            class="product-img-wrap"
-            id="img-wrap">
+          ${imgBlockHtml}
 
-            <img
-              src="${product.image_url}"
-              alt="${product.name}">
+          ${videoBlockHtml}
 
-          </div>
-
-
-          ${
-            product.video_url
-              ? `
-
-                <div
-                  class="product-video-wrap"
-                  id="video-wrap">
-
-                  <video
-                    src="${product.video_url}"
-                    controls
-                    playsinline>
-                  </video>
-
-                </div>
-
-              `
-              : ""
-          }
+          ${noMediaHtml}
 
         </div>
 
-
-        <!-- PRODUCT INFORMATION -->
 
         <div class="product-info">
 
@@ -865,8 +828,6 @@
 
           ${colorRowHtml}
 
-
-          <!-- QUANTITY -->
 
           <div class="qty-row">
 
@@ -897,8 +858,6 @@
           </div>
 
 
-          <!-- ADD TO CART -->
-
           <button
             class="add-cart-btn"
             id="add-cart-btn"
@@ -917,19 +876,15 @@
           </button>
 
 
-          <!-- VIEW CART BUTTON -->
-
           <a
             href="cart.html"
             class="view-cart-btn"
             id="view-cart-btn">
 
-            🛒 View Cart & Checkout →
+            View Cart & Checkout &rarr;
 
           </a>
 
-
-          <!-- ERROR -->
 
           <div
             class="option-error"
@@ -940,8 +895,6 @@
           </div>
 
 
-          <!-- SUCCESS -->
-
           <div
             class="add-feedback"
             id="add-feedback">
@@ -950,8 +903,6 @@
 
           </div>
 
-
-          <!-- WHATSAPP -->
 
           <div class="whatsapp-inline">
 
@@ -974,11 +925,7 @@
     `;
 
 
-    /* =========================
-       SETUP
-    ========================= */
-
-    if (product.video_url) {
+    if (hasPhoto && hasVideo) {
 
       setupMediaTabs();
 
@@ -991,10 +938,6 @@
 
   }
 
-
-  /* =========================
-     MEDIA TABS
-  ========================= */
 
   function setupMediaTabs() {
 
@@ -1072,10 +1015,6 @@
   }
 
 
-  /* =========================
-     QUANTITY CONTROLS
-  ========================= */
-
   function setupQuantityControls() {
 
     const qtyValueEl =
@@ -1130,10 +1069,6 @@
   }
 
 
-  /* =========================
-     ADD TO CART
-  ========================= */
-
   function setupAddToCart() {
 
     document
@@ -1152,8 +1087,6 @@
 
           let selectedColor = "";
 
-
-          /* CHECK SIZE */
 
           if (hasSizes) {
 
@@ -1174,8 +1107,6 @@
 
           }
 
-
-          /* CHECK COLOR */
 
           if (hasColors) {
 
@@ -1201,14 +1132,8 @@
             "none";
 
 
-          /* =========================
-             GET CART
-          ========================= */
-
           const cart = getCart();
 
-
-          /* FIND EXISTING ITEM */
 
           const existingItem =
             cart.find(
@@ -1228,10 +1153,6 @@
               }
             );
 
-
-          /* =========================
-             UPDATE OR ADD ITEM
-          ========================= */
 
           if (existingItem) {
 
@@ -1258,6 +1179,9 @@
               image_url:
                 currentProduct.image_url,
 
+              video_url:
+                currentProduct.video_url,
+
               quantity: selectedQty,
 
               size: selectedSize,
@@ -1269,18 +1193,10 @@
           }
 
 
-          /* =========================
-             SAVE CART
-          ========================= */
-
           saveCart(cart);
 
           updateCartCountBadge();
 
-
-          /* =========================
-             SHOW VIEW CART BUTTON
-          ========================= */
 
           const viewCartBtn =
             document.getElementById(
@@ -1290,10 +1206,6 @@
           viewCartBtn.style.display =
             "block";
 
-
-          /* =========================
-             SHOW SUCCESS MESSAGE
-          ========================= */
 
           const feedbackEl =
             document.getElementById(
@@ -1319,10 +1231,6 @@
 
   }
 
-
-  /* =========================
-     START PRODUCT PAGE
-  ========================= */
 
   loadProduct();
 
