@@ -166,6 +166,13 @@
 
   .product-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+  .product-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
   .out-of-stock-badge {
     position: absolute;
     top: 8px;
@@ -328,7 +335,7 @@
 
     let query = supabaseClient
       .from("products")
-      .select("id, name, price, image_url, stock, category_id, categories(slug)")
+      .select("id, name, price, image_url, video_url, stock, category_id, categories(slug)")
       .order("created_at", { ascending: false });
 
     if (activeSearch) {
@@ -359,10 +366,15 @@
       const card = document.createElement("a");
       card.href = "product.html?id=" + product.id;
       card.className = "product-card";
+
+      const mediaHtml = product.image_url
+        ? `<img src="${product.image_url}" alt="${product.name}">`
+        : `<video src="${product.video_url}" muted loop autoplay playsinline></video>`;
+
       card.innerHTML = `
         <div class="img-wrap">
           ${product.stock <= 0 ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}
-          <img src="${product.image_url}" alt="${product.name}">
+          ${mediaHtml}
         </div>
         <div class="info">
           <h3>${product.name}</h3>
