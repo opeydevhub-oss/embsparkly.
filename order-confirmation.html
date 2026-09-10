@@ -17,6 +17,8 @@
     --charcoal: #1a1a1a;
     --gray: #6b6b64;
     --success: #2f7a4f;
+    --error: #a5342a;
+    --pending: #b8860b;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -66,7 +68,27 @@
     align-items: center;
     justify-content: center;
     font-size: 1.8rem;
+    transition: background 0.2s ease;
   }
+
+  .check-circle.pending {
+    background: var(--pending);
+  }
+
+  .check-circle.failed {
+    background: var(--error);
+  }
+
+  .spinner {
+    width: 26px;
+    height: 26px;
+    border: 3px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 8px; }
   .page-subtitle { font-size: 0.9rem; color: var(--gray); margin-bottom: 26px; }
@@ -95,6 +117,13 @@
 
   .whatsapp-note a { color: var(--success); font-weight: 600; }
 
+  .whatsapp-note.error-note {
+    background: #fbeceb;
+    border-color: rgba(165,52,42,0.25);
+  }
+
+  .whatsapp-note.error-note a { color: var(--error); }
+
   .action-buttons { display: flex; flex-direction: column; gap: 10px; }
 
   .btn-primary {
@@ -104,6 +133,9 @@
     border-radius: 6px;
     font-weight: 600;
     font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
   }
 
   .btn-secondary {
@@ -123,6 +155,8 @@
     text-align: center;
     font-size: 0.8rem;
   }
+
+  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -137,21 +171,33 @@
 </header>
 
 <div class="page-wrap">
-  <div class="check-circle">&#10003;</div>
-  <div class="page-title">Order Placed</div>
-  <p class="page-subtitle">Thank you for shopping with us. We'll start getting your order ready.</p>
 
-  <div class="order-id-box">
-    <div class="label">Order Number</div>
-    <div class="value" id="order-id-display">Loading...</div>
+  <!-- Icon changes depending on state -->
+  <div class="check-circle pending" id="status-icon">
+    <div class="spinner"></div>
   </div>
 
-  <div class="whatsapp-note">
+  <div class="page-title" id="page-title">Confirming your payment&hellip;</div>
+  <p class="page-subtitle" id="page-subtitle">Hang tight, we're checking with Stripe. This only takes a second.</p>
+
+  <div class="order-id-box hidden" id="order-id-box">
+    <div class="label">Order Number</div>
+    <div class="value" id="order-id-display">&mdash;</div>
+  </div>
+
+  <!-- Shown once payment is confirmed -->
+  <div class="whatsapp-note hidden" id="success-note">
     Have a question about your order? <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">Message us on WhatsApp</a> and mention your order number.
   </div>
 
+  <!-- Shown if payment could not be confirmed -->
+  <div class="whatsapp-note error-note hidden" id="error-note">
+    We couldn't confirm your payment automatically. If you were charged, <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">message us on WhatsApp</a> with your order number and we'll sort it out right away.
+  </div>
+
   <div class="action-buttons">
-    <a href="orders.html" class="btn-primary">Track Your Orders</a>
+    <button class="btn-primary hidden" id="retry-btn">Check Again</button>
+    <a href="orders.html" class="btn-primary hidden" id="track-orders-btn">Track Your Orders</a>
     <a href="catalog.html" class="btn-secondary">Continue Shopping</a>
   </div>
 </div>
@@ -161,10 +207,89 @@
 </footer>
 
 <script>
+  // ---- CONFIG: use the same values as login.html / checkout.html ----
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const statusIcon = document.getElementById("status-icon");
+  const pageTitle = document.getElementById("page-title");
+  const pageSubtitle = document.getElementById("page-subtitle");
+  const orderIdBox = document.getElementById("order-id-box");
+  const orderIdDisplay = document.getElementById("order-id-display");
+  const successNote = document.getElementById("success-note");
+  const errorNote = document.getElementById("error-note");
+  const retryBtn = document.getElementById("retry-btn");
+  const trackOrdersBtn = document.getElementById("track-orders-btn");
+
   const params = new URLSearchParams(window.location.search);
-  const orderId = params.get("order_id");
-  const displayEl = document.getElementById("order-id-display");
-  displayEl.textContent = orderId ? "#" + orderId.slice(0, 8) : "Unknown";
+  // checkout.html's success_url should redirect here as:
+  // order-confirmation.html?session_id={CHECKOUT_SESSION_ID}
+  const sessionId = params.get("session_id");
+
+  function showPending() {
+    statusIcon.className = "check-circle pending";
+    statusIcon.innerHTML = '<div class="spinner"></div>';
+    pageTitle.textContent = "Confirming your payment…";
+    pageSubtitle.textContent = "Hang tight, we're checking with Stripe. This only takes a second.";
+  }
+
+  function showConfirmed(orderId) {
+    statusIcon.className = "check-circle";
+    statusIcon.innerHTML = "&#10003;";
+    pageTitle.textContent = "Order Placed";
+    pageSubtitle.textContent = "Thank you for shopping with us. We'll start getting your order ready.";
+    orderIdBox.classList.remove("hidden");
+    orderIdDisplay.textContent = orderId ? "#" + orderId.slice(0, 8) : "Unknown";
+    successNote.classList.remove("hidden");
+    trackOrdersBtn.classList.remove("hidden");
+
+    // Only clear the cart once payment is actually verified as paid.
+    // Adjust "cart" here if your cart is stored under a different localStorage key.
+    localStorage.removeItem("cart");
+  }
+
+  function showFailed(message) {
+    statusIcon.className = "check-circle failed";
+    statusIcon.innerHTML = "&#33;";
+    pageTitle.textContent = "We couldn't confirm this payment";
+    pageSubtitle.textContent = message || "Something went wrong while checking your payment status.";
+    errorNote.classList.remove("hidden");
+    retryBtn.classList.remove("hidden");
+  }
+
+  async function confirmPayment() {
+    if (!sessionId) {
+      showFailed("No payment session was found in the link. If you completed checkout, please contact us.");
+      return;
+    }
+
+    showPending();
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke("confirm-stripe-payment", {
+        body: { session_id: sessionId }
+      });
+
+      if (error) {
+        showFailed("We hit an error reaching our server. Tap 'Check Again' or contact us.");
+        return;
+      }
+
+      if (data && data.paid) {
+        showConfirmed(data.order_id);
+      } else {
+        showFailed("Stripe hasn't confirmed this payment yet. If you completed checkout, tap 'Check Again' in a moment.");
+      }
+    } catch (err) {
+      showFailed("We hit an error reaching our server. Tap 'Check Again' or contact us.");
+    }
+  }
+
+  retryBtn.addEventListener("click", confirmPayment);
+
+  confirmPayment();
 </script>
 
 </body>
