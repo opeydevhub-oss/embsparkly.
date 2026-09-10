@@ -449,6 +449,13 @@
 
   .arrival-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+  .arrival-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
   .arrival-card .info { padding: 10px 12px 14px; }
 
   .arrival-card h3 {
@@ -778,7 +785,7 @@
     const gridEl = document.getElementById("new-arrivals-grid");
     const { data: products, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url")
+      .select("id, name, price, image_url, video_url")
       .order("created_at", { ascending: false })
       .limit(5);
 
@@ -792,9 +799,14 @@
       const card = document.createElement("a");
       card.href = "product.html?id=" + product.id;
       card.className = "arrival-card";
+
+      const mediaHtml = product.image_url
+        ? `<img src="${product.image_url}" alt="${product.name}">`
+        : `<video src="${product.video_url}" muted loop autoplay playsinline></video>`;
+
       card.innerHTML = `
         <div class="img-wrap">
-          <img src="${product.image_url}" alt="${product.name}">
+          ${mediaHtml}
         </div>
         <div class="info">
           <h3>${product.name}</h3>
