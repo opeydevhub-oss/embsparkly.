@@ -133,7 +133,6 @@
     margin-top: 10px;
   }
 
-  /* Delivery method selector */
   .delivery-options {
     display: flex;
     flex-direction: column;
@@ -281,10 +280,10 @@
 
   let validCart = [];
   let subtotal = 0;
-  let shipping = 0;   // "ship to me" cost, calculated from weight
+  let shipping = 0;
   let total = 0;
   let currentUser = null;
-  let deliveryMethod = "ship"; // "ship" | "pickup"
+  let deliveryMethod = "ship";
 
   async function initCheckout() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -442,7 +441,7 @@
           <label for="c-notes">Order Notes (optional)</label>
           <textarea id="c-notes" placeholder="Sizing preferences, delivery instructions, etc."></textarea>
 
-          <button type="submit" class="place-order-btn" id="place-order-btn">Place Order</button>
+          <button type="submit" class="place-order-btn" id="place-order-btn">Continue to Payment</button>
           <div class="form-message" id="form-message"></div>
         </form>
       </div>
@@ -490,6 +489,7 @@
     const submitBtn = document.getElementById("place-order-btn");
     const messageEl = document.getElementById("form-message");
     submitBtn.disabled = true;
+    submitBtn.textContent = "Redirecting to payment...";
     messageEl.style.display = "none";
 
     try {
@@ -498,10 +498,8 @@
       const notes = document.getElementById("c-notes").value.trim();
 
       let shippingAddress;
-      let effectiveShipping;
 
       if (deliveryMethod === "pickup") {
-        effectiveShipping = 0;
         shippingAddress = "Local Pickup - to be arranged via WhatsApp";
       } else {
         const street = document.getElementById("c-street").value.trim();
@@ -511,54 +509,39 @@
 
         if (!state) throw new Error("Please select your state.");
 
-        effectiveShipping = shipping;
         shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
       }
 
-      const effectiveTotal = subtotal + effectiveShipping;
-
-      const { data: orderRow, error: orderError } = await supabaseClient
-        .from("orders")
-        .insert({
-          user_id: currentUser.id,
-          status: "pending",
-          total: effectiveTotal,
-          shipping_address: shippingAddress,
-          delivery_method: deliveryMethod,
-          phone: phone,
-          customer_notes: notes,
-          customer_email: currentUser.email
-        })
-        .select()
-        .single();
-
-      if (orderError) throw new Error(orderError.message);
-
-      const orderItemsPayload = validCart.map(function(item) {
+      const cartItemsPayload = validCart.map(function(item) {
         return {
-          order_id: orderRow.id,
-          product_id: item.id,
+          id: item.id,
           quantity: item.quantity,
-          price: item.price,
           size: item.size || null,
           color: item.color || null
         };
       });
 
-      const { error: itemsError } = await supabaseClient
-        .from("order_items")
-        .insert(orderItemsPayload);
+      const { data, error } = await supabaseClient.functions.invoke("create-stripe-checkout-session", {
+        body: {
+          cart_items: cartItemsPayload,
+          delivery_method: deliveryMethod,
+          shipping_address: shippingAddress,
+          phone: phone,
+          customer_notes: notes
+        }
+      });
 
-      if (itemsError) throw new Error(itemsError.message);
+      if (error) throw new Error(error.message || "Could not start payment.");
+      if (!data || !data.url) throw new Error((data && data.error) || "Could not start payment.");
 
-      localStorage.removeItem(CART_KEY);
-
-      window.location.href = "order-confirmation.html?order_id=" + orderRow.id;
+      // Cart is cleared later, on order-confirmation.html, once payment is actually confirmed.
+      window.location.href = data.url;
 
     } catch (err) {
       messageEl.textContent = err.message || "Something went wrong. Please try again.";
       messageEl.className = "form-message error";
       submitBtn.disabled = false;
+      submitBtn.textContent = "Continue to Payment";
     }
   }
 
