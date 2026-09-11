@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | EMB_Sparkly</title>
+<title>Admin Dashboard | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -384,7 +384,7 @@
 
 <header>
   <div class="header-brand">
-    <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+    <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
     <span class="brand-name">Admin Dashboard</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
@@ -742,7 +742,7 @@
     const shortId = order.id.slice(0, 8);
     const dateStr = new Date(order.created_at).toLocaleDateString();
     const phone = order.phone ? order.phone.replace(/[^0-9]/g, "") : "";
-    const waMessage = encodeURIComponent(`Hi, this is EMB_Sparkly regarding your order #${shortId}. Current status: ${order.status}.`);
+    const waMessage = encodeURIComponent(`Hi, this is E.M.B Sparkly regarding your order #${shortId}. Current status: ${order.status}.`);
     const waLink = phone ? `https://wa.me/${phone}?text=${waMessage}` : null;
 
     card.innerHTML = `
