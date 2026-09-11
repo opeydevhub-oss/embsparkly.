@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Orders | E.M.B SPARKLY</title>
+<title>My Orders | EMB_Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --deep-green: #0d2b26;
-    --deep-green-dark: #081f1b;
+    --black: #0d2b26;
+    --white: #ffffff;
+    --cream: #faf6ee;
+    --gray: #6b6b64;
+    --light-gray: #e5ded2;
+    --accent: #c9a227;
     --gold: #c9a227;
     --gold-light: #e0c05a;
-    --cream: #faf6ee;
-    --charcoal: #1a1a1a;
-    --gray: #6b6b64;
     --success: #2f7a4f;
     --warning: #b5850f;
     --error: #b3413b;
@@ -24,53 +25,79 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--charcoal);
-    line-height: 1.5;
+    font-family: 'Red Hat Text', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
   }
 
-  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--deep-green);
-    padding: 14px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+    padding: 16px 24px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-top {
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 38px;
-    width: 38px;
+    height: 36px;
+    width: 36px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+  .brand-name {
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    color: var(--black);
+  }
 
-  .page-wrap { max-width: 800px; margin: 0 auto; padding: 24px 16px 60px; }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--black);
+    color: var(--black);
+    padding: 8px 18px;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
 
-  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 20px; }
+  .logout-btn:hover { background: var(--black); color: var(--white); }
+
+  .page-wrap { max-width: 800px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .page-title {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 28px;
+  }
 
   .order-card {
-    border: 1px solid rgba(13,43,38,0.1);
-    border-radius: 8px;
-    padding: 16px;
-    background: #fff;
-    margin-bottom: 14px;
+    border-top: 1px solid var(--black);
+    padding: 18px 0;
+    margin-bottom: 8px;
   }
+
+  .order-card:last-of-type { border-bottom: 1px solid var(--black); }
 
   .order-card-top {
     display: flex;
@@ -80,18 +107,22 @@
     margin-bottom: 10px;
   }
 
-  .order-id { font-size: 0.78rem; color: var(--gray); }
+  .order-id { font-size: 0.78rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--gray); }
   .order-date { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
-  .order-total { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.2rem; color: var(--deep-green); }
+
+  .order-total {
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
 
   .status-pill {
     display: inline-block;
-    font-size: 0.72rem;
-    padding: 3px 10px;
-    border-radius: 12px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 12px;
     font-weight: 600;
-    text-transform: capitalize;
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .status-pending { background: #fdf3d9; color: var(--warning); }
@@ -100,12 +131,10 @@
   .status-delivered { background: #e3f3e8; color: var(--success); }
   .status-cancelled { background: #fdecea; color: var(--error); }
 
-  .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
+  .order-items-list { font-size: 0.82rem; color: var(--black); margin: 8px 0; }
   .order-items-list div { padding: 2px 0; }
-  .order-items-list .variant-note { color: var(--gray); font-size: 0.75rem; }
 
-  .order-meta { font-size: 0.78rem; color: var(--gray); }
-  .order-meta div { margin-bottom: 2px; }
+  .order-meta { font-size: 0.78rem; color: var(--gray); margin-top: 8px; }
 
   .empty-state {
     text-align: center;
@@ -116,19 +145,22 @@
 
   .empty-state a {
     display: inline-block;
-    margin-top: 14px;
-    background: var(--deep-green);
-    color: var(--gold-light);
-    padding: 10px 22px;
-    border-radius: 5px;
+    margin-top: 16px;
+    background: var(--gold);
+    color: var(--black);
+    padding: 12px 30px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
   }
 
+  .empty-state a:hover { background: var(--gold-light); }
+
   footer {
-    background: var(--deep-green-dark);
-    color: rgba(250,246,238,0.75);
-    padding: 32px 20px 20px;
+    background: var(--black);
+    color: var(--white);
+    padding: 28px 24px;
     text-align: center;
     font-size: 0.8rem;
   }
@@ -137,23 +169,24 @@
 <body>
 
 <header>
-  <div class="header-top">
+  <div class="header-inner">
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
-      <span class="brand-name">E.M.B SPARKLY</span>
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
     </a>
+    <a href="catalog.html" class="logout-btn">Shop</a>
   </div>
 </header>
 
 <div class="page-wrap">
-  <div class="page-title">Your Orders</div>
+  <div class="page-title">My Orders</div>
   <div id="orders-container">
     <div class="empty-state">Loading your orders...</div>
   </div>
 </div>
 
 <footer>
-  &copy; 2026 E.M.B SPARKLY. All rights reserved.
+  &copy; 2026 EMB_Sparkly. All rights reserved.
 </footer>
 
 <script>
@@ -179,8 +212,8 @@
     const { data: orders, error } = await supabaseClient
       .from("orders")
       .select(`
-        id, status, total, created_at, shipping_address,
-        order_items ( quantity, price, size, color, products ( name ) )
+        id, status, total, created_at, shipping_address, phone,
+        order_items ( quantity, price, products ( name ) )
       `)
       .eq("user_id", session.user.id)
       .order("created_at", { ascending: false });
@@ -208,11 +241,7 @@
 
       const itemsHtml = (order.order_items || []).map(function(item) {
         const productName = item.products ? item.products.name : "Item";
-        const variantParts = [];
-        if (item.size) variantParts.push("Size: " + item.size);
-        if (item.color) variantParts.push("Color: " + item.color);
-        const variantNote = variantParts.length ? `<span class="variant-note"> (${variantParts.join(", ")})</span>` : "";
-        return `<div>${item.quantity} x ${productName}${variantNote} - $${Number(item.price).toFixed(2)}</div>`;
+        return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}</div>`;
       }).join("");
 
       const card = document.createElement("div");
@@ -227,9 +256,7 @@
           <div class="order-total">$${Number(order.total).toFixed(2)}</div>
         </div>
         <div class="order-items-list">${itemsHtml || "<div>No items recorded</div>"}</div>
-        <div class="order-meta">
-          ${order.shipping_address ? `<div>Shipping to: ${order.shipping_address}</div>` : ""}
-        </div>
+        <div class="order-meta">Ships to: ${order.shipping_address || "N/A"}</div>
       `;
       container.appendChild(card);
     });

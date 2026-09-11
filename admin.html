@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | E.M.B SPARKLY</title>
+<title>Admin Dashboard | EMB_Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --deep-green: #0d2b26;
-    --deep-green-dark: #081f1b;
+    --black: #0d2b26;
+    --white: #ffffff;
+    --cream: #faf6ee;
+    --gray: #6b6b64;
+    --light-gray: #e5ded2;
+    --accent: #c9a227;
     --gold: #c9a227;
     --gold-light: #e0c05a;
-    --cream: #faf6ee;
-    --charcoal: #1a1a1a;
-    --gray: #6b6b64;
     --error: #b3413b;
     --success: #2f7a4f;
     --warning: #b5850f;
@@ -24,17 +25,17 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--charcoal);
+    font-family: 'Red Hat Text', sans-serif;
+    background: var(--white);
+    color: var(--black);
     min-height: 100vh;
   }
 
-  h1, h2, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
 
   header {
-    background: var(--deep-green);
-    padding: 14px 20px;
+    background: var(--black);
+    padding: 14px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -50,20 +51,30 @@
     width: 34px;
     border-radius: 50%;
     object-fit: cover;
+    border: 1px solid rgba(255,255,255,0.3);
   }
 
-  .brand-name { color: var(--gold-light); font-size: 1.3rem; font-weight: 700; }
+  .brand-name {
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
+    font-size: 1.3rem;
+    letter-spacing: 0.06em;
+    color: var(--white);
+  }
 
   .logout-btn {
     background: transparent;
-    border: 1px solid rgba(201,162,39,0.5);
-    color: var(--gold-light);
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-family: 'Jost', sans-serif;
-    font-size: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.4);
+    color: var(--white);
+    padding: 8px 16px;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
     cursor: pointer;
   }
+
+  .logout-btn:hover { background: var(--white); color: var(--black); }
 
   #gate-screen {
     min-height: 80vh;
@@ -78,22 +89,23 @@
 
   #gate-screen a {
     display: inline-block;
-    margin-top: 14px;
-    background: var(--deep-green);
-    color: var(--gold-light);
-    padding: 10px 22px;
-    border-radius: 5px;
+    margin-top: 16px;
+    background: var(--black);
+    color: var(--white);
+    padding: 12px 30px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
   }
 
   main { display: none; }
 
   .tab-bar {
     display: flex;
-    background: #fff;
-    border-bottom: 1px solid rgba(13,43,38,0.1);
+    background: var(--white);
+    border-bottom: 1px solid var(--black);
     position: sticky;
     top: 62px;
     z-index: 40;
@@ -102,87 +114,107 @@
 
   .tab-btn {
     flex: 1;
-    padding: 13px 10px;
+    padding: 14px 12px;
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
+    letter-spacing: 0.06em;
     color: var(--gray);
     background: none;
     border: none;
-    border-bottom: 2px solid transparent;
     cursor: pointer;
     white-space: nowrap;
   }
 
   .tab-btn.active {
-    color: var(--deep-green);
-    border-bottom-color: var(--gold);
+    color: var(--black);
+    border-bottom: 2px solid var(--black);
     font-weight: 600;
   }
 
-  .tab-panel { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+  .tab-panel { display: none; max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
   .tab-panel.active { display: block; }
 
-  .page-title { font-size: 1.5rem; font-weight: 600; color: var(--deep-green); margin-bottom: 4px; }
-  .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 22px; }
-
-  .card {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid rgba(13,43,38,0.08);
-    margin-bottom: 22px;
+  .page-title {
+    font-size: 2rem;
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
   }
 
-  .card h2 { font-size: 1.1rem; color: var(--deep-green); margin-bottom: 14px; }
+  .page-subtitle {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-bottom: 26px;
+    letter-spacing: 0.06em;
+  }
 
-  label { display: block; font-size: 0.8rem; margin-bottom: 5px; margin-top: 14px; }
+  .card {
+    padding: 24px 0;
+    border-top: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
+    margin-bottom: 24px;
+  }
+
+  .card h2 {
+    font-size: 1.2rem;
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
   label:first-of-type { margin-top: 0; }
-
-  .field-hint { font-size: 0.72rem; color: var(--gray); margin-top: 3px; }
 
   input, textarea, select {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 5px;
-    border: 1px solid rgba(13,43,38,0.18);
-    font-family: 'Jost', sans-serif;
+    padding: 12px 14px;
+    border: 1px solid var(--light-gray);
+    background: var(--white);
+    font-family: 'Red Hat Text', sans-serif;
     font-size: 0.9rem;
     outline: none;
-    background: #fff;
-    color: var(--charcoal);
+    color: var(--black);
   }
 
-  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+  input:focus, textarea:focus, select:focus { border-color: var(--black); }
   textarea { resize: vertical; min-height: 70px; }
-
-  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
   .submit-btn {
     width: 100%;
-    margin-top: 18px;
-    padding: 12px;
-    background: var(--deep-green);
-    color: var(--gold-light);
+    margin-top: 24px;
+    padding: 15px;
+    background: var(--gold);
+    color: var(--black);
     border: none;
-    border-radius: 5px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
     cursor: pointer;
   }
 
-  .submit-btn:hover { background: var(--deep-green-dark); }
+  .submit-btn:hover { background: var(--gold-light); }
   .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .form-message { margin-top: 12px; font-size: 0.83rem; display: none; text-align: center; }
+  .form-message { margin-top: 14px; font-size: 0.83rem; display: none; text-align: center; }
   .form-message.error { color: var(--error); display: block; }
   .form-message.success { color: var(--success); display: block; }
 
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 28px;
   }
 
   @media (min-width: 600px) {
@@ -190,40 +222,42 @@
   }
 
   .stat-box {
-    background: #fff;
-    border: 1px solid rgba(13,43,38,0.08);
-    border-radius: 8px;
-    padding: 16px;
+    background: var(--cream);
+    padding: 20px;
     text-align: center;
   }
 
   .stat-box .value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--deep-green);
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
+    font-size: 2rem;
+    color: var(--black);
   }
 
-  .stat-box .label { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+  .stat-box .label {
+    font-size: 0.7rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-top: 4px;
+  }
 
   .product-list, .order-list { display: flex; flex-direction: column; gap: 12px; }
 
   .product-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px;
-    border: 1px solid rgba(13,43,38,0.08);
-    border-radius: 6px;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid var(--light-gray);
   }
 
-  .product-row.low-stock { border-color: rgba(181,133,15,0.5); background: #fffaf0; }
+  .product-row.low-stock { border-color: var(--warning); }
 
   .product-row img {
-    width: 52px; height: 52px;
+    width: 52px; height: 66px;
     object-fit: cover;
-    border-radius: 5px;
-    background: #eee;
+    background: var(--cream);
     flex-shrink: 0;
   }
 
@@ -231,7 +265,7 @@
 
   .product-row .info h3 {
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 400;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -240,9 +274,10 @@
   .product-row .info p { font-size: 0.78rem; color: var(--gray); }
 
   .stock-badge {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     padding: 3px 8px;
-    border-radius: 10px;
     background: #fdecea;
     color: var(--error);
     margin-left: 6px;
@@ -250,22 +285,23 @@
 
   .delete-btn {
     background: none;
-    border: 1px solid rgba(179,65,59,0.4);
+    border: 1px solid var(--error);
     color: var(--error);
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 0.75rem;
+    padding: 7px 14px;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
     cursor: pointer;
     flex-shrink: 0;
   }
 
+  .delete-btn:hover { background: var(--error); color: var(--white); }
+
   .empty-state { text-align: center; color: var(--gray); font-size: 0.85rem; padding: 20px 0; }
 
   .order-card {
-    border: 1px solid rgba(13,43,38,0.1);
-    border-radius: 8px;
-    padding: 16px;
-    background: #fff;
+    border: 1px solid var(--light-gray);
+    padding: 18px;
+    background: var(--white);
   }
 
   .order-card-top {
@@ -277,15 +313,15 @@
   }
 
   .order-id { font-size: 0.78rem; color: var(--gray); }
-  .order-total { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.2rem; color: var(--deep-green); }
+  .order-total { font-weight: 700; font-size: 1.2rem; }
 
   .status-pill {
     display: inline-block;
-    font-size: 0.72rem;
-    padding: 3px 10px;
-    border-radius: 12px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 12px;
     font-weight: 600;
-    text-transform: capitalize;
   }
 
   .status-pending { background: #fdf3d9; color: var(--warning); }
@@ -294,25 +330,25 @@
   .status-delivered { background: #e3f3e8; color: var(--success); }
   .status-cancelled { background: #fdecea; color: var(--error); }
 
-  .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
+  .order-items-list { font-size: 0.82rem; color: var(--black); margin: 8px 0; }
   .order-items-list div { padding: 2px 0; }
-  .order-items-list .variant-note { color: var(--gray); font-size: 0.74rem; }
 
   .order-meta { font-size: 0.78rem; color: var(--gray); margin-bottom: 10px; }
   .order-meta div { margin-bottom: 2px; }
 
   .order-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
-  .order-actions select { flex: 1; min-width: 130px; padding: 8px 10px; font-size: 0.82rem; }
+  .order-actions select { flex: 1; min-width: 130px; padding: 9px 10px; font-size: 0.82rem; }
 
   .whatsapp-btn {
     background: #25D366;
     color: #fff;
     border: none;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 0.78rem;
+    padding: 9px 16px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
     font-weight: 600;
+    text-transform: uppercase;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
@@ -322,25 +358,25 @@
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     padding-bottom: 4px;
   }
 
   .filter-chip {
-    padding: 6px 14px;
-    border-radius: 16px;
-    border: 1px solid rgba(13,43,38,0.15);
-    background: #fff;
-    font-size: 0.78rem;
-    color: var(--gray);
+    padding: 8px 16px;
+    background: var(--white);
+    border: 1px solid var(--black);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--black);
     white-space: nowrap;
     cursor: pointer;
   }
 
   .filter-chip.active {
-    background: var(--deep-green);
-    color: var(--gold-light);
-    border-color: var(--deep-green);
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
   }
 </style>
 </head>
@@ -348,7 +384,7 @@
 
 <header>
   <div class="header-brand">
-    <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
+    <img src="image/logo.jpg" alt="EMB_Sparkly logo">
     <span class="brand-name">Admin Dashboard</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
@@ -444,38 +480,20 @@
           <option value="shoes">Shoes</option>
         </select>
 
-        <div class="field-row">
-          <div>
-            <label for="p-price">Price (USD)</label>
-            <input type="number" id="p-price" min="0" step="0.01" required placeholder="e.g. 45.00">
-          </div>
-          <div>
-            <label for="p-stock">Stock Quantity</label>
-            <input type="number" id="p-stock" min="0" step="1" value="1" required>
-          </div>
-        </div>
+        <label for="p-price">Price (USD)</label>
+        <input type="number" id="p-price" min="0" step="0.01" required placeholder="e.g. 45.00">
 
-        <label for="p-weight">Package Weight (kg)</label>
-        <input type="number" id="p-weight" min="0" step="0.1" value="0.5" required>
-        <div class="field-hint">Used to calculate shipping. 0.2-0.8kg = $5, 0.9-1.5kg = $10, 1.6-2kg = $15.</div>
+        <label for="p-stock">Stock Quantity</label>
+        <input type="number" id="p-stock" min="0" step="1" value="1" required>
 
-        <label for="p-sizes">Available Sizes (optional)</label>
-        <input type="text" id="p-sizes" placeholder="e.g. S, M, L, XL">
-        <div class="field-hint">Comma separated. Leave blank if this item has no sizes (e.g. jewelry, bags).</div>
-
-        <label for="p-colors">Available Colors (optional)</label>
-        <input type="text" id="p-colors" placeholder="e.g. Black, Emerald Green, Gold">
-        <div class="field-hint">Comma separated. Leave blank if this item comes in one color only.</div>
+        <label for="p-weight">Weight (kg)</label>
+        <input type="number" id="p-weight" min="0.1" step="0.1" value="0.5" required>
 
         <label for="p-description">Description</label>
         <textarea id="p-description" placeholder="Fabric, sizing, style notes..."></textarea>
 
         <label for="p-image">Product Photo</label>
-        <input type="file" id="p-image" accept="image/*">
-
-        <label for="p-video">Product Video</label>
-        <input type="file" id="p-video" accept="video/*">
-        <div class="field-hint">Add a photo, a video, or both &mdash; at least one is required.</div>
+        <input type="file" id="p-image" accept="image/*" required>
 
         <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
         <div class="form-message" id="form-message"></div>
@@ -555,15 +573,10 @@
       const price = parseFloat(document.getElementById("p-price").value);
       const stock = parseInt(document.getElementById("p-stock").value);
       const weight = parseFloat(document.getElementById("p-weight").value);
-      const sizesRaw = document.getElementById("p-sizes").value.trim();
-      const colorsRaw = document.getElementById("p-colors").value.trim();
       const description = document.getElementById("p-description").value.trim();
       const imageFile = document.getElementById("p-image").files[0];
-      const videoFile = document.getElementById("p-video").files[0];
 
-      if (!imageFile && !videoFile) {
-        throw new Error("Please add a product photo or a video (at least one is required).");
-      }
+      if (!imageFile) throw new Error("Please choose a product photo.");
 
       const { data: categoryRow, error: categoryError } = await supabaseClient
         .from("categories")
@@ -573,45 +586,20 @@
 
       if (categoryError || !categoryRow) throw new Error("Could not find that category.");
 
-      let imageUrl = null;
-      if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const fileExt = imageFile.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-        const { error: uploadError } = await supabaseClient
-          .storage
-          .from("product-image")
-          .upload(fileName, imageFile);
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from("product-image")
+        .upload(fileName, imageFile);
 
-        if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+      if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
 
-        const { data: publicUrlData } = supabaseClient
-          .storage
-          .from("product-image")
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrlData.publicUrl;
-      }
-
-      let videoUrl = null;
-      if (videoFile) {
-        const videoExt = videoFile.name.split(".").pop();
-        const videoFileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${videoExt}`;
-
-        const { error: videoUploadError } = await supabaseClient
-          .storage
-          .from("product-image")
-          .upload(videoFileName, videoFile);
-
-        if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
-
-        const { data: videoPublicUrlData } = supabaseClient
-          .storage
-          .from("product-image")
-          .getPublicUrl(videoFileName);
-
-        videoUrl = videoPublicUrlData.publicUrl;
-      }
+      const { data: publicUrlData } = supabaseClient
+        .storage
+        .from("product-image")
+        .getPublicUrl(fileName);
 
       const { error: insertError } = await supabaseClient
         .from("products")
@@ -621,11 +609,8 @@
           price: price,
           stock: stock,
           weight_kg: weight,
-          available_sizes: sizesRaw || null,
-          available_colors: colorsRaw || null,
           category_id: categoryRow.id,
-          image_url: imageUrl,
-          video_url: videoUrl
+          image_url: publicUrlData.publicUrl
         });
 
       if (insertError) throw new Error(insertError.message);
@@ -667,9 +652,8 @@
       const isLow = product.stock <= 2;
       const row = document.createElement("div");
       row.className = "product-row" + (isLow ? " low-stock" : "");
-      const thumbSrc = product.image_url || "image/logo.jpg";
       row.innerHTML = `
-        <img src="${thumbSrc}" alt="${product.name}">
+        <img src="${product.image_url}" alt="${product.name}">
         <div class="info">
           <h3>${product.name}</h3>
           <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''}</p>
@@ -698,7 +682,7 @@
       .from("orders")
       .select(`
         id, status, total, created_at, shipping_address, phone, customer_notes, customer_email,
-        order_items ( quantity, price, size, color, products ( name ) )
+        order_items ( quantity, price, products ( name ) )
       `)
       .order("created_at", { ascending: false });
 
@@ -752,17 +736,13 @@
 
     const itemsHtml = (order.order_items || []).map(function(item) {
       const productName = item.products ? item.products.name : "Item";
-      const variantParts = [];
-      if (item.size) variantParts.push("Size: " + item.size);
-      if (item.color) variantParts.push("Color: " + item.color);
-      const variantNote = variantParts.length ? `<span class="variant-note"> (${variantParts.join(", ")})</span>` : "";
-      return `<div>${item.quantity} x ${productName}${variantNote} - $${Number(item.price).toFixed(2)}</div>`;
+      return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}</div>`;
     }).join("");
 
     const shortId = order.id.slice(0, 8);
     const dateStr = new Date(order.created_at).toLocaleDateString();
     const phone = order.phone ? order.phone.replace(/[^0-9]/g, "") : "";
-    const waMessage = encodeURIComponent(`Hi, this is E.M.B SPARKLY regarding your order #${shortId}. Current status: ${order.status}.`);
+    const waMessage = encodeURIComponent(`Hi, this is EMB_Sparkly regarding your order #${shortId}. Current status: ${order.status}.`);
     const waLink = phone ? `https://wa.me/${phone}?text=${waMessage}` : null;
 
     card.innerHTML = `

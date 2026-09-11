@@ -3,19 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout | E.M.B SPARKLY</title>
+<title>Checkout | EMB_Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --deep-green: #0d2b26;
-    --deep-green-dark: #081f1b;
+    --black: #0d2b26;
+    --white: #ffffff;
+    --cream: #faf6ee;
+    --gray: #6b6b64;
+    --light-gray: #e5ded2;
+    --accent: #c9a227;
     --gold: #c9a227;
     --gold-light: #e0c05a;
-    --cream: #faf6ee;
-    --charcoal: #1a1a1a;
-    --gray: #6b6b64;
     --error: #b3413b;
     --success: #2f7a4f;
   }
@@ -23,98 +24,120 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--charcoal);
-    line-height: 1.5;
+    font-family: 'Red Hat Text', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
   }
 
-  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--deep-green);
-    padding: 14px 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+    padding: 16px 24px;
   }
 
-  .header-top {
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 38px;
-    width: 38px;
+    height: 36px;
+    width: 36px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
+  .brand-name {
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    color: var(--black);
+  }
 
-  .page-wrap { max-width: 700px; margin: 0 auto; padding: 24px 16px 60px; }
+  .header-nav { display: flex; align-items: center; gap: 28px; }
+  .header-nav a { font-size: 0.8rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--black); }
+  .header-nav a:hover { opacity: 0.6; }
 
-  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 6px; }
-  .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 22px; }
+  .page-wrap { max-width: 900px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .page-title {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 24px; letter-spacing: 0.06em; }
 
   .notice-box {
-    background: #fffaf0;
-    border: 1px solid rgba(181,133,15,0.3);
-    border-radius: 8px;
-    padding: 14px 16px;
+    background: var(--cream);
+    padding: 16px 20px;
     font-size: 0.83rem;
-    color: #6b5410;
-    margin-bottom: 22px;
+    color: var(--black);
+    margin-bottom: 24px;
+    border-left: 2px solid var(--black);
   }
 
-  .notice-box a { color: var(--deep-green); font-weight: 600; }
+  .notice-box a { color: var(--black); font-weight: 600; border-bottom: 1px solid var(--black); }
 
   .card {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid rgba(13,43,38,0.08);
-    margin-bottom: 20px;
+    padding: 24px 0;
+    border-top: 1px solid var(--black);
+    margin-bottom: 8px;
   }
 
-  .card h2 { font-size: 1.05rem; color: var(--deep-green); margin-bottom: 14px; }
+  .card:last-of-type { border-bottom: 1px solid var(--black); }
 
-  label { display: block; font-size: 0.8rem; margin-bottom: 5px; margin-top: 14px; }
+  .card h2 {
+    font-size: 1.2rem;
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
   label:first-of-type { margin-top: 0; }
 
   input, textarea, select {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 5px;
-    border: 1px solid rgba(13,43,38,0.18);
-    font-family: 'Jost', sans-serif;
+    padding: 12px 14px;
+    border: 1px solid var(--light-gray);
+    background: var(--white);
+    font-family: 'Red Hat Text', sans-serif;
     font-size: 0.9rem;
     outline: none;
-    background: #fff;
-    color: var(--charcoal);
+    color: var(--black);
   }
 
-  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
-  textarea { resize: vertical; min-height: 60px; }
+  input:focus, textarea:focus, select:focus { border-color: var(--black); }
+  textarea { resize: vertical; min-height: 64px; }
 
   .order-line {
     display: flex;
     justify-content: space-between;
     font-size: 0.85rem;
     padding: 6px 0;
-    border-bottom: 1px solid rgba(13,43,38,0.06);
-    gap: 10px;
+    border-bottom: 1px solid var(--light-gray);
   }
-
-  .order-line .item-label { flex: 1; }
-  .order-line .variant-note { display: block; font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
 
   .summary-row {
     display: flex;
@@ -124,71 +147,28 @@
   }
 
   .summary-row.total {
-    font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--deep-green);
-    border-top: 1px solid rgba(13,43,38,0.1);
-    padding-top: 10px;
-    margin-top: 10px;
-  }
-
-  .delivery-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .delivery-option {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    border: 1px solid rgba(13,43,38,0.18);
-    border-radius: 6px;
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-  }
-
-  .delivery-option:has(input:checked) {
-    border-color: var(--gold);
-    background: #fffaf0;
-  }
-
-  .delivery-option input[type="radio"] {
-    width: auto;
-    margin-top: 3px;
-    accent-color: var(--deep-green);
-  }
-
-  .delivery-option-text { display: flex; flex-direction: column; gap: 2px; }
-  .delivery-option-text strong { font-size: 0.9rem; color: var(--deep-green); }
-  .delivery-option-text span { font-size: 0.78rem; color: var(--gray); }
-
-  .pickup-note {
-    background: #f2f7f4;
-    border: 1px solid rgba(13,43,38,0.12);
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-size: 0.8rem;
-    color: var(--deep-green-dark);
-    margin-top: 14px;
+    font-size: 1.2rem;
+    border-top: 1px solid var(--light-gray);
+    padding-top: 12px;
+    margin-top: 12px;
   }
 
   .place-order-btn {
     width: 100%;
-    margin-top: 4px;
-    padding: 13px;
-    background: var(--deep-green);
-    color: var(--gold-light);
+    margin-top: 24px;
+    padding: 15px;
+    background: var(--gold);
+    color: var(--black);
     border: none;
-    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
     cursor: pointer;
   }
 
-  .place-order-btn:hover:not(:disabled) { background: var(--deep-green-dark); }
+  .place-order-btn:hover:not(:disabled) { background: var(--gold-light); }
   .place-order-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .form-message { margin-top: 12px; font-size: 0.83rem; display: none; text-align: center; }
@@ -204,19 +184,22 @@
 
   .empty-state a {
     display: inline-block;
-    margin-top: 14px;
-    background: var(--deep-green);
-    color: var(--gold-light);
-    padding: 10px 22px;
-    border-radius: 5px;
+    margin-top: 16px;
+    background: var(--gold);
+    color: var(--black);
+    padding: 12px 30px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
   }
 
+  .empty-state a:hover { background: var(--gold-light); }
+
   footer {
-    background: var(--deep-green-dark);
-    color: rgba(250,246,238,0.75);
-    padding: 32px 20px 20px;
+    background: var(--black);
+    color: var(--white);
+    padding: 28px 24px;
     text-align: center;
     font-size: 0.8rem;
   }
@@ -225,10 +208,10 @@
 <body>
 
 <header>
-  <div class="header-top">
+  <div class="header-inner">
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
-      <span class="brand-name">E.M.B SPARKLY</span>
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
     </a>
   </div>
 </header>
@@ -249,7 +232,7 @@
 </div>
 
 <footer>
-  &copy; 2026 E.M.B SPARKLY. All rights reserved.
+  &copy; 2026 EMB_Sparkly. All rights reserved.
 </footer>
 
 <script>
@@ -265,6 +248,10 @@
     } catch (e) {
       return [];
     }
+  }
+
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }
 
   function calculateShipping(totalWeightKg) {
@@ -283,7 +270,6 @@
   let shipping = 0;
   let total = 0;
   let currentUser = null;
-  let deliveryMethod = "ship";
 
   async function initCheckout() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -314,7 +300,7 @@
       return;
     }
 
-    const ids = [...new Set(cart.map(item => item.id))];
+    const ids = cart.map(item => item.id);
     const { data: liveProducts, error } = await supabaseClient
       .from("products")
       .select("id, name, price, stock, weight_kg")
@@ -335,9 +321,7 @@
         name: liveProduct.name,
         price: liveProduct.price,
         weight_kg: liveProduct.weight_kg || 0.5,
-        quantity: cappedQty,
-        size: item.size || "",
-        color: item.color || ""
+        quantity: cappedQty
       });
     });
 
@@ -360,15 +344,9 @@
       const lineTotal = item.price * item.quantity;
       subtotal += lineTotal;
       totalWeight += item.weight_kg * item.quantity;
-
-      const variantParts = [];
-      if (item.size) variantParts.push("Size: " + item.size);
-      if (item.color) variantParts.push("Color: " + item.color);
-      const variantNote = variantParts.length ? `<span class="variant-note">${variantParts.join(" &middot; ")}</span>` : "";
-
       itemsHtml += `
         <div class="order-line">
-          <span class="item-label">${item.quantity} x ${item.name}${variantNote}</span>
+          <span>${item.quantity} x ${item.name}</span>
           <span>$${lineTotal.toFixed(2)}</span>
         </div>
       `;
@@ -387,32 +365,12 @@
         <h2>Order Summary</h2>
         ${itemsHtml}
         <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="summary-row"><span>Shipping</span><span id="shipping-amount">$${shipping.toFixed(2)}</span></div>
-        <div class="summary-row total"><span>Total</span><span id="total-amount">$${total.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>$${shipping.toFixed(2)}</span></div>
+        <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
       </div>
 
       <div class="card">
-        <h2>Delivery Method</h2>
-        <div class="delivery-options">
-          <label class="delivery-option" for="dm-ship">
-            <input type="radio" name="delivery-method" id="dm-ship" value="ship" checked>
-            <div class="delivery-option-text">
-              <strong>Ship to Me</strong>
-              <span>Delivered to your address &mdash; $${shipping.toFixed(2)} shipping</span>
-            </div>
-          </label>
-          <label class="delivery-option" for="dm-pickup">
-            <input type="radio" name="delivery-method" id="dm-pickup" value="pickup">
-            <div class="delivery-option-text">
-              <strong>Local Pickup</strong>
-              <span>Free &mdash; we'll message you on WhatsApp to arrange handoff</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Your Details</h2>
+        <h2>Shipping Details</h2>
         <form id="checkout-form">
           <label for="c-fullname">Full Name</label>
           <input type="text" id="c-fullname" required placeholder="Your full name">
@@ -420,67 +378,28 @@
           <label for="c-phone">Phone Number</label>
           <input type="tel" id="c-phone" required placeholder="e.g. +1 555 123 4567">
 
-          <div id="ship-fields">
-            <label for="c-street">Street Address</label>
-            <input type="text" id="c-street" required placeholder="House number and street">
+          <label for="c-street">Street Address</label>
+          <input type="text" id="c-street" required placeholder="House number and street">
 
-            <label for="c-city">City</label>
-            <input type="text" id="c-city" required placeholder="City">
+          <label for="c-city">City</label>
+          <input type="text" id="c-city" required placeholder="City">
 
-            <label for="c-state">State</label>
-            <select id="c-state" required>${statesOptionsHtml}</select>
+          <label for="c-state">State</label>
+          <select id="c-state" required>${statesOptionsHtml}</select>
 
-            <label for="c-zip">ZIP Code</label>
-            <input type="text" id="c-zip" required placeholder="ZIP code">
-          </div>
-
-          <div class="pickup-note" id="pickup-note" style="display:none;">
-            No address needed &mdash; we'll message you on WhatsApp at the phone number above to arrange a pickup time and place.
-          </div>
+          <label for="c-zip">ZIP Code</label>
+          <input type="text" id="c-zip" required placeholder="ZIP code">
 
           <label for="c-notes">Order Notes (optional)</label>
           <textarea id="c-notes" placeholder="Sizing preferences, delivery instructions, etc."></textarea>
 
-          <button type="submit" class="place-order-btn" id="place-order-btn">Continue to Payment</button>
+          <button type="submit" class="place-order-btn" id="place-order-btn">Place Order</button>
           <div class="form-message" id="form-message"></div>
         </form>
       </div>
     `;
 
-    setupDeliveryToggle();
     document.getElementById("checkout-form").addEventListener("submit", handlePlaceOrder);
-  }
-
-  function setupDeliveryToggle() {
-    const shipFields = document.getElementById("ship-fields");
-    const pickupNote = document.getElementById("pickup-note");
-    const streetInput = document.getElementById("c-street");
-    const cityInput = document.getElementById("c-city");
-    const stateSelect = document.getElementById("c-state");
-    const zipInput = document.getElementById("c-zip");
-    const shippingAmountEl = document.getElementById("shipping-amount");
-    const totalAmountEl = document.getElementById("total-amount");
-
-    document.querySelectorAll('input[name="delivery-method"]').forEach(function(radio) {
-      radio.addEventListener("change", function() {
-        deliveryMethod = radio.value;
-        const isPickup = deliveryMethod === "pickup";
-
-        shipFields.style.display = isPickup ? "none" : "block";
-        pickupNote.style.display = isPickup ? "block" : "none";
-
-        streetInput.required = !isPickup;
-        cityInput.required = !isPickup;
-        stateSelect.required = !isPickup;
-        zipInput.required = !isPickup;
-
-        const effectiveShipping = isPickup ? 0 : shipping;
-        const effectiveTotal = subtotal + effectiveShipping;
-
-        shippingAmountEl.textContent = "$" + effectiveShipping.toFixed(2);
-        totalAmountEl.textContent = "$" + effectiveTotal.toFixed(2);
-      });
-    });
   }
 
   async function handlePlaceOrder(e) {
@@ -489,59 +408,67 @@
     const submitBtn = document.getElementById("place-order-btn");
     const messageEl = document.getElementById("form-message");
     submitBtn.disabled = true;
-    submitBtn.textContent = "Redirecting to payment...";
     messageEl.style.display = "none";
 
     try {
       const fullName = document.getElementById("c-fullname").value.trim();
       const phone = document.getElementById("c-phone").value.trim();
+      const street = document.getElementById("c-street").value.trim();
+      const city = document.getElementById("c-city").value.trim();
+      const state = document.getElementById("c-state").value;
+      const zip = document.getElementById("c-zip").value.trim();
       const notes = document.getElementById("c-notes").value.trim();
 
-      let shippingAddress;
+      if (!state) throw new Error("Please select your state.");
 
-      if (deliveryMethod === "pickup") {
-        shippingAddress = "Local Pickup - to be arranged via WhatsApp";
-      } else {
-        const street = document.getElementById("c-street").value.trim();
-        const city = document.getElementById("c-city").value.trim();
-        const state = document.getElementById("c-state").value;
-        const zip = document.getElementById("c-zip").value.trim();
+      const shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
 
-        if (!state) throw new Error("Please select your state.");
+      const { data: orderRow, error: orderError } = await supabaseClient
+        .from("orders")
+        .insert({
+          user_id: currentUser.id,
+          status: "pending",
+          total: total,
+          shipping_address: shippingAddress,
+          phone: phone,
+          customer_notes: notes,
+          customer_email: currentUser.email
+        })
+        .select()
+        .single();
 
-        shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
-      }
+      if (orderError) throw new Error(orderError.message);
 
-      const cartItemsPayload = validCart.map(function(item) {
+      const orderItemsPayload = validCart.map(function(item) {
         return {
-          id: item.id,
+          order_id: orderRow.id,
+          product_id: item.id,
           quantity: item.quantity,
-          size: item.size || null,
-          color: item.color || null
+          price: item.price
         };
       });
 
-      const { data, error } = await supabaseClient.functions.invoke("create-stripe-checkout-session", {
-        body: {
-          cart_items: cartItemsPayload,
-          delivery_method: deliveryMethod,
-          shipping_address: shippingAddress,
-          phone: phone,
-          customer_notes: notes
-        }
-      });
+      const { error: itemsError } = await supabaseClient
+        .from("order_items")
+        .insert(orderItemsPayload);
 
-      if (error) throw new Error(error.message || "Could not start payment.");
-      if (!data || !data.url) throw new Error((data && data.error) || "Could not start payment.");
+      if (itemsError) throw new Error(itemsError.message);
 
-      // Cart is cleared later, on order-confirmation.html, once payment is actually confirmed.
-      window.location.href = data.url;
+      for (const item of validCart) {
+        await supabaseClient.rpc("decrement_stock", {
+          product_id_input: item.id,
+          quantity_input: item.quantity
+        });
+      }
+
+      localStorage.removeItem(CART_KEY);
+
+      window.location.href = "order-confirmation.html?order_id=" + orderRow.id;
 
     } catch (err) {
       messageEl.textContent = err.message || "Something went wrong. Please try again.";
       messageEl.className = "form-message error";
       submitBtn.disabled = false;
-      submitBtn.textContent = "Continue to Payment";
     }
   }
 

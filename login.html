@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log In | E.M.B SPARKLY</title>
+<title>Log In | EMB_Sparkly</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
   :root {
-    --deep-green: #0d2b26;
-    --deep-green-dark: #081f1b;
+    --black: #0d2b26;
+    --white: #ffffff;
+    --cream: #faf6ee;
+    --gray: #6b6b64;
+    --light-gray: #e5ded2;
+    --accent: #c9a227;
     --gold: #c9a227;
     --gold-light: #e0c05a;
-    --cream: #faf6ee;
-    --charcoal: #1a1a1a;
-    --gray: #6b6b64;
     --error: #b3413b;
     --success: #2f7a4f;
     --weak: #b3413b;
@@ -29,57 +30,73 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--charcoal);
-    line-height: 1.5;
+    font-family: 'Red Hat Text', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
     min-height: 100vh;
   }
 
-  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--deep-green);
-    padding: 14px 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+    padding: 16px 24px;
   }
 
-  .header-top {
+  .header-inner {
     display: flex;
     align-items: center;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 38px;
-    width: 38px;
+    height: 36px;
+    width: 36px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
-
-  .page-wrap {
-    max-width: 420px;
-    margin: 0 auto;
-    padding: 40px 16px 60px;
+  .brand-name {
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    color: var(--black);
   }
 
-  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 6px; text-align: center; }
-  .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 24px; text-align: center; }
+  .page-wrap {
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 48px 16px 60px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .page-subtitle {
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-bottom: 28px;
+    text-align: center;
+    letter-spacing: 0.06em;
+  }
 
   .init-error {
     display: none;
     background: #fbeceb;
-    border: 1px solid rgba(179,65,59,0.3);
+    border-left: 2px solid var(--error);
     color: var(--error);
-    border-radius: 6px;
     padding: 12px 14px;
     font-size: 0.82rem;
     margin-bottom: 18px;
@@ -88,54 +105,60 @@
 
   .mode-toggle {
     display: flex;
-    border: 1px solid rgba(13,43,38,0.15);
-    border-radius: 20px;
-    overflow: hidden;
+    border: 1px solid var(--black);
     margin-bottom: 24px;
   }
 
   .mode-btn {
     flex: 1;
-    padding: 10px;
+    padding: 11px;
     text-align: center;
-    background: #fff;
+    background: var(--white);
     border: none;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
+    letter-spacing: 0.06em;
     color: var(--gray);
     cursor: pointer;
-    font-family: 'Jost', sans-serif;
+    font-family: 'Red Hat Text', sans-serif;
   }
 
   .mode-btn.active {
-    background: var(--deep-green);
-    color: var(--gold-light);
+    background: var(--black);
+    color: var(--white);
     font-weight: 600;
   }
 
   .card {
-    background: #fff;
-    border-radius: 8px;
-    padding: 22px 20px;
-    border: 1px solid rgba(13,43,38,0.08);
+    padding: 24px 0;
+    border-top: 1px solid var(--black);
+    border-bottom: 1px solid var(--black);
   }
 
-  label { display: block; font-size: 0.8rem; margin-bottom: 5px; margin-top: 14px; }
+  label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+
   label:first-of-type { margin-top: 0; }
 
   input {
     width: 100%;
-    padding: 11px 12px;
-    border-radius: 5px;
-    border: 1px solid rgba(13,43,38,0.18);
-    font-family: 'Jost', sans-serif;
+    padding: 12px 14px;
+    border: 1px solid var(--light-gray);
+    background: var(--white);
+    font-family: 'Red Hat Text', sans-serif;
     font-size: 0.9rem;
     outline: none;
-    background: #fff;
-    color: var(--charcoal);
+    color: var(--black);
   }
 
-  input:focus { border-color: var(--gold); }
+  input:focus { border-color: var(--black); }
 
   .password-wrap {
     position: relative;
@@ -160,7 +183,7 @@
     color: var(--gray);
   }
 
-  .eye-toggle:hover { color: var(--deep-green); }
+  .eye-toggle:hover { color: var(--black); }
   .eye-toggle svg { width: 18px; height: 18px; }
 
   .strength-wrap {
@@ -169,22 +192,21 @@
   }
 
   .strength-bar-track {
-    height: 5px;
-    border-radius: 3px;
-    background: rgba(13,43,38,0.1);
+    height: 4px;
+    background: var(--light-gray);
     overflow: hidden;
   }
 
   .strength-bar-fill {
     height: 100%;
     width: 0%;
-    border-radius: 3px;
     transition: width 0.2s ease, background 0.2s ease;
     background: var(--weak);
   }
 
   .strength-label {
     font-size: 0.72rem;
+    letter-spacing: 0.06em;
     color: var(--gray);
     margin-top: 4px;
   }
@@ -209,23 +231,24 @@
     color: var(--success);
   }
 
-  .strength-checklist li.met { color: var(--charcoal); }
+  .strength-checklist li.met { color: var(--black); }
 
   .submit-btn {
     width: 100%;
-    margin-top: 20px;
-    padding: 12px;
-    background: var(--deep-green);
-    color: var(--gold-light);
+    margin-top: 24px;
+    padding: 15px;
+    background: var(--gold);
+    color: var(--black);
     border: none;
-    border-radius: 5px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
     cursor: pointer;
-    font-family: 'Jost', sans-serif;
+    font-family: 'Red Hat Text', sans-serif;
   }
 
-  .submit-btn:hover:not(:disabled) { background: var(--deep-green-dark); }
+  .submit-btn:hover:not(:disabled) { background: var(--gold-light); }
   .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .form-message {
@@ -239,16 +262,22 @@
   .form-message.success { color: var(--success); display: block; }
 
   .field-hint {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--gray);
     text-align: center;
-    margin-top: 18px;
+    margin-top: 20px;
+  }
+
+  .field-hint a {
+    color: var(--black);
+    font-weight: 600;
+    border-bottom: 1px solid var(--black);
   }
 
   footer {
-    background: var(--deep-green-dark);
-    color: rgba(250,246,238,0.75);
-    padding: 32px 20px 20px;
+    background: var(--black);
+    color: var(--white);
+    padding: 28px 24px;
     text-align: center;
     font-size: 0.8rem;
   }
@@ -258,10 +287,10 @@
 <body>
 
 <header>
-  <div class="header-top">
+  <div class="header-inner">
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
-      <span class="brand-name">E.M.B SPARKLY</span>
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
     </a>
   </div>
 </header>
@@ -322,14 +351,14 @@
     </form>
 
     <div class="field-hint" id="switch-hint">
-      Don't have an account? <a href="#" id="switch-link" style="color: var(--deep-green); font-weight:600;">Sign up</a>
+      Don't have an account? <a href="#" id="switch-link">Sign up</a>
     </div>
   </div>
 
 </div>
 
 <footer>
-  &copy; 2026 E.M.B SPARKLY. All rights reserved.
+  &copy; 2026 EMB_Sparkly. All rights reserved.
 </footer>
 
 <script>
@@ -337,9 +366,6 @@
 
   const initErrorEl = document.getElementById("init-error");
 
-  // Guard: if the Supabase library failed to load (slow connection, ad blocker,
-  // CDN hiccup), show a visible message instead of the whole script dying
-  // silently and leaving every button unresponsive.
   if (typeof window.supabase === "undefined") {
     initErrorEl.style.display = "block";
     return;
@@ -385,7 +411,6 @@
   const EYE_OPEN = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
   const EYE_CLOSED = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.8 21.8 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-2.16 3.19"></path><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
 
-  // If already logged in, skip straight to the redirect target.
   async function checkExistingSession() {
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -393,7 +418,7 @@
         window.location.href = redirectTarget;
       }
     } catch (err) {
-      // Non-fatal: just stay on the login page if this check fails.
+      // Non-fatal
     }
   }
 
@@ -471,7 +496,7 @@
       passwordInput.placeholder = "Your password";
       strengthWrap.style.display = "none";
       submitBtn.textContent = "Log In";
-      switchHint.innerHTML = 'Don\'t have an account? <a href="#" id="switch-link" style="color: var(--deep-green); font-weight:600;">Sign up</a>';
+      switchHint.innerHTML = 'Don\'t have an account? <a href="#" id="switch-link">Sign up</a>';
     } else {
       pageTitle.textContent = "Create Your Account";
       pageSubtitle.textContent = "Sign up to place your order";
@@ -483,7 +508,7 @@
       strengthWrap.style.display = "block";
       evaluatePasswordStrength(passwordInput.value);
       submitBtn.textContent = "Sign Up";
-      switchHint.innerHTML = 'Already have an account? <a href="#" id="switch-link" style="color: var(--deep-green); font-weight:600;">Log in</a>';
+      switchHint.innerHTML = 'Already have an account? <a href="#" id="switch-link">Log in</a>';
     }
 
     attachSwitchLinkListener();
@@ -525,10 +550,8 @@
         if (error) throw new Error(error.message);
 
         if (data.session) {
-          // Email confirmation is off, user is logged in right away.
           window.location.href = redirectTarget;
         } else {
-          // Email confirmation is on, user must verify first.
           messageEl.textContent = "Account created. Please check your email to confirm, then log in.";
           messageEl.className = "form-message success";
           setMode("login");

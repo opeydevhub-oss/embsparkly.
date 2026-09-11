@@ -3,49 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E.M.B SPARKLY | Turkey, Dubai & African Wears</title>
+<title>EMB_Sparkly | Turkey, Dubai & African Wears</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --deep-green: #0d2b26;
-    --deep-green-dark: #081f1b;
+    --black: #0d2b26;
+    --white: #ffffff;
+    --cream: #faf6ee;
+    --gray: #6b6b64;
+    --light-gray: #e5ded2;
+    --accent: #c9a227;
     --gold: #c9a227;
     --gold-light: #e0c05a;
-    --cream: #faf6ee;
-    --charcoal: #1a1a1a;
-    --gray: #6b6b64;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--charcoal);
-    line-height: 1.5;
+    font-family: 'Red Hat Text', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
   }
 
-  h1, h2, h3, .brand-name {
-    font-family: 'Cormorant Garamond', serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
   }
 
   a { text-decoration: none; color: inherit; }
 
+  /* ANNOUNCEMENT BAR */
+  .announcement-bar {
+    background: var(--gold);
+    color: var(--black);
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  /* HEADER */
   header {
-    background: var(--deep-green);
-    padding: 14px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--light-gray);
+    padding: 16px 24px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-top {
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
   }
 
@@ -56,43 +70,58 @@
   }
 
   .header-brand img {
-    height: 38px;
-    width: 38px;
+    height: 36px;
+    width: 36px;
     border-radius: 50%;
     object-fit: cover;
   }
 
   .brand-name {
-    color: var(--gold-light);
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
     font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
+    letter-spacing: 0.06em;
+    color: var(--black);
   }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .header-nav a {
+    font-size: 0.8rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  .header-nav a:hover { opacity: 0.6; }
 
   .header-icons {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
   }
 
   .icon-btn {
-    color: var(--cream);
-    font-size: 1.2rem;
+    color: var(--black);
+    font-size: 1.1rem;
     position: relative;
     cursor: pointer;
   }
 
   .cart-count {
     position: absolute;
-    top: -8px;
-    right: -10px;
-    background: var(--gold);
-    color: var(--deep-green-dark);
-    font-size: 0.65rem;
+    top: -7px;
+    right: -9px;
+    background: var(--black);
+    color: var(--white);
+    font-size: 0.6rem;
     font-weight: 600;
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -100,36 +129,30 @@
   }
 
   .search-bar {
-    margin-top: 12px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
 
   .search-bar input {
     width: 100%;
-    padding: 11px 16px;
-    border-radius: 24px;
-    border: 1px solid rgba(201,162,39,0.4);
-    background: rgba(255,255,255,0.08);
-    color: var(--cream);
-    font-family: 'Jost', sans-serif;
-    font-size: 0.95rem;
+    padding: 12px 16px;
+    border: 1px solid var(--light-gray);
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.9rem;
     outline: none;
   }
 
-  .search-bar input::placeholder { color: rgba(250,246,238,0.55); }
+  .search-bar input::placeholder { color: var(--gray); }
+  .search-bar input:focus { border-color: var(--black); }
 
-  .search-bar input:focus {
-    border-color: var(--gold);
-    background: rgba(255,255,255,0.12);
-  }
-
-  /* Hero Carousel */
+  /* HERO */
   .hero-carousel {
     position: relative;
     overflow: hidden;
-    background: var(--deep-green-dark);
+    background: var(--black);
   }
 
   .hero-track {
@@ -140,8 +163,8 @@
   .hero-slide {
     min-width: 100%;
     position: relative;
-    color: var(--cream);
-    padding: 56px 20px 48px;
+    color: var(--white);
+    padding: 80px 24px 72px;
     text-align: center;
   }
 
@@ -152,6 +175,7 @@
     background-image: var(--slide-bg);
     background-size: cover;
     background-position: center;
+    opacity: 0.5;
   }
 
   .hero-slide-inner {
@@ -160,30 +184,30 @@
   }
 
   .hero-logo {
-    width: 84px;
-    height: 84px;
-    margin: 0 auto 18px;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1.5px solid var(--gold);
+    border: 1px solid rgba(255,255,255,0.3);
   }
 
   .hero-slide h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--gold-light);
-    margin-bottom: 10px;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
   }
 
   .hero-slide p {
-    max-width: 480px;
+    max-width: 500px;
     margin: 0 auto;
-    font-size: 0.95rem;
-    color: rgba(250,246,238,0.85);
+    font-size: 0.9rem;
+    opacity: 0.8;
   }
 
   .hero-tags {
-    margin-top: 20px;
+    margin-top: 24px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -191,27 +215,31 @@
   }
 
   .hero-tags span {
-    font-size: 0.75rem;
-    padding: 5px 12px;
-    border: 1px solid rgba(201,162,39,0.5);
-    border-radius: 16px;
-    color: var(--gold-light);
+    font-size: 0.7rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border: 1px solid rgba(255,255,255,0.4);
+    color: var(--white);
   }
 
   .hero-cta {
     display: inline-block;
-    margin-top: 20px;
+    margin-top: 24px;
     background: var(--gold);
-    color: var(--deep-green-dark);
-    padding: 10px 24px;
-    border-radius: 22px;
+    color: var(--black);
+    padding: 12px 32px;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
   }
+
+  .hero-cta:hover { background: var(--gold-light); }
 
   .hero-dots {
     position: absolute;
-    bottom: 14px;
+    bottom: 18px;
     left: 0;
     right: 0;
     display: flex;
@@ -224,25 +252,24 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: rgba(250,246,238,0.4);
+    background: rgba(255,255,255,0.3);
     cursor: pointer;
     border: none;
     padding: 0;
   }
 
-  .hero-dot.active { background: var(--gold); width: 20px; border-radius: 5px; }
+  .hero-dot.active { background: var(--white); width: 24px; border-radius: 4px; }
 
   .hero-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(8,31,27,0.5);
-    color: var(--gold-light);
-    border: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    font-size: 1.1rem;
+    background: rgba(0,0,0,0.4);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.2);
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
     cursor: pointer;
     z-index: 2;
     display: flex;
@@ -250,21 +277,21 @@
     justify-content: center;
   }
 
-  .hero-arrow.prev { left: 12px; }
-  .hero-arrow.next { right: 12px; }
+  .hero-arrow.prev { left: 16px; }
+  .hero-arrow.next { right: 16px; }
 
+  /* TRUST STRIP */
   .trust-strip {
-    background: #fff;
-    border-bottom: 1px solid rgba(13,43,38,0.06);
-    padding: 20px;
+    background: var(--cream);
+    padding: 28px 24px;
   }
 
   .trust-strip-inner {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    gap: 16px;
+    gap: 20px;
     text-align: center;
   }
 
@@ -272,57 +299,52 @@
     .trust-strip-inner { grid-template-columns: repeat(3, 1fr); }
   }
 
-  .trust-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .trust-item .icon {
-    font-size: 1.4rem;
-    color: var(--gold);
-  }
-
   .trust-item h4 {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.88rem;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--deep-green);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin-bottom: 2px;
   }
 
   .trust-item p {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--gray);
   }
 
-  .categories {
-    padding: 44px 20px 56px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
+  /* SECTION HEADINGS */
   .section-heading {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 36px;
   }
 
   .section-heading h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--deep-green);
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    font-weight: 200;
+    letter-spacing: 0.06em;
+    color: var(--black);
   }
 
   .section-heading p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--gray);
-    margin-top: 4px;
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+  }
+
+  /* CATEGORIES */
+  .categories {
+    padding: 64px 24px 72px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   .category-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 2px;
   }
 
   @media (min-width: 640px) {
@@ -330,47 +352,42 @@
   }
 
   @media (min-width: 960px) {
-    .category-grid { grid-template-columns: repeat(5, 1fr); }
+    .category-grid { grid-template-columns: repeat(4, 1fr); }
   }
 
   .category-card {
-    background: #fff;
-    border: 1px solid rgba(13,43,38,0.08);
-    border-radius: 6px;
-    padding: 22px 14px;
+    background: var(--cream);
+    padding: 36px 20px;
     text-align: center;
     cursor: pointer;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    transition: background 0.2s ease;
+    display: block;
   }
 
-  .category-card:hover {
-    border-color: var(--gold);
-    transform: translateY(-3px);
-  }
-
-  .category-card .cat-icon {
-    font-size: 1.6rem;
-    margin-bottom: 10px;
-    color: var(--gold);
-  }
+  .category-card:hover { background: var(--light-gray); }
 
   .category-card h3 {
     font-size: 1rem;
-    font-weight: 600;
-    color: var(--deep-green);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--black);
   }
 
+  /* OCCASION SECTION */
   .occasion-section {
-    background: #fff;
-    padding: 44px 20px 56px;
+    background: var(--black);
+    padding: 64px 24px 72px;
   }
 
-  .occasion-inner { max-width: 1200px; margin: 0 auto; }
+  .occasion-inner { max-width: 1400px; margin: 0 auto; }
+
+  .occasion-section .section-heading h2 { color: var(--white); }
+  .occasion-section .section-heading p { color: rgba(255,255,255,0.5); }
 
   .occasion-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 4px;
   }
 
   @media (min-width: 640px) {
@@ -379,45 +396,46 @@
 
   .occasion-card {
     position: relative;
-    border-radius: 10px;
     overflow: hidden;
-    aspect-ratio: 4 / 3;
-    background: var(--deep-green);
+    aspect-ratio: 3 / 4;
+    background: #1a1a1a;
     display: flex;
     align-items: flex-end;
-    padding: 16px;
+    padding: 24px;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
-  .occasion-card:hover { transform: translateY(-3px); }
+  .occasion-card:hover { opacity: 0.85; }
 
   .occasion-card::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(13,43,38,0.15) 0%, rgba(8,31,27,0.85) 100%);
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%);
   }
 
   .occasion-card span {
     position: relative;
     z-index: 1;
-    color: var(--gold-light);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.15rem;
-    font-weight: 700;
+    color: var(--white);
+    font-family: 'Newsreader', serif;
+    font-weight: 200;
+    font-size: 1.1rem;
+    letter-spacing: 0.06em;
   }
 
+  /* NEW ARRIVALS */
   .new-arrivals {
-    padding: 0 20px 56px;
-    max-width: 1200px;
-    margin: 44px auto 0;
+    padding: 64px 24px 72px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   .new-arrivals-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 2px;
   }
 
   @media (min-width: 640px) {
@@ -429,154 +447,161 @@
   }
 
   .arrival-card {
-    background: #fff;
-    border: 1px solid rgba(13,43,38,0.08);
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.15s ease, border-color 0.15s ease;
     display: block;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
   }
 
-  .arrival-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+  .arrival-card:hover { opacity: 0.8; }
 
   .arrival-card .img-wrap {
     width: 100%;
-    aspect-ratio: 1 / 1;
-    background: #eee;
+    aspect-ratio: 3 / 4;
+    background: var(--cream);
     overflow: hidden;
   }
 
   .arrival-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .arrival-card video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .arrival-card .info { padding: 10px 12px 14px; }
+  .arrival-card .info { padding: 14px 4px 8px; }
 
   .arrival-card h3 {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--charcoal);
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--black);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .arrival-card .price {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
-    color: var(--deep-green);
-    font-size: 1.1rem;
-    margin-top: 3px;
+    font-family: 'Newsreader', serif;
+    font-weight: 400;
+    color: var(--black);
+    font-size: 0.95rem;
+    margin-top: 2px;
   }
 
-  .view-all-wrap { text-align: center; margin-top: 24px; }
+  .view-all-wrap { text-align: center; margin-top: 32px; }
 
   .view-all-btn {
     display: inline-block;
-    background: var(--deep-green);
-    color: var(--gold-light);
-    padding: 11px 26px;
-    border-radius: 24px;
+    background: var(--gold);
+    color: var(--black);
+    padding: 14px 36px;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
   }
 
+  .view-all-btn:hover { background: var(--gold-light); }
+
+  /* FOOTER */
   footer {
-    background: var(--deep-green-dark);
-    color: rgba(250,246,238,0.75);
-    padding: 40px 20px 24px;
+    background: var(--black);
+    color: var(--white);
+    padding: 48px 24px 28px;
   }
 
   .footer-inner {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 28px;
+    gap: 32px;
   }
 
-  .footer-brand .brand-name { font-size: 1.3rem; }
+  .footer-brand .brand-name { font-size: 1.3rem; color: var(--white); }
 
   .footer-brand p {
-    font-size: 0.82rem;
-    margin-top: 8px;
-    max-width: 260px;
-    color: rgba(250,246,238,0.55);
+    font-size: 0.8rem;
+    margin-top: 10px;
+    max-width: 280px;
+    color: rgba(255,255,255,0.5);
   }
 
   .footer-col h4 {
-    font-size: 0.8rem;
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--gold-light);
-    margin-bottom: 10px;
-    font-family: 'Jost', sans-serif;
-    font-weight: 500;
+    letter-spacing: 0.13em;
+    color: var(--white);
+    margin-bottom: 12px;
   }
 
   .footer-col a, .footer-col p {
     display: block;
-    font-size: 0.85rem;
-    margin-bottom: 6px;
-    color: rgba(250,246,238,0.75);
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,0.5);
   }
+
+  .footer-col a:hover { color: var(--white); }
 
   .footer-socials {
     display: flex;
-    gap: 12px;
-    margin-top: 4px;
+    gap: 10px;
+    margin-top: 6px;
   }
 
   .footer-socials a {
-    border: 1px solid rgba(201,162,39,0.4);
+    border: 1px solid rgba(255,255,255,0.25);
     width: 32px;
     height: 32px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
-    color: var(--gold-light);
+    font-size: 0.7rem;
+    color: var(--white);
+    letter-spacing: 0.05em;
   }
+
+  .footer-socials a:hover { border-color: var(--white); }
 
   .footer-bottom {
     text-align: center;
-    font-size: 0.75rem;
-    color: rgba(250,246,238,0.4);
-    margin-top: 32px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(250,246,238,0.08);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    letter-spacing: 0.06em;
   }
 </style>
 </head>
 <body>
 
+<div class="announcement-bar">
+  Free Shipping Across the US &middot; Easy 48-Hour Returns
+</div>
+
 <header>
-  <div class="header-top">
-    <a href="#" class="header-brand">
-      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
-      <span class="brand-name">E.M.B SPARKLY</span>
+  <div class="header-inner">
+    <a href="index.html" class="header-brand">
+      <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+      <span class="brand-name">EMB_Sparkly</span>
     </a>
+    <div class="header-nav">
+      <a href="catalog.html">Shop</a>
+      <a href="catalog.html?category=turkey-wears">New In</a>
+      <a href="orders.html">Track Order</a>
+    </div>
     <div class="header-icons">
-      <span class="icon-btn" title="Account">&#9782;</span>
-      <span class="icon-btn" title="Cart">
+      <a href="cart.html" class="icon-btn" title="Cart">
         &#128722;
-        <span class="cart-count">0</span>
-      </span>
+        <span class="cart-count" id="home-cart-count">0</span>
+      </a>
     </div>
   </div>
-  <div class="search-bar">
-    <input type="text" id="home-search" placeholder="Search products, e.g. 'Ankara gown', 'gele'...">
-  </div>
 </header>
+
+<div class="search-bar">
+  <input type="text" id="home-search" placeholder="Search products...">
+</div>
 
 <section class="hero-carousel" id="hero-carousel">
   <button class="hero-arrow prev" id="hero-prev" aria-label="Previous slide">&#10094;</button>
@@ -586,8 +611,8 @@
 
     <div class="hero-slide" style="--slide-bg: url('image/hero-bg.jpg');">
       <div class="hero-slide-inner">
-        <img src="image/logo.jpg" alt="E.M.B SPARKLY" class="hero-logo">
-        <h1>Turkey. Dubai. African. Sparkly.</h1>
+        <img src="image/logo.jpg" alt="EMB_Sparkly" class="hero-logo">
+        <h1>Turkey. Dubai. African.</h1>
         <p>Curated wears, jewelries, bags and shoes, sourced with care and styled for you.</p>
         <div class="hero-tags">
           <span>Turkey Wears</span>
@@ -600,9 +625,9 @@
 
     <div class="hero-slide" style="--slide-bg: url('image/slide2-bg.jpg');">
       <div class="hero-slide-inner">
-        <h1>New Arrivals Just Landed</h1>
+        <h1>New Arrivals</h1>
         <p>Fresh pieces added every week. Be the first to shop the latest styles.</p>
-        <a href="catalog.html" class="hero-cta">Shop New Arrivals</a>
+        <a href="catalog.html" class="hero-cta">Shop Now</a>
       </div>
     </div>
 
@@ -610,7 +635,7 @@
       <div class="hero-slide-inner">
         <h1>Dressed for Every Occasion</h1>
         <p>From weddings to everyday wear, find a look that fits the moment.</p>
-        <a href="catalog.html" class="hero-cta">Shop by Occasion</a>
+        <a href="catalog.html" class="hero-cta">Explore</a>
       </div>
     </div>
 
@@ -630,18 +655,15 @@
 <div class="trust-strip">
   <div class="trust-strip-inner">
     <div class="trust-item">
-      <div class="icon">&#10022;</div>
       <h4>Handpicked Quality</h4>
       <p>Every piece chosen with care</p>
     </div>
     <div class="trust-item">
-      <div class="icon">&#128666;</div>
       <h4>Ships Across the US</h4>
       <p>Reliable delivery to all states</p>
     </div>
     <div class="trust-item">
-      <div class="icon">&#8635;</div>
-      <h4>Easy 48-Hour Returns</h4>
+      <h4>48-Hour Returns</h4>
       <p>Simple process if something's off</p>
     </div>
   </div>
@@ -650,51 +672,39 @@
 <section class="categories" id="categories">
   <div class="section-heading">
     <h2>Shop by Category</h2>
-    <p>Tap a category to browse</p>
   </div>
   <div class="category-grid">
-    <a class="category-card" href="catalog.html?category=turkey-wears" data-category="turkey-wears">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=turkey-wears">
       <h3>Turkey Wears</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=dubai-wears" data-category="dubai-wears">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=dubai-wears">
       <h3>Dubai Wears</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=african-ready-to-wear" data-category="african-ready-to-wear">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=african-ready-to-wear">
       <h3>African Ready-to-Wear</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=women" data-category="women">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=women">
       <h3>Women</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=wigs" data-category="wigs">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=wigs">
       <h3>Wigs</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=men" data-category="men">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=men">
       <h3>Men</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=children" data-category="children">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=children">
       <h3>Children</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=jewelries" data-category="jewelries">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=jewelries">
       <h3>Jewelries</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=bags" data-category="bags">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=bags">
       <h3>Bags &amp; Purses</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=glasses" data-category="glasses">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=glasses">
       <h3>Glasses</h3>
     </a>
-    <a class="category-card" href="catalog.html?category=shoes" data-category="shoes">
-      <div class="cat-icon">&#10022;</div>
+    <a class="category-card" href="catalog.html?category=shoes">
       <h3>Shoes</h3>
     </a>
   </div>
@@ -704,7 +714,6 @@
   <div class="occasion-inner">
     <div class="section-heading">
       <h2>Shop by Occasion</h2>
-      <p>Find the right look for the moment</p>
     </div>
     <div class="occasion-grid">
       <a class="occasion-card" href="catalog.html?category=african-ready-to-wear">
@@ -729,7 +738,7 @@
     <p>Fresh in the store</p>
   </div>
   <div class="new-arrivals-grid" id="new-arrivals-grid">
-    <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
+    <div style="grid-column:1/-1; text-align:center; color:#767676; font-size:0.85rem; padding:30px 0;">Loading...</div>
   </div>
   <div class="view-all-wrap">
     <a href="catalog.html" class="view-all-btn">View All Products</a>
@@ -740,8 +749,8 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <div class="header-brand">
-        <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
-        <span class="brand-name">E.M.B SPARKLY</span>
+        <img src="image/logo.jpg" alt="EMB_Sparkly logo">
+        <span class="brand-name">EMB_Sparkly</span>
       </div>
       <p>Turkey Wears | Dubai Wears | African Ready-to-Wear | Adult &amp; Children Wears | Jewelries | Designer Bags | Male &amp; Female Shoes</p>
     </div>
@@ -765,7 +774,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    &copy; 2026 E.M.B SPARKLY. All rights reserved.
+    &copy; 2026 EMB_Sparkly. All rights reserved.
   </div>
 </footer>
 
@@ -774,6 +783,16 @@
   const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const CART_KEY = "emb_sparkly_cart";
+  function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
+  function updateHomeCartCount() {
+    const cart = getCart();
+    const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const el = document.getElementById("home-cart-count");
+    if (el) el.textContent = total;
+  }
+  updateHomeCartCount();
 
   document.getElementById("home-search").addEventListener("keydown", function(e) {
     if (e.key === "Enter" && e.target.value.trim() !== "") {
@@ -785,12 +804,12 @@
     const gridEl = document.getElementById("new-arrivals-grid");
     const { data: products, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url, video_url")
+      .select("id, name, price, image_url")
       .order("created_at", { ascending: false })
       .limit(5);
 
     if (error || !products || products.length === 0) {
-      gridEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">No products yet, check back soon.</div>';
+      gridEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#767676; font-size:0.85rem; padding:30px 0;">No products yet, check back soon.</div>';
       return;
     }
 
@@ -799,14 +818,9 @@
       const card = document.createElement("a");
       card.href = "product.html?id=" + product.id;
       card.className = "arrival-card";
-
-      const mediaHtml = product.image_url
-        ? `<img src="${product.image_url}" alt="${product.name}">`
-        : `<video src="${product.video_url}" muted loop autoplay playsinline></video>`;
-
       card.innerHTML = `
         <div class="img-wrap">
-          ${mediaHtml}
+          <img src="${product.image_url}" alt="${product.name}">
         </div>
         <div class="info">
           <h3>${product.name}</h3>
