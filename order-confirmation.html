@@ -5,109 +5,91 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Order Confirmed | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --black: #0d2b26;
-    --white: #ffffff;
-    --cream: #faf6ee;
-    --gray: #6b6b64;
-    --light-gray: #e5ded2;
-    --accent: #c9a227;
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
     --success: #2f7a4f;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Red Hat Text', sans-serif;
-    background: var(--white);
-    color: var(--black);
-    line-height: 1.6;
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--white);
-    border-bottom: 1px solid var(--light-gray);
-    padding: 16px 24px;
+    background: var(--deep-green);
+    padding: 14px 20px;
   }
 
-  .header-inner {
+  .header-top {
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 36px;
-    width: 36px;
+    height: 38px;
+    width: 38px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
-    font-size: 1.6rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
-  }
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
 
-  .page-wrap { max-width: 700px; margin: 0 auto; padding: 48px 16px 64px; text-align: center; }
+  .page-wrap { max-width: 600px; margin: 0 auto; padding: 40px 16px 60px; text-align: center; }
 
   .success-icon {
     width: 64px;
     height: 64px;
-    background: var(--cream);
-    border: 1px solid var(--gold);
-    color: var(--black);
+    background: #e3f3e8;
+    color: var(--success);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
-    margin: 0 auto 20px;
+    font-size: 1.8rem;
+    margin: 0 auto 18px;
   }
 
-  .page-title {
-    font-size: 2.2rem;
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-  }
-
-  .page-subtitle { color: var(--gray); font-size: 0.9rem; margin-bottom: 32px; letter-spacing: 0.06em; }
+  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 8px; }
+  .page-subtitle { color: var(--gray); font-size: 0.9rem; margin-bottom: 26px; }
 
   .card {
-    padding: 24px 0;
-    border-top: 1px solid var(--black);
+    background: #fff;
+    border-radius: 8px;
+    padding: 22px;
+    border: 1px solid rgba(13,43,38,0.08);
     text-align: left;
+    margin-bottom: 22px;
   }
 
-  .card + .card { border-bottom: 1px solid var(--black); }
-
-  .card h2 {
-    font-size: 1.2rem;
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 14px;
-  }
+  .card h2 { font-size: 1rem; color: var(--deep-green); margin-bottom: 12px; }
 
   .order-line {
     display: flex;
     justify-content: space-between;
     font-size: 0.85rem;
     padding: 6px 0;
-    border-bottom: 1px solid var(--light-gray);
+    border-bottom: 1px solid rgba(13,43,38,0.06);
   }
 
   .summary-row {
@@ -118,50 +100,38 @@
   }
 
   .summary-row.total {
+    font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
     font-size: 1.2rem;
-    border-top: 1px solid var(--light-gray);
-    padding-top: 12px;
-    margin-top: 12px;
+    color: var(--deep-green);
+    border-top: 1px solid rgba(13,43,38,0.1);
+    padding-top: 10px;
+    margin-top: 10px;
   }
 
   .meta-line { font-size: 0.85rem; color: var(--gray); margin-bottom: 6px; }
-  .meta-line strong { color: var(--black); font-weight: 500; }
+  .meta-line strong { color: var(--charcoal); }
 
-  .action-row { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
+  .action-row { display: flex; flex-direction: column; gap: 10px; }
 
   .btn {
     display: block;
-    padding: 14px;
+    padding: 12px;
+    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.9rem;
     text-align: center;
   }
 
-  .btn-primary {
-    background: var(--gold);
-    color: var(--black);
-    border: 1px solid var(--gold);
-  }
-
-  .btn-primary:hover { background: var(--gold-light); }
-
-  .btn-secondary {
-    background: var(--white);
-    color: var(--black);
-    border: 1px solid var(--black);
-  }
-
-  .btn-secondary:hover { background: var(--cream); }
+  .btn-primary { background: var(--deep-green); color: var(--gold-light); }
+  .btn-secondary { background: #fff; color: var(--deep-green); border: 1px solid rgba(13,43,38,0.2); }
 
   .empty-state { text-align: center; color: var(--gray); font-size: 0.9rem; padding: 60px 20px; }
 
   footer {
-    background: var(--black);
-    color: var(--white);
-    padding: 28px 24px;
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
     text-align: center;
     font-size: 0.8rem;
   }
@@ -170,7 +140,7 @@
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="header-top">
     <a href="index.html" class="header-brand">
       <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
       <span class="brand-name">E.M.B Sparkly</span>

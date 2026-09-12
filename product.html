@@ -5,85 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --black: #0d2b26;
-    --white: #ffffff;
-    --cream: #faf6ee;
-    --gray: #6b6b64;
-    --light-gray: #e5ded2;
-    --accent: #c9a227;
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
     --success: #2f7a4f;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Red Hat Text', sans-serif;
-    background: var(--white);
-    color: var(--black);
-    line-height: 1.6;
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--white);
-    border-bottom: 1px solid var(--light-gray);
-    padding: 16px 24px;
+    background: var(--deep-green);
+    padding: 14px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-inner {
+  .header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 36px;
-    width: 36px;
+    height: 38px;
+    width: 38px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
-    font-size: 1.6rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
-  }
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
 
-  .header-nav { display: flex; align-items: center; gap: 28px; }
-  .header-nav a { font-size: 0.8rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--black); }
-  .header-nav a:hover { opacity: 0.6; }
+  .header-icons { display: flex; align-items: center; gap: 16px; }
 
-  .header-icons { display: flex; align-items: center; gap: 20px; }
-
-  .icon-btn { color: var(--black); font-size: 1.1rem; position: relative; cursor: pointer; }
+  .icon-btn { color: var(--cream); font-size: 1.2rem; position: relative; cursor: pointer; }
 
   .cart-count {
     position: absolute;
-    top: -7px;
-    right: -9px;
-    background: var(--black);
-    color: var(--white);
-    font-size: 0.6rem;
+    top: -8px;
+    right: -10px;
+    background: var(--gold);
+    color: var(--deep-green-dark);
+    font-size: 0.65rem;
     font-weight: 600;
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -91,157 +79,134 @@
   }
 
   .breadcrumb {
-    max-width: 1200px;
-    margin: 24px auto 0;
-    padding: 0 24px;
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
+    max-width: 1000px;
+    margin: 16px auto 0;
+    padding: 0 16px;
+    font-size: 0.8rem;
     color: var(--gray);
   }
 
-  .breadcrumb a { color: var(--black); border-bottom: 1px solid var(--light-gray); }
-  .breadcrumb a:hover { border-bottom-color: var(--black); }
+  .breadcrumb a { color: var(--deep-green); }
 
   .product-wrap {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 28px 24px 72px;
+    padding: 16px 16px 60px;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 26px;
   }
 
   @media (min-width: 760px) {
-    .product-wrap { grid-template-columns: 1fr 1fr; gap: 48px; padding-top: 40px; }
+    .product-wrap { grid-template-columns: 1fr 1fr; gap: 36px; }
   }
 
   .product-img-wrap {
     width: 100%;
-    aspect-ratio: 3 / 4;
-    background: var(--cream);
+    aspect-ratio: 1 / 1;
+    background: #eee;
+    border-radius: 10px;
     overflow: hidden;
   }
 
   .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .product-name {
-    font-size: clamp(1.6rem, 3vw, 2rem);
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    line-height: 1.2;
-  }
+  .product-name { font-size: 1.7rem; font-weight: 600; color: var(--deep-green); }
 
   .product-price {
-    font-weight: 400;
-    font-size: 1.4rem;
-    margin: 12px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    color: var(--deep-green);
+    margin: 10px 0;
   }
 
-  .divider {
-    border: none;
-    border-top: 1px solid var(--light-gray);
-    margin: 24px 0;
-  }
-
-  .stock-line { font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .stock-line { font-size: 0.85rem; margin-bottom: 18px; }
   .stock-line.in-stock { color: var(--success); }
   .stock-line.low-stock { color: #b5850f; }
   .stock-line.out-stock { color: #b3413b; }
 
-  .product-desc { font-size: 0.92rem; color: var(--black); margin: 18px 0; white-space: pre-line; }
+  .product-desc { font-size: 0.92rem; color: var(--charcoal); margin-bottom: 22px; white-space: pre-line; }
 
-  .qty-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
 
-  .qty-row label {
-    font-size: 0.78rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--gray);
-  }
+  .qty-row label { font-size: 0.85rem; }
 
   .qty-controls {
     display: flex;
     align-items: center;
-    border: 1px solid var(--black);
+    border: 1px solid rgba(13,43,38,0.2);
+    border-radius: 6px;
+    overflow: hidden;
   }
 
   .qty-controls button {
-    background: var(--white);
+    background: #fff;
     border: none;
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     font-size: 1rem;
     cursor: pointer;
-    color: var(--black);
+    color: var(--deep-green);
   }
 
-  .qty-controls button:hover { background: var(--cream); }
-
   .qty-controls span {
-    width: 38px;
+    width: 36px;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .add-cart-btn {
     width: 100%;
-    padding: 15px;
-    background: var(--gold);
-    color: var(--black);
+    padding: 13px;
+    background: var(--deep-green);
+    color: var(--gold-light);
     border: none;
+    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.95rem;
     cursor: pointer;
   }
 
   .add-cart-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .add-cart-btn:hover:not(:disabled) { background: var(--gold-light); }
+  .add-cart-btn:hover:not(:disabled) { background: var(--deep-green-dark); }
 
   .add-feedback {
     margin-top: 10px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--success);
     display: none;
     text-align: center;
-    letter-spacing: 0.06em;
   }
 
   .whatsapp-inline {
     display: inline-block;
-    margin-top: 16px;
+    margin-top: 14px;
     font-size: 0.82rem;
     color: var(--gray);
   }
 
-  .whatsapp-inline a { color: var(--black); font-weight: 600; border-bottom: 1px solid var(--black); }
+  .whatsapp-inline a { color: var(--deep-green); font-weight: 600; }
 
   .empty-state { text-align: center; color: var(--gray); font-size: 0.9rem; padding: 60px 20px; }
 
   footer {
-    background: var(--black);
-    color: var(--white);
-    padding: 28px 24px;
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
     text-align: center;
     font-size: 0.8rem;
   }
-
-  footer a { color: rgba(255,255,255,0.5); }
-  footer a:hover { color: var(--white); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="header-top">
     <a href="index.html" class="header-brand">
       <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
       <span class="brand-name">E.M.B Sparkly</span>
     </a>
-    <div class="header-nav">
-      <a href="catalog.html">Shop</a>
-    </div>
     <div class="header-icons">
       <a href="cart.html" class="icon-btn" title="Cart">
         &#128722;
@@ -261,7 +226,7 @@
 
 <footer>
   <div style="margin-bottom:10px;">
-    <a href="returns.html">Returns &amp; Refunds</a>
+    <a href="returns.html" style="color: var(--gold-light); font-size: 0.85rem;">Returns &amp; Refunds</a>
   </div>
   &copy; 2026 E.M.B Sparkly. All rights reserved.
 </footer>
@@ -287,8 +252,7 @@
   function updateCartCountBadge() {
     const cart = getCart();
     const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const el = document.getElementById("cart-count");
-    if (el) el.textContent = totalQty;
+    document.getElementById("cart-count").textContent = totalQty;
   }
 
   updateCartCountBadge();
@@ -331,7 +295,7 @@
     } else if (product.stock <= 2) {
       stockHtml = `<div class="stock-line low-stock">Only ${product.stock} left in stock</div>`;
     } else {
-      stockHtml = '<div class="stock-line in-stock">In stock, ready to ship</div>';
+      stockHtml = '<div class="stock-line in-stock">In stock</div>';
     }
 
     container.innerHTML = `
@@ -343,7 +307,6 @@
           <h1 class="product-name">${product.name}</h1>
           <div class="product-price">$${Number(product.price).toFixed(2)}</div>
           ${stockHtml}
-          <hr class="divider">
           <div class="product-desc">${product.description || "No description provided yet."}</div>
 
           <div class="qty-row">
@@ -358,7 +321,7 @@
           <button class="add-cart-btn" id="add-cart-btn" ${product.stock <= 0 ? "disabled" : ""}>
             ${product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
           </button>
-          <div class="add-feedback" id="add-feedback">Added to Cart</div>
+          <div class="add-feedback" id="add-feedback">Added to cart.</div>
 
           <div class="whatsapp-inline">
             Questions about this item? <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">Ask on WhatsApp</a>

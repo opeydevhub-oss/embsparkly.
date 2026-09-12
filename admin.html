@@ -5,18 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --black: #0d2b26;
-    --white: #ffffff;
-    --cream: #faf6ee;
-    --gray: #6b6b64;
-    --light-gray: #e5ded2;
-    --accent: #c9a227;
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
     --error: #b3413b;
     --success: #2f7a4f;
     --warning: #b5850f;
@@ -25,17 +24,17 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Red Hat Text', sans-serif;
-    background: var(--white);
-    color: var(--black);
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
+  h1, h2, .brand-name { font-family: 'Cormorant Garamond', serif; }
 
   header {
-    background: var(--black);
-    padding: 14px 24px;
+    background: var(--deep-green);
+    padding: 14px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -51,30 +50,20 @@
     width: 34px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgba(255,255,255,0.3);
   }
 
-  .brand-name {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
-    font-size: 1.3rem;
-    letter-spacing: 0.06em;
-    color: var(--white);
-  }
+  .brand-name { color: var(--gold-light); font-size: 1.3rem; font-weight: 700; }
 
   .logout-btn {
     background: transparent;
-    border: 1px solid rgba(255,255,255,0.4);
-    color: var(--white);
-    padding: 8px 16px;
-    font-family: 'Red Hat Text', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    border: 1px solid rgba(201,162,39,0.5);
+    color: var(--gold-light);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
     cursor: pointer;
   }
-
-  .logout-btn:hover { background: var(--white); color: var(--black); }
 
   #gate-screen {
     min-height: 80vh;
@@ -89,23 +78,22 @@
 
   #gate-screen a {
     display: inline-block;
-    margin-top: 16px;
-    background: var(--black);
-    color: var(--white);
-    padding: 12px 30px;
+    margin-top: 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 5px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.78rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.9rem;
   }
 
   main { display: none; }
 
   .tab-bar {
     display: flex;
-    background: var(--white);
-    border-bottom: 1px solid var(--black);
+    background: #fff;
+    border-bottom: 1px solid rgba(13,43,38,0.1);
     position: sticky;
     top: 62px;
     z-index: 40;
@@ -114,107 +102,83 @@
 
   .tab-btn {
     flex: 1;
-    padding: 14px 12px;
+    padding: 13px 10px;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    letter-spacing: 0.06em;
     color: var(--gray);
     background: none;
     border: none;
+    border-bottom: 2px solid transparent;
     cursor: pointer;
     white-space: nowrap;
   }
 
   .tab-btn.active {
-    color: var(--black);
-    border-bottom: 2px solid var(--black);
+    color: var(--deep-green);
+    border-bottom-color: var(--gold);
     font-weight: 600;
   }
 
-  .tab-panel { display: none; max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+  .tab-panel { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
   .tab-panel.active { display: block; }
 
-  .page-title {
-    font-size: 2rem;
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-  }
-
-  .page-subtitle {
-    color: var(--gray);
-    font-size: 0.85rem;
-    margin-bottom: 26px;
-    letter-spacing: 0.06em;
-  }
+  .page-title { font-size: 1.5rem; font-weight: 600; color: var(--deep-green); margin-bottom: 4px; }
+  .page-subtitle { color: var(--gray); font-size: 0.85rem; margin-bottom: 22px; }
 
   .card {
-    padding: 24px 0;
-    border-top: 1px solid var(--black);
-    border-bottom: 1px solid var(--black);
-    margin-bottom: 24px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid rgba(13,43,38,0.08);
+    margin-bottom: 22px;
   }
 
-  .card h2 {
-    font-size: 1.2rem;
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 16px;
-  }
+  .card h2 { font-size: 1.1rem; color: var(--deep-green); margin-bottom: 14px; }
 
-  label {
-    display: block;
-    font-size: 0.75rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--gray);
-    margin-bottom: 6px;
-    margin-top: 16px;
-  }
-
+  label { display: block; font-size: 0.8rem; margin-bottom: 5px; margin-top: 14px; }
   label:first-of-type { margin-top: 0; }
 
   input, textarea, select {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--light-gray);
-    background: var(--white);
-    font-family: 'Red Hat Text', sans-serif;
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 1px solid rgba(13,43,38,0.18);
+    font-family: 'Jost', sans-serif;
     font-size: 0.9rem;
     outline: none;
-    color: var(--black);
+    background: #fff;
+    color: var(--charcoal);
   }
 
-  input:focus, textarea:focus, select:focus { border-color: var(--black); }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); }
   textarea { resize: vertical; min-height: 70px; }
 
   .submit-btn {
     width: 100%;
-    margin-top: 24px;
-    padding: 15px;
-    background: var(--gold);
-    color: var(--black);
+    margin-top: 18px;
+    padding: 12px;
+    background: var(--deep-green);
+    color: var(--gold-light);
     border: none;
+    border-radius: 5px;
     font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.95rem;
     cursor: pointer;
   }
 
-  .submit-btn:hover { background: var(--gold-light); }
+  .submit-btn:hover { background: var(--deep-green-dark); }
   .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .form-message { margin-top: 14px; font-size: 0.83rem; display: none; text-align: center; }
+  .form-message { margin-top: 12px; font-size: 0.83rem; display: none; text-align: center; }
   .form-message.error { color: var(--error); display: block; }
   .form-message.success { color: var(--success); display: block; }
 
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    margin-bottom: 28px;
+    gap: 12px;
+    margin-bottom: 24px;
   }
 
   @media (min-width: 600px) {
@@ -222,42 +186,40 @@
   }
 
   .stat-box {
-    background: var(--cream);
-    padding: 20px;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 8px;
+    padding: 16px;
     text-align: center;
   }
 
   .stat-box .value {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
-    font-size: 2rem;
-    color: var(--black);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--deep-green);
   }
 
-  .stat-box .label {
-    font-size: 0.7rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--gray);
-    margin-top: 4px;
-  }
+  .stat-box .label { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
 
   .product-list, .order-list { display: flex; flex-direction: column; gap: 12px; }
 
   .product-row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px;
-    border: 1px solid var(--light-gray);
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 6px;
   }
 
-  .product-row.low-stock { border-color: var(--warning); }
+  .product-row.low-stock { border-color: rgba(181,133,15,0.5); background: #fffaf0; }
 
   .product-row img {
-    width: 52px; height: 66px;
+    width: 52px; height: 52px;
     object-fit: cover;
-    background: var(--cream);
+    border-radius: 5px;
+    background: #eee;
     flex-shrink: 0;
   }
 
@@ -265,7 +227,7 @@
 
   .product-row .info h3 {
     font-size: 0.9rem;
-    font-weight: 400;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -274,10 +236,9 @@
   .product-row .info p { font-size: 0.78rem; color: var(--gray); }
 
   .stock-badge {
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-size: 0.7rem;
     padding: 3px 8px;
+    border-radius: 10px;
     background: #fdecea;
     color: var(--error);
     margin-left: 6px;
@@ -285,23 +246,22 @@
 
   .delete-btn {
     background: none;
-    border: 1px solid var(--error);
+    border: 1px solid rgba(179,65,59,0.4);
     color: var(--error);
-    padding: 7px 14px;
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
     cursor: pointer;
     flex-shrink: 0;
   }
 
-  .delete-btn:hover { background: var(--error); color: var(--white); }
-
   .empty-state { text-align: center; color: var(--gray); font-size: 0.85rem; padding: 20px 0; }
 
   .order-card {
-    border: 1px solid var(--light-gray);
-    padding: 18px;
-    background: var(--white);
+    border: 1px solid rgba(13,43,38,0.1);
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
   }
 
   .order-card-top {
@@ -313,15 +273,15 @@
   }
 
   .order-id { font-size: 0.78rem; color: var(--gray); }
-  .order-total { font-weight: 700; font-size: 1.2rem; }
+  .order-total { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.2rem; color: var(--deep-green); }
 
   .status-pill {
     display: inline-block;
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 4px 12px;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 12px;
     font-weight: 600;
+    text-transform: capitalize;
   }
 
   .status-pending { background: #fdf3d9; color: var(--warning); }
@@ -330,7 +290,7 @@
   .status-delivered { background: #e3f3e8; color: var(--success); }
   .status-cancelled { background: #fdecea; color: var(--error); }
 
-  .order-items-list { font-size: 0.82rem; color: var(--black); margin: 8px 0; }
+  .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
   .order-items-list div { padding: 2px 0; }
 
   .order-meta { font-size: 0.78rem; color: var(--gray); margin-bottom: 10px; }
@@ -338,17 +298,16 @@
 
   .order-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
-  .order-actions select { flex: 1; min-width: 130px; padding: 9px 10px; font-size: 0.82rem; }
+  .order-actions select { flex: 1; min-width: 130px; padding: 8px 10px; font-size: 0.82rem; }
 
   .whatsapp-btn {
     background: #25D366;
     color: #fff;
     border: none;
-    padding: 9px 16px;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
     font-weight: 600;
-    text-transform: uppercase;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
@@ -358,25 +317,25 @@
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     padding-bottom: 4px;
   }
 
   .filter-chip {
-    padding: 8px 16px;
-    background: var(--white);
-    border: 1px solid var(--black);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(13,43,38,0.15);
+    background: #fff;
+    font-size: 0.78rem;
+    color: var(--gray);
     white-space: nowrap;
     cursor: pointer;
   }
 
   .filter-chip.active {
-    background: var(--black);
-    color: var(--white);
-    border-color: var(--black);
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border-color: var(--deep-green);
   }
 </style>
 </head>
@@ -478,6 +437,7 @@
           <option value="bags">Designer Bags, Purses & Clutches</option>
           <option value="glasses">Glasses</option>
           <option value="shoes">Shoes</option>
+          <option value="bras">Bras</option>
         </select>
 
         <label for="p-price">Price (USD)</label>

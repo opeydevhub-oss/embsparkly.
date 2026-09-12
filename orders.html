@@ -5,18 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Orders | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --black: #0d2b26;
-    --white: #ffffff;
-    --cream: #faf6ee;
-    --gray: #6b6b64;
-    --light-gray: #e5ded2;
-    --accent: #c9a227;
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
     --success: #2f7a4f;
     --warning: #b5850f;
     --error: #b3413b;
@@ -25,79 +24,64 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Red Hat Text', sans-serif;
-    background: var(--white);
-    color: var(--black);
-    line-height: 1.6;
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--white);
-    border-bottom: 1px solid var(--light-gray);
-    padding: 16px 24px;
+    background: var(--deep-green);
+    padding: 14px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-inner {
+  .header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 36px;
-    width: 36px;
+    height: 38px;
+    width: 38px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
-    font-size: 1.6rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
-  }
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
 
   .logout-btn {
     background: transparent;
-    border: 1px solid var(--black);
-    color: var(--black);
-    padding: 8px 18px;
-    font-family: 'Red Hat Text', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    border: 1px solid rgba(201,162,39,0.5);
+    color: var(--gold-light);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
     cursor: pointer;
   }
 
-  .logout-btn:hover { background: var(--black); color: var(--white); }
+  .page-wrap { max-width: 800px; margin: 0 auto; padding: 24px 16px 60px; }
 
-  .page-wrap { max-width: 800px; margin: 0 auto; padding: 32px 24px 60px; }
-
-  .page-title {
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 28px;
-  }
+  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 20px; }
 
   .order-card {
-    border-top: 1px solid var(--black);
-    padding: 18px 0;
-    margin-bottom: 8px;
+    border: 1px solid rgba(13,43,38,0.1);
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+    margin-bottom: 14px;
   }
-
-  .order-card:last-of-type { border-bottom: 1px solid var(--black); }
 
   .order-card-top {
     display: flex;
@@ -107,22 +91,18 @@
     margin-bottom: 10px;
   }
 
-  .order-id { font-size: 0.78rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--gray); }
+  .order-id { font-size: 0.78rem; color: var(--gray); }
   .order-date { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
-
-  .order-total {
-    font-weight: 700;
-    font-size: 1.2rem;
-  }
+  .order-total { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.2rem; color: var(--deep-green); }
 
   .status-pill {
     display: inline-block;
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 4px 12px;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 12px;
     font-weight: 600;
-    margin-top: 6px;
+    text-transform: capitalize;
+    margin-top: 4px;
   }
 
   .status-pending { background: #fdf3d9; color: var(--warning); }
@@ -131,7 +111,7 @@
   .status-delivered { background: #e3f3e8; color: var(--success); }
   .status-cancelled { background: #fdecea; color: var(--error); }
 
-  .order-items-list { font-size: 0.82rem; color: var(--black); margin: 8px 0; }
+  .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
   .order-items-list div { padding: 2px 0; }
 
   .order-meta { font-size: 0.78rem; color: var(--gray); margin-top: 8px; }
@@ -145,22 +125,19 @@
 
   .empty-state a {
     display: inline-block;
-    margin-top: 16px;
-    background: var(--gold);
-    color: var(--black);
-    padding: 12px 30px;
+    margin-top: 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 5px;
     font-weight: 600;
-    font-size: 0.78rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.85rem;
   }
 
-  .empty-state a:hover { background: var(--gold-light); }
-
   footer {
-    background: var(--black);
-    color: var(--white);
-    padding: 28px 24px;
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
     text-align: center;
     font-size: 0.8rem;
   }
@@ -169,12 +146,12 @@
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="header-top">
     <a href="index.html" class="header-brand">
       <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
       <span class="brand-name">E.M.B Sparkly</span>
     </a>
-    <a href="catalog.html" class="logout-btn">Shop</a>
+    <button class="logout-btn" id="logout-btn" style="display:none;">Log Out</button>
   </div>
 </header>
 
@@ -208,6 +185,8 @@
       `;
       return;
     }
+
+    document.getElementById("logout-btn").style.display = "inline-block";
 
     const { data: orders, error } = await supabaseClient
       .from("orders")
@@ -261,6 +240,11 @@
       container.appendChild(card);
     });
   }
+
+  document.getElementById("logout-btn").addEventListener("click", async function() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  });
 
   loadOrders();
 </script>

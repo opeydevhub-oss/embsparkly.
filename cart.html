@@ -5,102 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Cart | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --black: #0d2b26;
-    --white: #ffffff;
-    --cream: #faf6ee;
-    --gray: #6b6b64;
-    --light-gray: #e5ded2;
-    --accent: #c9a227;
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
     --error: #b3413b;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Red Hat Text', sans-serif;
-    background: var(--white);
-    color: var(--black);
-    line-height: 1.6;
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--white);
-    border-bottom: 1px solid var(--light-gray);
-    padding: 16px 24px;
+    background: var(--deep-green);
+    padding: 14px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-inner {
+  .header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 36px;
-    width: 36px;
+    height: 38px;
+    width: 38px;
     border-radius: 50%;
     object-fit: cover;
   }
 
-  .brand-name {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
-    font-size: 1.6rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
-  }
+  .brand-name { color: var(--gold-light); font-size: 1.5rem; font-weight: 700; }
 
-  .header-nav { display: flex; align-items: center; gap: 28px; }
-  .header-nav a { font-size: 0.8rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--black); }
-  .header-nav a:hover { opacity: 0.6; }
+  .page-wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
 
-  .page-wrap { max-width: 900px; margin: 0 auto; padding: 32px 24px 60px; }
-
-  .page-title {
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 24px;
-  }
+  .page-title { font-size: 1.6rem; font-weight: 600; color: var(--deep-green); margin-bottom: 20px; }
 
   .cart-item {
     display: flex;
-    gap: 16px;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--light-gray);
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(13,43,38,0.08);
     align-items: center;
   }
 
   .cart-item img {
-    width: 72px;
-    height: 96px;
+    width: 66px;
+    height: 66px;
     object-fit: cover;
-    background: var(--cream);
+    border-radius: 6px;
+    background: #eee;
     flex-shrink: 0;
   }
 
   .cart-item .info { flex: 1; min-width: 0; }
 
   .cart-item h3 {
+    font-family: 'Jost', sans-serif;
     font-size: 0.9rem;
-    font-weight: 400;
-    letter-spacing: 0.03em;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -111,28 +95,30 @@
   .qty-controls {
     display: flex;
     align-items: center;
-    border: 1px solid var(--black);
+    border: 1px solid rgba(13,43,38,0.2);
+    border-radius: 6px;
+    overflow: hidden;
     flex-shrink: 0;
   }
 
   .qty-controls button {
-    background: var(--white);
+    background: #fff;
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     font-size: 0.9rem;
     cursor: pointer;
-    color: var(--black);
+    color: var(--deep-green);
   }
 
-  .qty-controls button:hover { background: var(--cream); }
-
-  .qty-controls span { width: 30px; text-align: center; font-size: 0.85rem; }
+  .qty-controls span { width: 28px; text-align: center; font-size: 0.85rem; }
 
   .line-total {
-    font-weight: 400;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
     font-size: 1rem;
-    width: 80px;
+    color: var(--deep-green);
+    width: 62px;
     text-align: right;
     flex-shrink: 0;
   }
@@ -140,54 +126,54 @@
   .remove-btn {
     background: none;
     border: none;
-    border-bottom: 1px solid var(--error);
     color: var(--error);
     font-size: 0.72rem;
-    letter-spacing: 0.06em;
     cursor: pointer;
     flex-shrink: 0;
   }
 
   .summary-card {
-    margin-top: 32px;
-    padding-top: 20px;
-    border-top: 1px solid var(--black);
-    max-width: 420px;
-    margin-left: auto;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-top: 26px;
   }
 
   .summary-row {
     display: flex;
     justify-content: space-between;
     font-size: 0.9rem;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    color: var(--charcoal);
   }
 
   .summary-row.total {
+    font-family: 'Cormorant Garamond', serif;
     font-weight: 700;
-    font-size: 1.1rem;
-    border-top: 1px solid var(--light-gray);
+    font-size: 1.3rem;
+    color: var(--deep-green);
+    border-top: 1px solid rgba(13,43,38,0.1);
     padding-top: 12px;
     margin-top: 12px;
   }
 
-  .shipping-note { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+  .shipping-note { font-size: 0.75rem; color: var(--gray); margin-top: 4px; }
 
   .checkout-btn {
     width: 100%;
-    margin-top: 20px;
-    padding: 15px;
-    background: var(--gold);
-    color: var(--black);
+    margin-top: 18px;
+    padding: 13px;
+    background: var(--deep-green);
+    color: var(--gold-light);
     border: none;
+    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.95rem;
     cursor: pointer;
   }
 
-  .checkout-btn:hover { background: var(--gold-light); }
+  .checkout-btn:hover { background: var(--deep-green-dark); }
 
   .empty-state {
     text-align: center;
@@ -198,22 +184,19 @@
 
   .empty-state a {
     display: inline-block;
-    margin-top: 16px;
-    background: var(--gold);
-    color: var(--black);
-    padding: 12px 30px;
+    margin-top: 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    padding: 10px 22px;
+    border-radius: 5px;
     font-weight: 600;
-    font-size: 0.78rem;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+    font-size: 0.85rem;
   }
 
-  .empty-state a:hover { background: var(--gold-light); }
-
   footer {
-    background: var(--black);
-    color: var(--white);
-    padding: 28px 24px;
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
     text-align: center;
     font-size: 0.8rem;
   }
@@ -222,14 +205,11 @@
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="header-top">
     <a href="index.html" class="header-brand">
       <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
       <span class="brand-name">E.M.B Sparkly</span>
     </a>
-    <div class="header-nav">
-      <a href="catalog.html">Continue Shopping</a>
-    </div>
   </div>
 </header>
 
@@ -265,8 +245,8 @@
 
   function calculateShipping(totalWeightKg) {
     if (totalWeightKg <= 0) return 0;
-    if (totalWeightKg <= 0.8) return 5;
-    if (totalWeightKg <= 1.5) return 10;
+    if (totalWeightKg <= 0.8) return 4.99;
+    if (totalWeightKg <= 1.5) return 9.99;
     if (totalWeightKg <= 2) return 15;
     const extraSteps = Math.ceil((totalWeightKg - 2) / 0.8);
     return 15 + (extraSteps * 5);
@@ -361,14 +341,26 @@
       `;
     });
 
-    const shipping = calculateShipping(totalWeight);
+    const FREE_SHIPPING_THRESHOLD = 99;
+    const freeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+    const shipping = freeShipping ? 0 : calculateShipping(totalWeight);
     const total = subtotal + shipping;
+    const remainingForFree = FREE_SHIPPING_THRESHOLD - subtotal;
+
+    const shippingDisplay = freeShipping ? "FREE" : "$" + shipping.toFixed(2);
+
+    const freeShippingNote = freeShipping
+      ? '<div class="shipping-note" style="color: #2f7a4f;">You have unlocked FREE shipping.</div>'
+      : (remainingForFree > 0
+          ? '<div class="shipping-note" style="color: var(--gold); font-weight: 600;">Add $' + remainingForFree.toFixed(2) + ' more to unlock FREE shipping.</div>'
+          : "");
 
     container.innerHTML = `
       <div class="cart-items">${itemsHtml}</div>
       <div class="summary-card">
         <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="summary-row"><span>Shipping</span><span>$${shipping.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span>${shippingDisplay}</span></div>
+        ${freeShippingNote}
         <div class="shipping-note">Based on total package weight (${totalWeight.toFixed(2)}kg). Ships to US states only.</div>
         <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
         <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>

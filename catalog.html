@@ -5,84 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shop | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --black: #0d2b26;
-    --white: #ffffff;
-    --cream: #faf6ee;
-    --gray: #6b6b64;
-    --light-gray: #e5ded2;
-    --accent: #c9a227;
+    --deep-green: #0d2b26;
+    --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --cream: #faf6ee;
+    --charcoal: #1a1a1a;
+    --gray: #6b6b64;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Red Hat Text', sans-serif;
-    background: var(--white);
-    color: var(--black);
-    line-height: 1.6;
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-family: 'Newsreader', serif; font-weight: 200; }
+  h1, h2, h3, .brand-name { font-family: 'Cormorant Garamond', serif; }
   a { text-decoration: none; color: inherit; }
 
   header {
-    background: var(--white);
-    border-bottom: 1px solid var(--light-gray);
-    padding: 16px 24px;
+    background: var(--deep-green);
+    padding: 14px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
   }
 
-  .header-inner {
+  .header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
+    gap: 12px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
   .header-brand { display: flex; align-items: center; gap: 10px; }
 
   .header-brand img {
-    height: 36px;
-    width: 36px;
+    height: 38px;
+    width: 38px;
     border-radius: 50%;
     object-fit: cover;
   }
 
   .brand-name {
-    font-family: 'Newsreader', serif;
-    font-weight: 200;
+    color: var(--gold-light);
     font-size: 1.6rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
+    font-weight: 700;
+    white-space: nowrap;
   }
 
-  .header-nav { display: flex; align-items: center; gap: 28px; }
-  .header-nav a { font-size: 0.8rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--black); }
-  .header-nav a:hover { opacity: 0.6; }
+  .header-icons { display: flex; align-items: center; gap: 16px; }
 
-  .header-icons { display: flex; align-items: center; gap: 20px; }
-
-  .icon-btn { color: var(--black); font-size: 1.1rem; position: relative; cursor: pointer; }
+  .icon-btn { color: var(--cream); font-size: 1.2rem; position: relative; cursor: pointer; }
 
   .cart-count {
     position: absolute;
-    top: -7px;
-    right: -9px;
-    background: var(--black);
-    color: var(--white);
-    font-size: 0.6rem;
+    top: -8px;
+    right: -10px;
+    background: var(--gold);
+    color: var(--deep-green-dark);
+    font-size: 0.65rem;
     font-weight: 600;
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -90,115 +84,111 @@
   }
 
   .search-bar {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 16px 24px 0;
+    margin-top: 12px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .search-bar input {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid var(--light-gray);
-    background: var(--white);
-    color: var(--black);
-    font-family: 'Red Hat Text', sans-serif;
-    font-size: 0.9rem;
+    padding: 11px 16px;
+    border-radius: 24px;
+    border: 1px solid rgba(201,162,39,0.4);
+    background: rgba(255,255,255,0.08);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.95rem;
     outline: none;
   }
 
-  .search-bar input::placeholder { color: var(--gray); }
-  .search-bar input:focus { border-color: var(--black); }
+  .search-bar input::placeholder { color: rgba(250,246,238,0.55); }
+  .search-bar input:focus { border-color: var(--gold); background: rgba(255,255,255,0.12); }
 
-  .page-wrap { max-width: 1400px; margin: 0 auto; padding: 32px 24px 60px; }
-
-  .page-title {
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 200;
-    letter-spacing: 0.06em;
-    margin-bottom: 24px;
-  }
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 22px 16px 60px; }
 
   .filter-bar {
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
     padding-bottom: 6px;
-    border-bottom: 1px solid var(--light-gray);
   }
 
   .filter-chip {
-    padding: 8px 18px;
-    background: var(--white);
-    border: 1px solid var(--black);
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    color: var(--black);
+    padding: 7px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(13,43,38,0.15);
+    background: #fff;
+    font-size: 0.8rem;
+    color: var(--gray);
     white-space: nowrap;
     cursor: pointer;
     flex-shrink: 0;
   }
 
   .filter-chip.active {
-    background: var(--black);
-    color: var(--white);
-    border-color: var(--black);
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border-color: var(--deep-green);
   }
 
-  .result-count { font-size: 0.8rem; color: var(--gray); margin-bottom: 18px; letter-spacing: 0.06em; }
+  .result-count { font-size: 0.82rem; color: var(--gray); margin-bottom: 14px; }
 
   .product-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 2px;
+    gap: 14px;
   }
 
   @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
   @media (min-width: 960px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
 
   .product-card {
-    display: block;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 8px;
+    overflow: hidden;
     cursor: pointer;
-    transition: opacity 0.15s ease;
+    transition: transform 0.15s ease, border-color 0.15s ease;
   }
 
-  .product-card:hover { opacity: 0.8; }
+  .product-card:hover { transform: translateY(-3px); border-color: var(--gold); }
 
   .product-card .img-wrap {
     width: 100%;
-    aspect-ratio: 3 / 4;
-    background: var(--cream);
+    aspect-ratio: 1 / 1;
+    background: #eee;
     overflow: hidden;
   }
 
   .product-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .product-card .info { padding: 14px 4px 8px; }
+  .product-card .info { padding: 10px 12px 14px; }
 
   .product-card h3 {
-    font-family: 'Red Hat Text', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--black);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--charcoal);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .product-card .price {
-    font-family: 'Newsreader', serif;
-    font-weight: 400;
-    color: var(--black);
-    font-size: 0.95rem;
-    margin-top: 2px;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    color: var(--deep-green);
+    font-size: 1.1rem;
+    margin-top: 3px;
   }
 
   .product-card .low-stock-tag {
     display: inline-block;
     font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    color: var(--gray);
-    margin-top: 4px;
+    color: #b5850f;
+    margin-top: 3px;
   }
 
   .empty-state {
@@ -206,51 +196,39 @@
     color: var(--gray);
     font-size: 0.9rem;
     padding: 60px 20px;
-    grid-column: 1 / -1;
   }
 
   footer {
-    background: var(--black);
-    color: var(--white);
-    padding: 28px 24px;
+    background: var(--deep-green-dark);
+    color: rgba(250,246,238,0.75);
+    padding: 32px 20px 20px;
     text-align: center;
     font-size: 0.8rem;
   }
-
-  footer a { color: rgba(255,255,255,0.5); }
-  footer a:hover { color: var(--white); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="header-top">
     <a href="index.html" class="header-brand">
       <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
       <span class="brand-name">E.M.B Sparkly</span>
     </a>
-    <div class="header-nav">
-      <a href="index.html">Home</a>
-      <a href="orders.html">Track Order</a>
-    </div>
     <div class="header-icons">
-      <a href="cart.html" class="icon-btn" title="Cart">
+      <span class="icon-btn" title="Account">&#9782;</span>
+      <span class="icon-btn" title="Cart">
         &#128722;
-        <span class="cart-count" id="cart-count">0</span>
-      </a>
+        <span class="cart-count">0</span>
+      </span>
     </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search products, e.g. 'Ankara gown', 'gele'...">
   </div>
 </header>
 
-<div class="search-bar">
-  <input type="text" id="search-input" placeholder="Search products...">
-</div>
-
 <div class="page-wrap">
-  <div class="page-title">
-    <span id="page-title-category">Shop</span>
-  </div>
-
   <div class="filter-bar" id="filter-bar">
     <div class="filter-chip active" data-category="all">All</div>
     <div class="filter-chip" data-category="turkey-wears">Turkey Wears</div>
@@ -264,6 +242,7 @@
     <div class="filter-chip" data-category="bags">Bags</div>
     <div class="filter-chip" data-category="glasses">Glasses</div>
     <div class="filter-chip" data-category="shoes">Shoes</div>
+    <div class="filter-chip" data-category="bras">Bras</div>
   </div>
 
   <div class="result-count" id="result-count"></div>
@@ -274,7 +253,7 @@
 
 <footer>
   <div style="margin-bottom:10px;">
-    <a href="returns.html">Returns &amp; Refunds</a>
+    <a href="returns.html" style="color: var(--gold-light); font-size: 0.85rem;">Returns &amp; Refunds</a>
   </div>
   &copy; 2026 E.M.B Sparkly. All rights reserved.
 </footer>
@@ -284,31 +263,12 @@
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const CART_KEY = "emb_sparkly_cart";
-  function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
-  const cartTotal = getCart().reduce((sum, item) => sum + item.quantity, 0);
-  document.getElementById("cart-count").textContent = cartTotal;
-
   let allProducts = [];
   let currentCategory = "all";
   let currentSearch = "";
 
   const gridEl = document.getElementById("product-grid");
   const countEl = document.getElementById("result-count");
-
-  const CATEGORY_NAMES = {
-    "turkey-wears": "Turkey Wears",
-    "dubai-wears": "Dubai Wears",
-    "african-ready-to-wear": "African Ready-to-Wear",
-    "women": "Women",
-    "wigs": "Wigs",
-    "men": "Men",
-    "children": "Children",
-    "jewelries": "Jewelries",
-    "bags": "Bags & Purses",
-    "glasses": "Glasses",
-    "shoes": "Shoes"
-  };
 
   async function loadAllProducts() {
     const { data, error } = await supabaseClient
@@ -378,8 +338,6 @@
       document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
       currentCategory = chip.dataset.category;
-      const titleEl = document.getElementById("page-title-category");
-      titleEl.textContent = currentCategory === "all" ? "Shop" : CATEGORY_NAMES[currentCategory] || "Shop";
       applyFilters();
     });
   });
@@ -401,8 +359,6 @@
         document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
         matchChip.classList.add("active");
       }
-      const titleEl = document.getElementById("page-title-category");
-      titleEl.textContent = CATEGORY_NAMES[catParam] || "Shop";
     }
 
     if (searchParam) {
