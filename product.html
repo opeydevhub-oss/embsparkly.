@@ -179,6 +179,23 @@
     text-align: center;
   }
 
+  .go-cart-btn {
+    display: none;
+    width: 100%;
+    margin-top: 10px;
+    padding: 13px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .go-cart-btn:hover { background: var(--deep-green-dark); }
+
   .whatsapp-inline {
     display: inline-block;
     margin-top: 14px;
@@ -322,6 +339,7 @@
             ${product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
           </button>
           <div class="add-feedback" id="add-feedback">Added to cart.</div>
+          <a href="cart.html" class="go-cart-btn" id="go-cart-btn">View Cart &amp; Checkout</a>
 
           <div class="whatsapp-inline">
             Questions about this item? <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank">Ask on WhatsApp</a>
@@ -376,6 +394,9 @@
       const feedbackEl = document.getElementById("add-feedback");
       feedbackEl.style.display = "block";
       setTimeout(() => { feedbackEl.style.display = "none"; }, 2000);
+
+      const goCartBtn = document.getElementById("go-cart-btn");
+      if (goCartBtn) goCartBtn.style.display = "block";
     });
   }
 

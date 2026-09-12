@@ -3,18 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E.M.B Sparkly | Turkey, Dubai & African Wears</title>
+<title>Log In | E.M.B Sparkly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --deep-green: #0d2b26;
     --deep-green-dark: #081f1b;
     --gold: #c9a227;
     --gold-light: #e0c05a;
+    --gold-disabled: #c7a653;
     --cream: #faf6ee;
-    --charcoal: #1a1a1a;
     --gray: #6b6b64;
+    --border: #e0d8c8;
+    --danger: #b54545;
+    --success: #2e8b57;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,489 +26,419 @@
   body {
     font-family: 'Jost', sans-serif;
     background: var(--cream);
-    color: var(--charcoal);
-    line-height: 1.5;
-  }
-
-  h1, h2, h3, .brand-name {
-    font-family: 'Cormorant Garamond', serif;
+    color: var(--deep-green);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   a { text-decoration: none; color: inherit; }
 
   header {
     background: var(--deep-green);
-    padding: 14px 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .header-top {
+    color: var(--cream);
+    padding: 14px 5vw;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    max-width: 1200px;
-    margin: 0 auto;
   }
 
-  .header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .header-brand img {
-    height: 38px;
-    width: 38px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+  .header-brand img { height: 38px; width: 38px; border-radius: 50%; object-fit: cover; }
 
   .brand-name {
-    color: var(--gold-light);
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-
-  .header-icons {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .icon-btn {
-    color: var(--cream);
-    font-size: 1.2rem;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .cart-count {
-    position: absolute;
-    top: -8px;
-    right: -10px;
-    background: var(--gold);
-    color: var(--deep-green-dark);
-    font-size: 0.65rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
     font-weight: 600;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    letter-spacing: 0.05em;
   }
 
-  .search-bar {
-    margin-top: 12px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+  .header-links { display: flex; gap: 22px; }
+
+  .header-links a {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(250,246,238,0.75);
   }
 
-  .search-bar input {
+  .header-links a:hover { color: var(--gold-light); }
+
+  .auth-card {
     width: 100%;
-    padding: 11px 16px;
-    border-radius: 24px;
-    border: 1px solid rgba(201,162,39,0.4);
-    background: rgba(255,255,255,0.08);
-    color: var(--cream);
+    max-width: 420px;
+    margin: 64px auto 48px;
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 36px 32px;
+  }
+
+  .auth-card h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 1.7rem;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  .auth-subtitle {
+    text-align: center;
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    margin-bottom: 24px;
+  }
+
+  .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 24px;
+    border: 1px solid var(--deep-green);
+  }
+
+  .mode-btn {
+    padding: 10px;
+    background: #fff;
+    color: var(--deep-green);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+  }
+
+  .mode-btn.active {
+    background: var(--deep-green);
+    color: var(--gold-light);
+  }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--deep-green);
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--deep-green);
     font-family: 'Jost', sans-serif;
     font-size: 0.95rem;
     outline: none;
   }
 
-  .search-bar input::placeholder { color: rgba(250,246,238,0.55); }
+  .field input:focus { border-color: var(--deep-green); }
 
-  .search-bar input:focus {
-    border-color: var(--gold);
-    background: rgba(255,255,255,0.12);
-  }
+  .pwd-wrap { position: relative; }
 
-  .hero {
-    position: relative;
-    background: var(--deep-green-dark);
-    color: var(--cream);
-    padding: 56px 20px 48px;
-    text-align: center;
-    overflow: hidden;
-  }
-
-  .hero::before {
-    content: "";
+  .eye-btn {
     position: absolute;
-    inset: 0;
-    background-image: url('image/hero-bg.jpg');
-    background-size: cover;
-    background-position: center;
-  }
-
-  .hero-inner {
-    position: relative;
-    z-index: 1;
-  }
-
-  .hero-logo {
-    width: 84px;
-    height: 84px;
-    margin: 0 auto 18px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid var(--gold);
-  }
-
-  .hero h1 {
-    font-size: 2.2rem;
-    font-weight: 600;
-    color: var(--gold-light);
-    margin-bottom: 10px;
-  }
-
-  .hero p {
-    max-width: 480px;
-    margin: 0 auto;
-    font-size: 0.95rem;
-    color: rgba(250,246,238,0.8);
-  }
-
-  .hero-tags {
-    margin-top: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .hero-tags span {
-    font-size: 0.75rem;
-    padding: 5px 12px;
-    border: 1px solid rgba(201,162,39,0.5);
-    border-radius: 16px;
-    color: var(--gold-light);
-  }
-
-  .categories {
-    padding: 44px 20px 56px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .section-heading {
-    text-align: center;
-    margin-bottom: 28px;
-  }
-
-  .section-heading h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--deep-green);
-  }
-
-  .section-heading p {
-    font-size: 0.85rem;
-    color: var(--gray);
-    margin-top: 4px;
-  }
-
-  .category-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-
-  @media (min-width: 640px) {
-    .category-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  @media (min-width: 960px) {
-    .category-grid { grid-template-columns: repeat(5, 1fr); }
-  }
-
-  .category-card {
-    background: #fff;
-    border: 1px solid rgba(13,43,38,0.08);
-    border-radius: 6px;
-    padding: 22px 14px;
-    text-align: center;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
     cursor: pointer;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-  }
-
-  .category-card:hover {
-    border-color: var(--gold);
-    transform: translateY(-3px);
-  }
-
-  .category-card .cat-icon {
-    font-size: 1.6rem;
-    margin-bottom: 10px;
-    color: var(--gold);
-  }
-
-  .category-card h3 {
     font-size: 1rem;
-    font-weight: 600;
-    color: var(--deep-green);
+    color: var(--gray);
   }
 
-  .new-arrivals {
-    padding: 0 20px 56px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+  .strength { display: none; margin: -6px 0 14px; font-size: 0.75rem; color: var(--gray); }
+  .strength.ok { color: var(--success); }
+  .strength-list { margin-top: 6px; padding-left: 16px; }
+  .strength-list li { margin-bottom: 2px; }
+  .strength-list li.pass { color: var(--success); }
+  .strength-list li.fail { color: var(--gray); }
+  .strength-list input { margin-right: 4px; transform: translateY(1px); }
 
-  .new-arrivals-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-
-  @media (min-width: 640px) {
-    .new-arrivals-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  @media (min-width: 960px) {
-    .new-arrivals-grid { grid-template-columns: repeat(5, 1fr); }
-  }
-
-  .arrival-card {
-    background: #fff;
-    border: 1px solid rgba(13,43,38,0.08);
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.15s ease, border-color 0.15s ease;
-    display: block;
-  }
-
-  .arrival-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-
-  .arrival-card .img-wrap {
+  .submit-btn {
     width: 100%;
-    aspect-ratio: 1 / 1;
-    background: #eee;
-    overflow: hidden;
-  }
-
-  .arrival-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-  .arrival-card .info { padding: 10px 12px 14px; }
-
-  .arrival-card h3 {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--charcoal);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .arrival-card .price {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
-    color: var(--deep-green);
-    font-size: 1.1rem;
-    margin-top: 3px;
-  }
-
-  .view-all-wrap { text-align: center; margin-top: 24px; }
-
-  .view-all-btn {
-    display: inline-block;
+    padding: 13px;
     background: var(--deep-green);
     color: var(--gold-light);
-    padding: 11px 26px;
-    border-radius: 24px;
+    border: none;
+    font-family: 'Jost', sans-serif;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
   }
+
+  .submit-btn:hover { background: var(--deep-green-dark); }
+  .submit-btn:disabled { background: var(--gold-disabled); cursor: not-allowed; }
+
+  .form-msg { display: none; margin-top: 14px; font-size: 0.83rem; color: var(--danger); text-align: center; line-height: 1.5; }
+
+  .switch-note {
+    text-align: center;
+    font-size: 0.83rem;
+    color: var(--gray);
+    margin-top: 18px;
+  }
+
+  .switch-note a { color: var(--deep-green); font-weight: 600; text-decoration: underline; }
+
+  .back-home {
+    display: block;
+    text-align: center;
+    font-size: 0.83rem;
+    color: var(--gray);
+    margin-bottom: 56px;
+  }
+
+  .back-home a { color: var(--deep-green); font-weight: 600; }
 
   footer {
+    margin-top: auto;
     background: var(--deep-green-dark);
-    color: rgba(250,246,238,0.75);
-    padding: 40px 20px 24px;
-  }
-
-  .footer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 28px;
-  }
-
-  .footer-brand .brand-name { font-size: 1.3rem; }
-
-  .footer-brand p {
-    font-size: 0.82rem;
-    margin-top: 8px;
-    max-width: 260px;
-    color: rgba(250,246,238,0.55);
-  }
-
-  .footer-col h4 {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--gold-light);
-    margin-bottom: 10px;
-    font-family: 'Jost', sans-serif;
-    font-weight: 500;
-  }
-
-  .footer-col a, .footer-col p {
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 6px;
-    color: rgba(250,246,238,0.75);
-  }
-
-  .footer-socials {
-    display: flex;
-    gap: 12px;
-    margin-top: 4px;
-  }
-
-  .footer-socials a {
-    border: 1px solid rgba(201,162,39,0.4);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    color: var(--gold-light);
-  }
-
-  .footer-bottom {
+    color: rgba(250,246,238,0.6);
+    padding: 18px 5vw;
     text-align: center;
-    font-size: 0.75rem;
-    color: rgba(250,246,238,0.4);
-    margin-top: 32px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(250,246,238,0.08);
+    font-size: 0.78rem;
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-top">
-    <a href="#" class="header-brand">
-      <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
-      <span class="brand-name">E.M.B Sparkly</span>
-    </a>
-    <div class="header-icons">
-      <span class="icon-btn" title="Account">&#9782;</span>
-      <span class="icon-btn" title="Cart">
-        &#128722;
-        <span class="cart-count">0</span>
-      </span>
-    </div>
-  </div>
-  <div class="search-bar">
-    <input type="text" id="home-search" placeholder="Search products, e.g. 'Ankara gown', 'gele'...">
+  <a href="index.html" class="header-brand">
+    <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
+    <span class="brand-name">E.M.B Sparkly</span>
+  </a>
+  <div class="header-links">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">Shop</a>
   </div>
 </header>
 
-<section class="hero">
-  <div class="hero-inner">
-    <img src="image/logo.jpg" alt="E.M.B Sparkly" class="hero-logo">
-    <h1>Turkey. Dubai. African. Sparkly.</h1>
-    <p>Curated wears, jewelries, bags and shoes, sourced with care and styled for you.</p>
-    <div class="hero-tags">
-      <span>Turkey Wears</span>
-      <span>Dubai Wears</span>
-      <span>African Ready-to-Wear</span>
-      <span>Designer Bags</span>
+<div class="auth-card">
+  <h1 id="auth-title">Welcome Back</h1>
+  <p class="auth-subtitle" id="auth-subtitle">Log in to complete your order</p>
+
+  <div class="mode-toggle">
+    <button type="button" class="mode-btn active" id="mode-login-btn">Log In</button>
+    <button type="button" class="mode-btn" id="mode-signup-btn">Sign Up</button>
+  </div>
+
+  <form id="auth-form" novalidate>
+    <div class="field" id="name-field">
+      <label for="full-name">Full Name</label>
+      <input type="text" id="full-name" placeholder="Your name">
     </div>
-  </div>
-</section>
 
-<section class="categories" id="categories">
-  <div class="section-heading">
-    <h2>Shop by Category</h2>
-    <p>Tap a category to browse</p>
-  </div>
-  <div class="category-grid">
-    <a class="category-card" href="catalog.html?category=turkey-wears" data-category="turkey-wears">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Turkey Wears</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=dubai-wears" data-category="dubai-wears">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Dubai Wears</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=african-ready-to-wear" data-category="african-ready-to-wear">
-      <div class="cat-icon">&#10022;</div>
-      <h3>African Ready-to-Wear</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=women" data-category="women">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Women</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=wigs" data-category="wigs">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Wigs</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=men" data-category="men">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Men</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=children" data-category="children">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Children</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=jewelries" data-category="jewelries">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Jewelries</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=bags" data-category="bags">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Bags &amp; Purses</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=glasses" data-category="glasses">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Glasses</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=shoes" data-category="shoes">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Shoes</h3>
-    </a>
-  </div>
-</section>
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com">
+    </div>
 
-<section class="new-arrivals" id="new-arrivals">
-  <div class="section-heading">
-    <h2>New Arrivals</h2>
-    <p>Fresh in the store</p>
-  </div>
-  <div class="new-arrivals-grid" id="new-arrivals-grid">
-    <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
-  </div>
-  <div class="view-all-wrap">
-    <a href="catalog.html" class="view-all-btn">View All Products</a>
-  </div>
-</section>
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="pwd-wrap">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button type="button" class="eye-btn" id="eye-btn" title="Show password">&#128065;</button>
+      </div>
+    </div>
+
+    <div class="strength" id="strength"></div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">Log In</button>
+    <div class="form-msg" id="form-msg"></div>
+  </form>
+
+  <p class="switch-note" id="switch-note">New to E.M.B Sparkly? <a href="#" id="switch-link">Create an account</a></p>
+</div>
+
+<div class="back-home"><a href="index.html">&#8592; Back to Home</a></div>
 
 <footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <div class="header-brand">
-        <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
-        <span class="brand-name">E.M.B Sparkly</span>
-      </div>
-      <p>Turkey Wears | Dubai Wears | African Ready-to-Wear | Adult &amp; Children Wears | Jewelries | Designer Bags | Male &amp; Female Shoes</p>
-    </div>
-    <div class="footer-col">
-      <h4>Shop</h4>
-      <a href="#categories">Categories</a>
-      <a href="#new-arrivals">New Arrivals</a>
-      <a
+  &copy; 2026 E.M.B Sparkly. All rights reserved.
+</footer>
+
+<script>
+  const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+
+  const params = new URLSearchParams(window.location.search);
+  const redirectTarget = params.get("redirect") || "index.html";
+
+  let mode = "login";
+  let sb = null;
+
+  const titleEl = document.getElementById("auth-title");
+  const subtitleEl = document.getElementById("auth-subtitle");
+  const submitBtn = document.getElementById("submit-btn");
+  const msgEl = document.getElementById("form-msg");
+  const nameField = document.getElementById("name-field");
+  const strengthEl = document.getElementById("strength");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+
+  function showMsg(text) {
+    msgEl.textContent = text;
+    msgEl.style.display = "block";
+  }
+
+  function clearMsg() {
+    msgEl.textContent = "";
+    msgEl.style.display = "none";
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    const loginBtn = document.getElementById("mode-login-btn");
+    const signupBtn = document.getElementById("mode-signup-btn");
+    const switchLink = document.getElementById("switch-link");
+    const switchNote = document.getElementById("switch-note");
+
+    if (mode === "login") {
+      loginBtn.classList.add("active");
+      signupBtn.classList.remove("active");
+      nameField.style.display = "none";
+      strengthEl.style.display = "none";
+      titleEl.textContent = "Welcome Back";
+      subtitleEl.textContent = "Log in to complete your order";
+      submitBtn.textContent = "Log In";
+      switchNote.innerHTML = 'New to E.M.B Sparkly? <a href="#" id="switch-link">Create an account</a>';
+    } else {
+      loginBtn.classList.remove("active");
+      signupBtn.classList.add("active");
+      nameField.style.display = "block";
+      titleEl.textContent = "Create Your Account";
+      subtitleEl.textContent = "Join E.M.B Sparkly";
+      submitBtn.textContent = "Sign Up";
+      switchNote.innerHTML = 'Already have an account? <a href="#" id="switch-link">Log In</a>';
+    }
+    document.getElementById("switch-link").addEventListener("click", function(e) {
+      e.preventDefault();
+      clearMsg();
+      setMode(mode === "login" ? "signup" : "login");
+    });
+    clearMsg();
+  }
+
+  document.getElementById("mode-login-btn").addEventListener("click", function() { clearMsg(); setMode("login"); });
+  document.getElementById("mode-signup-btn").addEventListener("click", function() { clearMsg(); setMode("signup"); });
+
+  const eyeBtn = document.getElementById("eye-btn");
+  eyeBtn.addEventListener("click", function() {
+    const isHidden = passwordInput.type === "password";
+    passwordInput.type = isHidden ? "text" : "password";
+  });
+
+  passwordInput.addEventListener("input", function() {
+    if (mode === "signup") updateStrength();
+  });
+
+  function updateStrength() {
+    const val = passwordInput.value;
+    const checks = [
+      { label: "At least 8 characters", ok: val.length >= 8 },
+      { label: "Contains a number", ok: /\d/.test(val) },
+      { label: "Contains a letter", ok: /[a-zA-Z]/.test(val) }
+    ];
+    const passCount = checks.filter(c => c.ok).length;
+    strengthEl.style.display = "block";
+    strengthEl.innerHTML =
+      'Password strength: ' + (passCount === 3 ? 'Strong' : passCount === 2 ? 'Good' : 'Weak') +
+      '<ul class="strength-list">' +
+      checks.map(c => '<li class="' + (c.ok ? 'pass' : 'fail') + '">' + (c.ok ? '\u2713' : '\u2717') + ' ' + c.label + '</li>').join('') +
+      '</ul>';
+  }
+
+  async function initAuth() {
+    if (typeof supabase === "undefined") {
+      msgEl.innerHTML = "Login service is still loading. Please refresh in a few seconds.";
+      msgEl.style.display = "block";
+      return;
+    }
+
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { data: sessionData } = await sb.auth.getSession();
+    if (sessionData && sessionData.session) {
+      window.location.href = redirectTarget;
+    }
+  }
+
+  async function handleAuth(e) {
+    e.preventDefault();
+    clearMsg();
+
+    if (!sb) {
+      showMsg("Login service is loading. Please try again in a moment.");
+      return;
+    }
+
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showMsg("Please enter a valid email address.");
+      return;
+    }
+    if (!password) {
+      showMsg("Please enter your password.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = mode === "login" ? "Logging In..." : "Creating Account...";
+
+    if (mode === "login") {
+      const { error } = await sb.auth.signInWithPassword({ email: email, password: password });
+      if (error) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Log In";
+        showMsg(error.message || "Could not log in. Check your email and password.");
+        return;
+      }
+      window.location.href = redirectTarget;
+    } else {
+      const fullName = document.getElementById("full-name").value.trim();
+      if (!fullName) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Sign Up";
+        showMsg("Please enter your full name.");
+        return;
+      }
+
+      const { data, error } = await sb.auth.signUp({
+        email: email,
+        password: password,
+        options: { data: { full_name: fullName } }
+      });
+
+      if (error) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Sign Up";
+        showMsg(error.message || "Could not create account.");
+        return;
+      }
+
+      if (data.session) {
+        window.location.href = redirectTarget;
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Sign Up";
+        showMsg("Check your inbox to confirm your account, then log in.");
+      }
+    }
+  }
+
+  document.getElementById("auth-form").addEventListener("submit", handleAuth);
+
+  setMode("login");
+  initAuth();
+</script>
+
+</body>
+</html>
