@@ -172,6 +172,32 @@
     aspect-ratio: 3 / 4;
     background: var(--cream);
     overflow: hidden;
+    position: relative;
+  }
+
+  .product-card .card-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+
+  .product-card:hover .card-video { display: block; }
+
+  .video-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(13,43,38,0.85);
+    color: var(--gold-light);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 20px;
+    z-index: 2;
   }
 
   .product-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -318,7 +344,7 @@
   async function loadAllProducts() {
     const { data, error } = await supabaseClient
       .from("products")
-      .select("id, name, description, price, image_url, stock, categories(slug)")
+      .select("id, name, description, price, image_url, stock, video_url, categories(slug)")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -364,8 +390,13 @@
       card.className = "product-card";
       const isLow = product.stock > 0 && product.stock <= 2;
       const isOut = product.stock <= 0;
+      const hasVideo = !!product.video_url;
+      const videoHtml = hasVideo
+        ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" muted loop playsinline preload="none"></video>'
+        : "";
       card.innerHTML = `
         <div class="img-wrap">
+          ${videoHtml}
           <img src="${product.image_url}" alt="${product.name}">
         </div>
         <div class="info">
@@ -374,6 +405,17 @@
           ${isOut ? '<span class="low-stock-tag">Out of stock</span>' : (isLow ? '<span class="low-stock-tag">Only ' + product.stock + ' left</span>' : '')}
         </div>
       `;
+
+      if (hasVideo) {
+        const video = card.querySelector(".card-video");
+        card.addEventListener("mouseenter", function() {
+          video.play().catch(function() {});
+        });
+        card.addEventListener("mouseleave", function() {
+          video.pause();
+        });
+      }
+
       gridEl.appendChild(card);
     });
   }

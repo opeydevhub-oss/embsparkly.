@@ -445,6 +445,32 @@
     aspect-ratio: 1 / 1;
     background: #eee;
     overflow: hidden;
+    position: relative;
+  }
+
+  .arrival-card .card-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+
+  .arrival-card:hover .card-video { display: block; }
+
+  .video-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(13,43,38,0.85);
+    color: var(--gold-light);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    z-index: 2;
   }
 
   .arrival-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -782,7 +808,7 @@
     const gridEl = document.getElementById("new-arrivals-grid");
     const { data: products, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url")
+      .select("id, name, price, image_url, video_url")
       .order("created_at", { ascending: false })
       .limit(5);
 
@@ -796,8 +822,13 @@
       const card = document.createElement("a");
       card.href = "product.html?id=" + product.id;
       card.className = "arrival-card";
+      const hasVideo = !!product.video_url;
+      const videoHtml = hasVideo
+        ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" muted loop playsinline preload="none"></video>'
+        : "";
       card.innerHTML = `
         <div class="img-wrap">
+          ${videoHtml}
           <img src="${product.image_url}" alt="${product.name}">
         </div>
         <div class="info">
@@ -805,6 +836,17 @@
           <div class="price">$${Number(product.price).toFixed(2)}</div>
         </div>
       `;
+
+      if (hasVideo) {
+        const video = card.querySelector(".card-video");
+        card.addEventListener("mouseenter", function() {
+          video.play().catch(function() {});
+        });
+        card.addEventListener("mouseleave", function() {
+          video.pause();
+        });
+      }
+
       gridEl.appendChild(card);
     });
   }

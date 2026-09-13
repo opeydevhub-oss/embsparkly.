@@ -154,6 +154,65 @@
   input:focus, textarea:focus, select:focus { border-color: var(--gold); }
   textarea { resize: vertical; min-height: 70px; }
 
+  .field-hint { font-size: 0.76rem; color: #6b6b64; margin-top: 4px; }
+
+  .sizes-checklist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+  .size-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    padding: 7px 11px;
+    border: 1px solid rgba(13,43,38,0.25);
+    border-radius: 5px;
+    font-size: 0.78rem;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .size-check input { width: auto; padding: 0; margin: 0; }
+
+  .size-check.checked { background: rgba(201,162,39,0.12); border-color: var(--gold); }
+
+  .color-row { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
+
+  .color-row input[type="text"] { flex: 1; }
+
+  .color-row input[type="color"] {
+    width: 44px;
+    height: 42px;
+    flex-shrink: 0;
+    padding: 3px;
+    border-radius: 5px;
+    border: 1px solid rgba(13,43,38,0.25);
+    cursor: pointer;
+  }
+
+  .color-row .remove-color-btn {
+    flex-shrink: 0;
+    padding: 9px 12px;
+    background: #f4e7dc;
+    color: #a54a2a;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .small-add-btn {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: var(--deep-green);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .small-add-btn:hover { background: #081f1b; }
+
   .submit-btn {
     width: 100%;
     margin-top: 18px;
@@ -455,6 +514,18 @@
         <label for="p-image">Product Photo</label>
         <input type="file" id="p-image" accept="image/*" required>
 
+        <label for="p-video">Product Video URL (optional)</label>
+        <input type="text" id="p-video" placeholder="e.g. https://embsparkly.com/video/product.mp4">
+        <p class="field-hint">Up to 30 seconds. Host the video file (e.g. on your domain) and paste its link. It will play on the home and shop pages and on the product page.</p>
+
+        <label>Sizes (optional)</label>
+        <div class="sizes-checklist" id="p-sizes"></div>
+        <input type="text" id="p-sizes-custom" style="margin-top:10px;" placeholder="Custom sizes, comma separated (e.g. Free Size, 45)">
+
+        <label>Colors (optional)</label>
+        <div id="color-rows"></div>
+        <button type="button" class="small-add-btn" id="add-color-btn">+ Add Color</button>
+
         <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
         <div class="form-message" id="form-message"></div>
       </form>
@@ -538,6 +609,10 @@
 
       if (!imageFile) throw new Error("Please choose a product photo.");
 
+      const videoUrl = document.getElementById("p-video").value.trim();
+      const sizes = collectSizes();
+      const colors = collectColors();
+
       const { data: categoryRow, error: categoryError } = await supabaseClient
         .from("categories")
         .select("id")
@@ -570,7 +645,10 @@
           stock: stock,
           weight_kg: weight,
           category_id: categoryRow.id,
-          image_url: publicUrlData.publicUrl
+          image_url: publicUrlData.publicUrl,
+          video_url: videoUrl || null,
+          sizes: sizes,
+          colors: colors
         });
 
       if (insertError) throw new Error(insertError.message);
@@ -588,6 +666,82 @@
 
     submitBtn.disabled = false;
   });
+
+  const SIZE_CHART = [
+    { d: "50", uk: "6", us: "4", tr: "36" },
+    { d: "52", uk: "8", us: "6", tr: "38" },
+    { d: "54", uk: "10", us: "8", tr: "40" },
+    { d: "56", uk: "12", us: "10", tr: "42" },
+    { d: "58", uk: "14", us: "12", tr: "44" },
+    { d: "60", uk: "16", us: "14", tr: "46" },
+    { d: "62", uk: "18", us: "16", tr: "48" },
+    { d: "64", uk: "20", us: "18", tr: "50" },
+    { d: "66", uk: "22", us: "20", tr: "52" },
+    { d: "68", uk: "24", us: "22", tr: "54" },
+    { d: "70", uk: "26", us: "24", tr: "56" },
+    { d: "72", uk: "28", us: "26", tr: "58" }
+  ];
+
+  function buildSizesChecklist() {
+    const wrap = document.getElementById("p-sizes");
+    wrap.innerHTML = "";
+    SIZE_CHART.forEach(function(row) {
+      const chk = document.createElement("label");
+      chk.className = "size-check";
+      chk.innerHTML = '<input type="checkbox" value="' + row.d + '"> Dubai ' + row.d + ' (UK ' + row.uk + ' / US ' + row.us + ' / Turkey ' + row.tr + ')';
+      const input = chk.querySelector("input");
+      input.addEventListener("change", function() {
+        chk.classList.toggle("checked", input.checked);
+      });
+      wrap.appendChild(chk);
+    });
+  }
+
+  function collectSizes() {
+    const sizes = [];
+    document.querySelectorAll("#p-sizes input:checked").forEach(function(input) {
+      sizes.push(input.value);
+    });
+    const custom = document.getElementById("p-sizes-custom").value
+      .split(",")
+      .map(s => s.trim())
+      .filter(function(s, i, arr) { return s && arr.indexOf(s) === i; });
+    custom.forEach(function(s) {
+      if (sizes.indexOf(s) === -1) sizes.push(s);
+    });
+    return sizes;
+  }
+
+  function addColorRow(name, hex) {
+    const container = document.getElementById("color-rows");
+    const row = document.createElement("div");
+    row.className = "color-row";
+    row.innerHTML =
+      '<input type="text" placeholder="Color name (e.g. Emerald Green)" value="' + (name || "") + '">' +
+      '<input type="color" value="' + (hex || "#0d2b26") + '">' +
+      '<button type="button" class="remove-color-btn">Remove</button>';
+    row.querySelector(".remove-color-btn").addEventListener("click", function() {
+      row.remove();
+    });
+    container.appendChild(row);
+  }
+
+  function collectColors() {
+    const colors = [];
+    document.querySelectorAll("#color-rows .color-row").forEach(function(row) {
+      const name = row.querySelector('input[type="text"]').value.trim();
+      const hex = row.querySelector('input[type="color"]').value;
+      if (name) colors.push({ name: name, hex: hex });
+    });
+    return colors;
+  }
+
+  document.getElementById("add-color-btn").addEventListener("click", function() {
+    addColorRow("", "#0d2b26");
+  });
+
+  buildSizesChecklist();
+  addColorRow("", "#0d2b26");
 
   async function loadProducts() {
     const listEl = document.getElementById("product-list");
@@ -641,8 +795,8 @@
     const { data: orders, error } = await supabaseClient
       .from("orders")
       .select(`
-        id, status, total, created_at, shipping_address, phone, customer_notes, customer_email,
-        order_items ( quantity, price, products ( name ) )
+        id, status, total, created_at, shipping_address, phone, customer_notes, customer_email, shipping_method,
+        order_items ( quantity, price, options, products ( name ) )
       `)
       .order("created_at", { ascending: false });
 
@@ -696,7 +850,13 @@
 
     const itemsHtml = (order.order_items || []).map(function(item) {
       const productName = item.products ? item.products.name : "Item";
-      return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}</div>`;
+      let opts = "";
+      if (item.options) {
+        if (item.options.size) opts = "Size: " + item.options.size;
+        if (item.options.color) opts = (opts ? opts + " | " : "") + "Color: " + item.options.color;
+        opts = opts ? ' <span style="color:#6b6b64">(' + opts + ')</span>' : "";
+      }
+      return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}${opts}</div>`;
     }).join("");
 
     const shortId = order.id.slice(0, 8);
@@ -710,6 +870,7 @@
         <div>
           <div class="order-id">Order #${shortId} &middot; ${dateStr}</div>
           <span class="status-pill status-${order.status}">${order.status}</span>
+          <span class="status-pill" style="background:${order.shipping_method === "pickup" ? "rgba(201,162,39,0.15);color:#8a6d13;border:1px solid rgba(201,162,39,0.4);" : "rgba(13,43,38,0.08);color:#0d2b26;border:1px solid rgba(13,43,38,0.15);"}">${order.shipping_method === "pickup" ? "Local Pickup" : "Delivery"}</span>
         </div>
         <div class="order-total">$${Number(order.total).toFixed(2)}</div>
       </div>
@@ -717,7 +878,7 @@
       <div class="order-meta">
         ${order.customer_email ? `<div>Email: ${order.customer_email}</div>` : ""}
         ${order.phone ? `<div>Phone: ${order.phone}</div>` : ""}
-        ${order.shipping_address ? `<div>Ships to: ${order.shipping_address}</div>` : ""}
+        ${order.shipping_address ? `<div>${order.shipping_method === "pickup" ? "Pickup: " : "Ships to: "}${order.shipping_address}</div>` : ""}
         ${order.customer_notes ? `<div>Note: ${order.customer_notes}</div>` : ""}
       </div>
       <div class="order-actions">

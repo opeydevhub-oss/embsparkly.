@@ -297,7 +297,9 @@
         image_url: liveProduct.image_url,
         stock: liveProduct.stock,
         weight_kg: liveProduct.weight_kg || 0.5,
-        quantity: cappedQty
+        quantity: cappedQty,
+        size: item.size || null,
+        color: item.color || null
       });
     });
 
@@ -323,20 +325,30 @@
       subtotal += lineTotal;
       totalWeight += item.weight_kg * item.quantity;
 
+      let optionLine = "";
+      if (item.size || item.color) {
+        const bits = [];
+        if (item.size) bits.push("Size: " + item.size);
+        if (item.color) bits.push("Color: " + item.color);
+        optionLine = '<div class="unit-price">' + bits.join(" | ") + '</div>';
+      }
+      const key = item.id + "|" + (item.size || "") + "|" + (item.color || "");
+
       itemsHtml += `
-        <div class="cart-item" data-id="${item.id}">
+        <div class="cart-item" data-key="${key}">
           <img src="${item.image_url}" alt="${item.name}">
           <div class="info">
             <h3>${item.name}</h3>
             <div class="unit-price">$${Number(item.price).toFixed(2)} each</div>
+            ${optionLine}
           </div>
           <div class="qty-controls">
-            <button type="button" class="qty-minus" data-id="${item.id}">-</button>
+            <button type="button" class="qty-minus" data-key="${key}">-</button>
             <span>${item.quantity}</span>
-            <button type="button" class="qty-plus" data-id="${item.id}">+</button>
+            <button type="button" class="qty-plus" data-key="${key}">+</button>
           </div>
           <div class="line-total">$${lineTotal.toFixed(2)}</div>
-          <button class="remove-btn" data-id="${item.id}">Remove</button>
+          <button class="remove-btn" data-key="${key}">Remove</button>
         </div>
       `;
     });
@@ -362,6 +374,7 @@
         <div class="summary-row"><span>Shipping</span><span>${shippingDisplay}</span></div>
         ${freeShippingNote}
         <div class="shipping-note">Based on total package weight (${totalWeight.toFixed(2)}kg). Ships to US states only.</div>
+        <div class="shipping-note" style="color: var(--deep-green); font-weight: 600;">Choose Local Pickup at checkout and shipping is always FREE.</div>
         <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
         <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
       </div>
@@ -373,19 +386,19 @@
   function attachCartEvents() {
     document.querySelectorAll(".qty-minus").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        changeQuantity(btn.dataset.id, -1);
+        changeQuantity(btn.dataset.key, -1);
       });
     });
 
     document.querySelectorAll(".qty-plus").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        changeQuantity(btn.dataset.id, 1);
+        changeQuantity(btn.dataset.key, 1);
       });
     });
 
     document.querySelectorAll(".remove-btn").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        const cart = getCart().filter(item => item.id !== btn.dataset.id);
+        const cart = getCart().filter(item => itemKey(item) !== btn.dataset.key);
         saveCart(cart);
         renderCart();
       });
@@ -399,14 +412,18 @@
     }
   }
 
-  function changeQuantity(id, delta) {
+  function itemKey(item) {
+    return item.id + "|" + (item.size || "") + "|" + (item.color || "");
+  }
+
+  function changeQuantity(key, delta) {
     const cart = getCart();
-    const item = cart.find(i => i.id === id);
+    const item = cart.find(i => itemKey(i) === key);
     if (!item) return;
 
     item.quantity += delta;
     if (item.quantity < 1) {
-      const filteredCart = cart.filter(i => i.id !== id);
+      const filteredCart = cart.filter(i => i !== item);
       saveCart(filteredCart);
     } else {
       saveCart(cart);

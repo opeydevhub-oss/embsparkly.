@@ -149,6 +149,30 @@
   .form-message.error { color: var(--error); display: block; }
   .form-message.success { color: var(--success); display: block; }
 
+  .ship-methods { display: flex; flex-direction: column; gap: 10px; }
+
+  .ship-method {
+    display: block;
+    margin: 0;
+    padding: 14px;
+    border: 1px solid rgba(13,43,38,0.2);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .ship-method.selected { border-color: var(--deep-green); background: rgba(13,43,38,0.04); }
+
+  .ship-method input { width: auto; margin-right: 8px; }
+
+  .ship-method-title { display: inline-block; font-size: 0.9rem; font-weight: 600; color: var(--deep-green); }
+
+  .ship-method-sub { display: block; font-size: 0.78rem; color: var(--gray); margin-top: 3px; }
+
+  .pickup-note { font-size: 0.82rem; color: var(--success); margin-top: 12px; }
+
+  .shipping-note { font-size: 0.82rem; margin-top: 8px; }
+
   .empty-state {
     text-align: center;
     color: var(--gray);
@@ -241,6 +265,8 @@
   let shipping = 0;
   let total = 0;
   let currentUser = null;
+  let shippingMethod = "delivery";
+  let deliveryShipping = 0;
 
   async function initCheckout() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -292,7 +318,9 @@
         name: liveProduct.name,
         price: liveProduct.price,
         weight_kg: liveProduct.weight_kg || 0.5,
-        quantity: cappedQty
+        quantity: cappedQty,
+        size: item.size || null,
+        color: item.color || null
       });
     });
 
@@ -315,9 +343,16 @@
       const lineTotal = item.price * item.quantity;
       subtotal += lineTotal;
       totalWeight += item.weight_kg * item.quantity;
+      let optionLine = "";
+      if (item.size || item.color) {
+        const bits = [];
+        if (item.size) bits.push("Size: " + item.size);
+        if (item.color) bits.push("Color: " + item.color);
+        optionLine = " (" + bits.join(" | ") + ")";
+      }
       itemsHtml += `
         <div class="order-line">
-          <span>${item.quantity} x ${item.name}</span>
+          <span>${item.quantity} x ${item.name}${optionLine}</span>
           <span>$${lineTotal.toFixed(2)}</span>
         </div>
       `;
@@ -326,30 +361,49 @@
     shipping = subtotal >= 99 ? 0 : calculateShipping(totalWeight);
     total = subtotal + shipping;
 
+    const baseShipping = subtotal >= 99 ? 0 : calculateShipping(totalWeight);
+    deliveryShipping = baseShipping;
+
     let statesOptionsHtml = '<option value="">Select your state</option>';
     US_STATES.forEach(function(state) {
       statesOptionsHtml += `<option value="${state}">${state}</option>`;
     });
-
-    const shippingDisplay = shipping === 0 ? "FREE" : "$" + shipping.toFixed(2);
 
     container.innerHTML = `
       <div class="card">
         <h2>Order Summary</h2>
         ${itemsHtml}
         <div class="summary-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="summary-row"><span>Shipping</span><span>${shippingDisplay}</span></div>
-        <div class="summary-row total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Shipping</span><span id="summary-shipping"></span></div>
+        <div class="shipping-note" id="summary-note"></div>
+        <div class="summary-row total"><span>Total</span><span id="summary-total"></span></div>
       </div>
 
       <div class="card">
-        <h2>Shipping Details</h2>
+        <h2>Delivery or Pickup</h2>
+        <div class="ship-methods">
+          <label class="ship-method ${shippingMethod === "delivery" ? "selected" : ""}" id="method-delivery">
+            <input type="radio" name="ship-method" value="delivery" ${shippingMethod === "delivery" ? "checked" : ""}>
+            <span class="ship-method-title">Deliver to my address</span>
+            <span class="ship-method-sub">Calculated by package weight. Free on orders over $99.</span>
+          </label>
+          <label class="ship-method ${shippingMethod === "pickup" ? "selected" : ""}" id="method-pickup">
+            <input type="radio" name="ship-method" value="pickup" ${shippingMethod === "pickup" ? "checked" : ""}>
+            <span class="ship-method-title">Local Pickup - FREE</span>
+            <span class="ship-method-sub">Pick up your order locally, no shipping cost.</span>
+          </label>
+        </div>
+        <p class="pickup-note" id="pickup-note" style="display:${shippingMethod === "pickup" ? "block" : "none"}">Pickup is free. We will contact you by phone when your order is ready. Your address is recorded with your order for our records.</p>
+      </div>
+
+      <div class="card">
+        <h2>Your Details</h2>
         <form id="checkout-form">
           <label for="c-fullname">Full Name</label>
           <input type="text" id="c-fullname" required placeholder="Your full name">
 
           <label for="c-phone">Phone Number</label>
-          <input type="tel" id="c-phone" required placeholder="e.g. +1 555 123 4567">
+          <input type="tel" id="c-phone" required placeholder="We need this to contact you">
 
           <label for="c-street">Street Address</label>
           <input type="text" id="c-street" required placeholder="House number and street">
@@ -373,6 +427,43 @@
     `;
 
     document.getElementById("checkout-form").addEventListener("submit", handlePlaceOrder);
+
+    const radios = document.querySelectorAll('input[name="ship-method"]');
+    radios.forEach(function(radio) {
+      radio.addEventListener("change", function() {
+        shippingMethod = radio.value;
+        document.getElementById("method-delivery").classList.toggle("selected", shippingMethod === "delivery");
+        document.getElementById("method-pickup").classList.toggle("selected", shippingMethod === "pickup");
+        document.getElementById("pickup-note").style.display = shippingMethod === "pickup" ? "block" : "none";
+        updateShippingUI();
+      });
+    });
+
+    updateShippingUI();
+  }
+
+  function updateShippingUI() {
+    shipping = shippingMethod === "pickup" ? 0 : deliveryShipping;
+    total = subtotal + shipping;
+
+    const shippingSpan = document.getElementById("summary-shipping");
+    const totalSpan = document.getElementById("summary-total");
+    const noteEl = document.getElementById("summary-note");
+
+    if (shippingSpan) shippingSpan.textContent = shipping === 0 ? "FREE" : "$" + shipping.toFixed(2);
+    if (totalSpan) totalSpan.textContent = "$" + total.toFixed(2);
+
+    if (noteEl) {
+      if (shippingMethod === "pickup") {
+        noteEl.textContent = "Local Pickup - no shipping fee.";
+        noteEl.style.color = "#2f7a4f";
+      } else if (deliveryShipping === 0) {
+        noteEl.textContent = "You have unlocked FREE delivery.";
+        noteEl.style.color = "#2f7a4f";
+      } else {
+        noteEl.textContent = "";
+      }
+    }
   }
 
   async function handlePlaceOrder(e) {
@@ -392,9 +483,17 @@
       const zip = document.getElementById("c-zip").value.trim();
       const notes = document.getElementById("c-notes").value.trim();
 
+      if (!fullName) throw new Error("Please enter your full name.");
+      if (!phone) throw new Error("Please enter your phone number. We need it to contact you about your order.");
+      if (!street) throw new Error("Please enter your street address.");
+      if (!city) throw new Error("Please enter your city.");
       if (!state) throw new Error("Please select your state.");
+      if (!zip) throw new Error("Please enter your ZIP code.");
 
-      const shippingAddress = `${fullName}, ${street}, ${city}, ${state} ${zip}, USA`;
+      const addressOnly = `${street}, ${city}, ${state} ${zip}, USA`;
+      const shippingAddress = shippingMethod === "pickup"
+        ? "Local Pickup - " + fullName + ", " + addressOnly
+        : fullName + ", " + addressOnly;
 
       const { data: orderRow, error: orderError } = await supabaseClient
         .from("orders")
@@ -405,7 +504,8 @@
           shipping_address: shippingAddress,
           phone: phone,
           customer_notes: notes,
-          customer_email: currentUser.email
+          customer_email: currentUser.email,
+          shipping_method: shippingMethod
         })
         .select()
         .single();
@@ -417,7 +517,8 @@
           order_id: orderRow.id,
           product_id: item.id,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          options: { size: item.size || null, color: item.color || null }
         };
       });
 

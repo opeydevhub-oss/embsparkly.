@@ -17,6 +17,7 @@
     --charcoal: #1a1a1a;
     --gray: #6b6b64;
     --success: #2f7a4f;
+    --danger: #b54545;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -101,6 +102,8 @@
     .product-wrap { grid-template-columns: 1fr 1fr; gap: 36px; }
   }
 
+  .media-col { display: flex; flex-direction: column; gap: 14px; }
+
   .product-img-wrap {
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -110,6 +113,10 @@
   }
 
   .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .product-video-wrap { border-radius: 10px; overflow: hidden; background: #0a1f1b; }
+
+  .product-video-wrap video { width: 100%; display: block; }
 
   .product-name { font-size: 1.7rem; font-weight: 600; color: var(--deep-green); }
 
@@ -126,9 +133,77 @@
   .stock-line.low-stock { color: #b5850f; }
   .stock-line.out-stock { color: #b3413b; }
 
-  .product-desc { font-size: 0.92rem; color: var(--charcoal); margin-bottom: 22px; white-space: pre-line; }
+  .product-desc { font-size: 0.92rem; color: var(--charcoal); margin-bottom: 6px; white-space: pre-line; }
 
-  .qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .option-block { margin-top: 20px; }
+
+  .option-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--deep-green);
+    margin-bottom: 10px;
+  }
+
+  .option-label .opt-value { color: var(--gray); font-size: 0.8rem; }
+
+  .size-options { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .size-chip {
+    min-width: 58px;
+    padding: 9px 12px;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.3);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: center;
+    cursor: pointer;
+    color: var(--deep-green);
+  }
+
+  .size-chip.selected { background: var(--deep-green); color: var(--gold-light); border-color: var(--deep-green); }
+
+  .view-more-btn {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--deep-green);
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Jost', sans-serif;
+  }
+
+  .color-options { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .color-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.3);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--deep-green);
+  }
+
+  .color-chip .swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+    flex-shrink: 0;
+  }
+
+  .color-chip.selected { background: var(--deep-green); color: var(--gold-light); border-color: var(--deep-green); }
+
+  .qty-row { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
 
   .qty-row label { font-size: 0.85rem; }
 
@@ -158,6 +233,7 @@
 
   .add-cart-btn {
     width: 100%;
+    margin-top: 22px;
     padding: 13px;
     background: var(--deep-green);
     color: var(--gold-light);
@@ -178,6 +254,8 @@
     display: none;
     text-align: center;
   }
+
+  .add-feedback.error { color: var(--danger); }
 
   .go-cart-btn {
     display: none;
@@ -214,6 +292,90 @@
     text-align: center;
     font-size: 0.8rem;
   }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,31,27,0.65);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--cream);
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 26px;
+  }
+
+  .modal h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--deep-green);
+    margin-bottom: 4px;
+  }
+
+  .modal .modal-sub { font-size: 0.8rem; color: var(--gray); margin-bottom: 16px; }
+
+  .modal-close {
+    float: right;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--deep-green);
+  }
+
+  .chart-table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+
+  .chart-table th, .chart-table td {
+    border: 1px solid rgba(13,43,38,0.18);
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 0.82rem;
+    background: #fff;
+  }
+
+  .chart-table th { background: var(--deep-green); color: var(--gold-light); font-weight: 600; }
+
+  .chart-table tr.sel { box-shadow: inset 0 -3px 0 0 var(--gold); }
+
+  .chart-table td.sel { background: rgba(201,162,39,0.14); }
+
+  .chart-table tr.available td { background: #fffdf6; }
+
+  .chart-table tr { cursor: pointer; }
+
+  .color-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin: 12px 0 18px; }
+
+  .color-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.25);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--deep-green);
+  }
+
+  .color-picker-item .swatch { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0; }
+
+  .color-picker-item.selected { background: var(--deep-green); color: var(--gold-light); border-color: var(--deep-green); }
+
+  .in-stock-note { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+
+  .hint-note { font-size: 0.78rem; color: var(--gray); margin-bottom: 14px; }
 </style>
 </head>
 <body>
@@ -241,18 +403,81 @@
   <div class="empty-state">Loading product...</div>
 </div>
 
+<div class="modal-overlay" id="size-modal">
+  <div class="modal">
+    <button type="button" class="modal-close" data-close="size-modal">&times;</button>
+    <h3>Size Chart</h3>
+    <p class="modal-sub">Pick your size. Rows highlight with gold when you choose one.</p>
+    <table class="chart-table" id="size-chart-table">
+      <thead>
+        <tr><th>Dubai</th><th>UK</th><th>US</th><th>Turkey</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="in-stock-note">Rows without a highlight are still selectable if you want them. We confirm availability before shipping.</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="color-modal">
+  <div class="modal">
+    <button type="button" class="modal-close" data-close="color-modal">&times;</button>
+    <h3>Choose a Color</h3>
+    <p class="modal-sub">Tap any color. If it is not in the usual list, we confirm availability before shipping.</p>
+    <div class="color-picker-grid" id="color-picker-grid"></div>
+  </div>
+</div>
+
 <footer>
   <div style="margin-bottom:10px;">
     <a href="returns.html" style="color: var(--gold-light); font-size: 0.85rem;">Returns &amp; Refunds</a>
   </div>
   &copy; 2026 E.M.B Sparkly. All rights reserved.
 </footer>
+
 <script>
   const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const CART_KEY = "emb_sparkly_cart";
+
+  const SIZE_CHART = [
+    { d: "50", uk: "6", us: "4", tr: "36" },
+    { d: "52", uk: "8", us: "6", tr: "38" },
+    { d: "54", uk: "10", us: "8", tr: "40" },
+    { d: "56", uk: "12", us: "10", tr: "42" },
+    { d: "58", uk: "14", us: "12", tr: "44" },
+    { d: "60", uk: "16", us: "14", tr: "46" },
+    { d: "62", uk: "18", us: "16", tr: "48" },
+    { d: "64", uk: "20", us: "18", tr: "50" },
+    { d: "66", uk: "22", us: "20", tr: "52" },
+    { d: "68", uk: "24", us: "22", tr: "54" },
+    { d: "70", uk: "26", us: "24", tr: "56" },
+    { d: "72", uk: "28", us: "26", tr: "58" }
+  ];
+
+  const EXTRA_COLORS = [
+    { name: "Black", hex: "#000000" },
+    { name: "White", hex: "#ffffff" },
+    { name: "Grey", hex: "#808080" },
+    { name: "Silver", hex: "#c0c0c0" },
+    { name: "Gold", hex: "#c9a227" },
+    { name: "Red", hex: "#d63333" },
+    { name: "Maroon", hex: "#800000" },
+    { name: "Orange", hex: "#f07b2a" },
+    { name: "Yellow", hex: "#f2d230" },
+    { name: "Green", hex: "#2e7d32" },
+    { name: "Emerald Green", hex: "#0f7b57" },
+    { name: "Navy Blue", hex: "#1f2a52" },
+    { name: "Blue", hex: "#2a6fc4" },
+    { name: "Sky Blue", hex: "#7ec8e3" },
+    { name: "Purple", hex: "#7b3fa0" },
+    { name: "Pink", hex: "#ef7fa5" },
+    { name: "Brown", hex: "#6b4423" },
+    { name: "Beige", hex: "#d9c7a7" },
+    { name: "Cream", hex: "#faf6ee" },
+    { name: "Wine", hex: "#7a2e3a" }
+  ];
 
   function getCart() {
     try {
@@ -274,6 +499,26 @@
 
   updateCartCountBadge();
 
+  document.querySelectorAll(".modal-close").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      closeModal(btn.dataset.close);
+    });
+  });
+
+  document.querySelectorAll(".modal-overlay").forEach(function(overlay) {
+    overlay.addEventListener("click", function(e) {
+      if (e.target === overlay) closeModal(overlay.id);
+    });
+  });
+
+  function openModal(id) {
+    document.getElementById(id).classList.add("open");
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove("open");
+  }
+
   function getProductIdFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
@@ -281,6 +526,8 @@
 
   let currentProduct = null;
   let selectedQty = 1;
+  let selectedSize = null;
+  let selectedColor = null;
 
   async function loadProduct() {
     const productId = getProductIdFromUrl();
@@ -293,7 +540,7 @@
 
     const { data: product, error } = await supabaseClient
       .from("products")
-      .select("id, name, description, price, image_url, stock")
+      .select("id, name, description, price, image_url, stock, video_url, sizes, colors")
       .eq("id", productId)
       .single();
 
@@ -306,6 +553,9 @@
     document.title = product.name + " | E.M.B Sparkly";
     document.getElementById("breadcrumb-name").textContent = product.name;
 
+    const sizes = Array.isArray(product.sizes) ? product.sizes : [];
+    const colors = Array.isArray(product.colors) ? product.colors : [];
+
     let stockHtml = "";
     if (product.stock <= 0) {
       stockHtml = '<div class="stock-line out-stock">Out of stock</div>';
@@ -315,16 +565,55 @@
       stockHtml = '<div class="stock-line in-stock">In stock</div>';
     }
 
+    let sizesHtml = "";
+    if (sizes.length > 0) {
+      sizesHtml = `
+        <div class="option-block">
+          <div class="option-label"><span>Select Size</span><span class="opt-value" id="size-selected">Choose a size</span></div>
+          <div class="size-options">${sizes.map(s => `<button type="button" class="size-chip" data-size="${s}">Dubai ${s}</button>`).join("")}</div>
+          <button type="button" class="view-more-btn" id="view-more-sizes-btn">View More Sizes - see UK/US/Turkey chart</button>
+        </div>`;
+    }
+
+    let colorsHtml = "";
+    if (colors.length > 0) {
+      const swatches = colors.map(c =>
+        `<button type="button" class="color-chip" data-color="${c.name}">
+           <span class="swatch" style="background:${c.hex}"></span>${c.name}
+         </button>`
+      ).join("");
+      colorsHtml = `
+        <div class="option-block">
+          <div class="option-label"><span>Select Color</span><span class="opt-value" id="color-selected">Choose a color</span></div>
+          <div class="color-options">${swatches}</div>
+          <button type="button" class="view-more-btn" id="view-more-colors-btn">View More Colors</button>
+        </div>`;
+    }
+
+    let videoHtml = "";
+    if (product.video_url) {
+      videoHtml = `
+        <div class="product-video-wrap">
+          <video id="product-video" src="${product.video_url}" controls muted loop playsinline preload="metadata"></video>
+        </div>`;
+    }
+
     container.innerHTML = `
       <div class="product-wrap">
-        <div class="product-img-wrap">
-          <img src="${product.image_url}" alt="${product.name}">
+        <div class="media-col">
+          <div class="product-img-wrap">
+            <img src="${product.image_url}" alt="${product.name}">
+          </div>
+          ${videoHtml}
         </div>
         <div class="product-info">
           <h1 class="product-name">${product.name}</h1>
           <div class="product-price">$${Number(product.price).toFixed(2)}</div>
           ${stockHtml}
           <div class="product-desc">${product.description || "No description provided yet."}</div>
+
+          ${sizesHtml}
+          ${colorsHtml}
 
           <div class="qty-row">
             <label>Quantity</label>
@@ -338,7 +627,7 @@
           <button class="add-cart-btn" id="add-cart-btn" ${product.stock <= 0 ? "disabled" : ""}>
             ${product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
           </button>
-          <div class="add-feedback" id="add-feedback">Added to cart.</div>
+          <div class="add-feedback" id="add-feedback"></div>
           <a href="cart.html" class="go-cart-btn" id="go-cart-btn">View Cart &amp; Checkout</a>
 
           <div class="whatsapp-inline">
@@ -348,8 +637,145 @@
       </div>
     `;
 
+    setupSizeSelection(sizes);
+    setupColorSelection(colors);
     setupQuantityControls();
     setupAddToCart();
+
+    const subSize = document.getElementById("size-selected");
+    if (subSize) subSize.textContent = "Choose a size";
+
+    const subColor = document.getElementById("color-selected");
+    if (subColor) subColor.textContent = "Choose a color";
+
+    const videoEl = document.getElementById("product-video");
+    if (videoEl) {
+      videoEl.addEventListener("timeupdate", function() {
+        if (videoEl.currentTime > 30) {
+          videoEl.pause();
+          videoEl.currentTime = 30;
+        }
+      });
+    }
+  }
+
+  function sizeLabel(value) {
+    const row = SIZE_CHART.find(r => r.d === String(value));
+    if (row) return "Dubai " + row.d + " (UK " + row.uk + " / US " + row.us + " / Turkey " + row.tr + ")";
+    return value;
+  }
+
+  function setupSizeSelection(availableSizes) {
+    const chips = document.querySelectorAll(".size-chip");
+    chips.forEach(function(chip) {
+      chip.addEventListener("click", function() {
+        selectedSize = chip.dataset.size;
+        chips.forEach(c => c.classList.remove("selected"));
+        chip.classList.add("selected");
+        const sub = document.getElementById("size-selected");
+        if (sub) sub.textContent = sizeLabel(selectedSize);
+        highlightSizeInChart(selectedSize, availableSizes);
+      });
+    });
+
+    const viewMoreBtn = document.getElementById("view-more-sizes-btn");
+    if (viewMoreBtn) {
+      viewMoreBtn.addEventListener("click", function() {
+        buildSizeChart(availableSizes);
+        openModal("size-modal");
+      });
+    }
+  }
+
+  function buildSizeChart(availableSizes) {
+    const tbody = document.querySelector("#size-chart-table tbody");
+    tbody.innerHTML = "";
+    SIZE_CHART.forEach(function(row) {
+      const isAvailable = availableSizes.indexOf(row.d) !== -1;
+      const isSelected = selectedSize === String(row.d);
+      const tr = document.createElement("tr");
+      if (isSelected) tr.classList.add("sel");
+      if (isAvailable) tr.classList.add("available");
+      tr.innerHTML =
+        '<td class="' + (isSelected ? "sel" : "") + '">' + row.d + '</td>' +
+        '<td>' + row.uk + '</td>' +
+        '<td>' + row.us + '</td>' +
+        '<td>' + row.tr + '</td>';
+      tr.addEventListener("click", function() {
+        selectedSize = row.d;
+        tbody.querySelectorAll("tr").forEach(r => r.classList.remove("sel"));
+        tr.classList.add("sel");
+        document.querySelectorAll(".size-chip").forEach(function(c) {
+          c.classList.toggle("selected", c.dataset.size === row.d);
+        });
+        const sub = document.getElementById("size-selected");
+        if (sub) sub.textContent = sizeLabel(selectedSize);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function highlightSizeInChart(value, availableSizes) {
+    const tbody = document.querySelector("#size-chart-table tbody");
+    tbody.querySelectorAll("tr").forEach(function(tr) {
+      const firstTd = tr.querySelector("td");
+      if (firstTd && firstTd.textContent === String(value)) tr.classList.add("sel");
+    });
+  }
+
+  function setupColorSelection(productColors) {
+    const colorChips = document.querySelectorAll(".color-chip");
+    colorChips.forEach(function(chip) {
+      chip.addEventListener("click", function() {
+        selectedColor = chip.dataset.color;
+        colorChips.forEach(c => c.classList.remove("selected"));
+        chip.classList.add("selected");
+        const sub = document.getElementById("color-selected");
+        if (sub) sub.textContent = selectedColor;
+        highlightColorInModal(selectedColor);
+      });
+    });
+
+    const viewMoreBtn = document.getElementById("view-more-colors-btn");
+    if (viewMoreBtn) {
+      viewMoreBtn.addEventListener("click", function() {
+        buildColorPicker(productColors);
+        openModal("color-modal");
+      });
+    }
+  }
+
+  function buildColorPicker(productColors) {
+    const grid = document.getElementById("color-picker-grid");
+    const seen = [];
+    const allColors = productColors.concat(EXTRA_COLORS);
+    grid.innerHTML = "";
+    allColors.forEach(function(c) {
+      if (seen.indexOf(c.name) !== -1) return;
+      seen.push(c.name);
+      const item = document.createElement("div");
+      item.className = "color-picker-item" + (selectedColor === c.name ? " selected" : "");
+      item.dataset.color = c.name;
+      item.innerHTML = '<span class="swatch" style="background:' + c.hex + '"></span>' + c.name;
+      item.addEventListener("click", function() {
+        selectedColor = c.name;
+        grid.querySelectorAll(".color-picker-item").forEach(i => i.classList.remove("selected"));
+        item.classList.add("selected");
+        document.querySelectorAll(".color-chip").forEach(function(chip) {
+          chip.classList.toggle("selected", chip.dataset.color === c.name);
+        });
+        const sub = document.getElementById("color-selected");
+        if (sub) sub.textContent = selectedColor;
+      });
+      grid.appendChild(item);
+    });
+  }
+
+  function highlightColorInModal(colorName) {
+    const grid = document.getElementById("color-picker-grid");
+    grid.querySelectorAll(".color-picker-item").forEach(function(item) {
+      item.classList.toggle("selected", item.dataset.color === colorName);
+    });
   }
 
   function setupQuantityControls() {
@@ -371,10 +797,37 @@
     });
   }
 
+  function showAddMessage(text, isError) {
+    const feedbackEl = document.getElementById("add-feedback");
+    feedbackEl.textContent = text;
+    feedbackEl.className = "add-feedback" + (isError ? " error" : "");
+    feedbackEl.style.display = "block";
+    if (!isError) {
+      setTimeout(function() { feedbackEl.style.display = "none"; }, 3000);
+    }
+  }
+
   function setupAddToCart() {
-    document.getElementById("add-cart-btn").addEventListener("click", function() {
+    const addBtn = document.getElementById("add-cart-btn");
+    if (currentProduct.stock <= 0) return;
+
+    const sizes = Array.isArray(currentProduct.sizes) ? currentProduct.sizes : [];
+    const colors = Array.isArray(currentProduct.colors) ? currentProduct.colors : [];
+
+    addBtn.addEventListener("click", function() {
+      if (sizes.length > 0 && !selectedSize) {
+        showAddMessage("Please choose a size first.", true);
+        return;
+      }
+      if (colors.length > 0 && !selectedColor) {
+        showAddMessage("Please choose a color first.", true);
+        return;
+      }
+
       const cart = getCart();
-      const existingItem = cart.find(item => item.id === currentProduct.id);
+      const existingItem = cart.find(item =>
+        item.id === currentProduct.id && item.size === selectedSize && item.color === selectedColor
+      );
 
       if (existingItem) {
         existingItem.quantity = Math.min(existingItem.quantity + selectedQty, currentProduct.stock);
@@ -384,16 +837,16 @@
           name: currentProduct.name,
           price: currentProduct.price,
           image_url: currentProduct.image_url,
-          quantity: selectedQty
+          quantity: selectedQty,
+          size: selectedSize || null,
+          color: selectedColor || null
         });
       }
 
       saveCart(cart);
       updateCartCountBadge();
 
-      const feedbackEl = document.getElementById("add-feedback");
-      feedbackEl.style.display = "block";
-      setTimeout(() => { feedbackEl.style.display = "none"; }, 2000);
+      showAddMessage("Added to cart.", false);
 
       const goCartBtn = document.getElementById("go-cart-btn");
       if (goCartBtn) goCartBtn.style.display = "block";
