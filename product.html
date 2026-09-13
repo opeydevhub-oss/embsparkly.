@@ -601,9 +601,7 @@
     container.innerHTML = `
       <div class="product-wrap">
         <div class="media-col">
-          <div class="product-img-wrap">
-            <img src="${product.image_url}" alt="${product.name}">
-          </div>
+          ${product.image_url ? '<div class="product-img-wrap"><img src="' + product.image_url + '" alt="' + product.name + '"></div>' : ""}
           ${videoHtml}
         </div>
         <div class="product-info">

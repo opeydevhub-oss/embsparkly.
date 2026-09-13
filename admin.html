@@ -282,6 +282,19 @@
     flex-shrink: 0;
   }
 
+  .product-row .no-thumb {
+    width: 52px; height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background: #f3ead6;
+    color: var(--deep-green);
+    font-size: 0.68rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
   .product-row .info { flex: 1; min-width: 0; }
 
   .product-row .info h3 {
@@ -511,12 +524,13 @@
         <label for="p-description">Description</label>
         <textarea id="p-description" placeholder="Fabric, sizing, style notes..."></textarea>
 
-        <label for="p-image">Product Photo</label>
-        <input type="file" id="p-image" accept="image/*" required>
+        <label for="p-image">Product Photo (optional)</label>
+        <input type="file" id="p-image" accept="image/*">
+        <p class="field-hint">Add a photo, a video, or both. At least one is required.</p>
 
-        <label for="p-video">Product Video URL (optional)</label>
-        <input type="text" id="p-video" placeholder="e.g. https://embsparkly.com/video/product.mp4">
-        <p class="field-hint">Up to 30 seconds. Host the video file (e.g. on your domain) and paste its link. It will play on the home and shop pages and on the product page.</p>
+        <label for="p-video">Product Video (optional)</label>
+        <input type="file" id="p-video" accept="video/*">
+        <p class="field-hint">Up to 30 seconds. Choose a video from your device. It will play on the home page, shop page, and product page.</p>
 
         <label>Sizes (optional)</label>
         <div class="sizes-checklist" id="p-sizes"></div>
@@ -606,10 +620,10 @@
       const weight = parseFloat(document.getElementById("p-weight").value);
       const description = document.getElementById("p-description").value.trim();
       const imageFile = document.getElementById("p-image").files[0];
+      const videoFile = document.getElementById("p-video").files[0];
 
-      if (!imageFile) throw new Error("Please choose a product photo.");
+      if (!imageFile && !videoFile) throw new Error("Please add a product photo or a video.");
 
-      const videoUrl = document.getElementById("p-video").value.trim();
       const sizes = collectSizes();
       const colors = collectColors();
 
@@ -621,20 +635,49 @@
 
       if (categoryError || !categoryRow) throw new Error("Could not find that category.");
 
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      let imageUrl = "";
+      let videoUrl = "";
 
-      const { error: uploadError } = await supabaseClient
-        .storage
-        .from("product-image")
-        .upload(fileName, imageFile);
+      if (imageFile) {
+        const fileExt = imageFile.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-      if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+        const { error: uploadError } = await supabaseClient
+          .storage
+          .from("product-image")
+          .upload(fileName, imageFile);
 
-      const { data: publicUrlData } = supabaseClient
-        .storage
-        .from("product-image")
-        .getPublicUrl(fileName);
+        if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
+
+        const { data: publicUrlData } = supabaseClient
+          .storage
+          .from("product-image")
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrlData.publicUrl;
+      }
+
+      if (videoFile) {
+        const duration = await getVideoDuration(videoFile);
+        if (duration > 30) throw new Error("Video must be 30 seconds or shorter.");
+
+        const fileExt = videoFile.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+        const { error: videoUploadError } = await supabaseClient
+          .storage
+          .from("product-image")
+          .upload(fileName, videoFile, { contentType: videoFile.type });
+
+        if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
+
+        const { data: videoUrlData } = supabaseClient
+          .storage
+          .from("product-image")
+          .getPublicUrl(fileName);
+
+        videoUrl = videoUrlData.publicUrl;
+      }
 
       const { error: insertError } = await supabaseClient
         .from("products")
@@ -645,7 +688,7 @@
           stock: stock,
           weight_kg: weight,
           category_id: categoryRow.id,
-          image_url: publicUrlData.publicUrl,
+          image_url: imageUrl || null,
           video_url: videoUrl || null,
           sizes: sizes,
           colors: colors
@@ -736,6 +779,23 @@
     return colors;
   }
 
+  function getVideoDuration(file) {
+    return new Promise(function(resolve, reject) {
+      const url = URL.createObjectURL(file);
+      const vid = document.createElement("video");
+      vid.preload = "metadata";
+      vid.onloadedmetadata = function() {
+        URL.revokeObjectURL(url);
+        resolve(vid.duration || 0);
+      };
+      vid.onerror = function() {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read that video file. Please choose a valid video."));
+      };
+      vid.src = url;
+    });
+  }
+
   document.getElementById("add-color-btn").addEventListener("click", function() {
     addColorRow("", "#0d2b26");
   });
@@ -748,7 +808,7 @@
 
     const { data: products, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url, stock")
+      .select("id, name, price, image_url, stock, video_url")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -767,10 +827,10 @@
       const row = document.createElement("div");
       row.className = "product-row" + (isLow ? " low-stock" : "");
       row.innerHTML = `
-        <img src="${product.image_url}" alt="${product.name}">
+        ${product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '">' : '<div class="no-thumb">Video</div>'}
         <div class="info">
           <h3>${product.name}</h3>
-          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''}</p>
+          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''} ${product.video_url ? '<span class="stock-badge">Video</span>' : ''}</p>
         </div>
         <button class="delete-btn" data-id="${product.id}">Delete</button>
       `;

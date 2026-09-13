@@ -823,13 +823,14 @@
       card.href = "product.html?id=" + product.id;
       card.className = "arrival-card";
       const hasVideo = !!product.video_url;
+      const imgHtml = product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '">' : "";
       const videoHtml = hasVideo
         ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" muted loop playsinline preload="none"></video>'
         : "";
       card.innerHTML = `
         <div class="img-wrap">
           ${videoHtml}
-          <img src="${product.image_url}" alt="${product.name}">
+          ${imgHtml}
         </div>
         <div class="info">
           <h3>${product.name}</h3>
