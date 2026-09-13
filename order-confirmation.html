@@ -166,8 +166,46 @@
     return params.get("order_id");
   }
 
-  async function loadOrder() {
-    const orderId = getOrderIdFromUrl();
+  function getSessionIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("session_id");
+  }
+
+  async function confirmPayment(sessionId) {
+    const container = document.getElementById("confirmation-container");
+    try {
+      const { data, error } = await supabaseClient.functions.invoke(
+        "confirm-stripe-payment",
+        { body: { session_id: sessionId } }
+      );
+
+      if (error) {
+        throw new Error((data && data.error) || error.message || "Payment not confirmed.");
+      }
+
+      if (data && data.paid && data.order_id) {
+        localStorage.removeItem("emb_sparkly_cart");
+        container.innerHTML = '<div class="empty-state">Payment confirmed. Loading your order...</div>';
+        loadOrderById(data.order_id);
+        return;
+      }
+
+      const orderId = getOrderIdFromUrl();
+      if (data && data.order_id) {
+        loadOrderById(data.order_id);
+        return;
+      }
+      if (orderId) {
+        loadOrderById(orderId);
+        return;
+      }
+      throw new Error("Your payment has not been confirmed yet.");
+    } catch (err) {
+      container.innerHTML = '<div class="empty-state">' + (err.message || "Something went wrong.") + '<br><br><a href="orders.html" style="color:#0d2b26;">View My Orders</a></div>';
+    }
+  }
+
+  async function loadOrderById(orderId) {
     const container = document.getElementById("confirmation-container");
 
     if (!orderId) {
@@ -178,8 +216,8 @@
     const { data: order, error } = await supabaseClient
       .from("orders")
       .select(`
-        id, status, total, created_at, shipping_address, phone, customer_notes, customer_email,
-        order_items ( quantity, price, products ( name ) )
+        id, status, payment_status, total, created_at, shipping_address, phone, customer_notes, customer_email,
+        order_items ( quantity, price, size, color, products ( name ) )
       `)
       .eq("id", orderId)
       .single();
@@ -198,15 +236,24 @@
       const lineTotal = item.price * item.quantity;
       subtotal += lineTotal;
       const productName = item.products ? item.products.name : "Item";
+      let optionLine = "";
+      const bits = [];
+      if (item.size) bits.push("Size: " + item.size);
+      if (item.color) bits.push("Color: " + item.color);
+      if (bits.length > 0) optionLine = " <span style=\"color:#6b6b64;\">(" + bits.join(" | ") + ")</span>";
       itemsHtml += `
         <div class="order-line">
-          <span>${item.quantity} x ${productName}</span>
+          <span>${item.quantity} x ${productName}${optionLine}</span>
           <span>$${lineTotal.toFixed(2)}</span>
         </div>
       `;
     });
 
     const shipping = Number(order.total) - subtotal;
+
+    const paymentLine = order.payment_status === "paid"
+      ? '<div class="meta-line" style="color:#2f7a4f; font-weight:600;"><strong style="color:#2f7a4f;">Payment:</strong> Paid</div>'
+      : '<div class="meta-line" style="color:#b5850f;"><strong style="color:#b5850f;">Payment:</strong> Awaiting payment</div>';
 
     container.innerHTML = `
       <div class="success-icon">&#10003;</div>
@@ -226,6 +273,7 @@
         <div class="meta-line"><strong>Ships to:</strong> ${order.shipping_address || "Not provided"}</div>
         <div class="meta-line"><strong>Phone:</strong> ${order.phone || "Not provided"}</div>
         ${order.customer_notes ? `<div class="meta-line"><strong>Notes:</strong> ${order.customer_notes}</div>` : ""}
+        ${paymentLine}
         <div class="meta-line"><strong>Status:</strong> ${order.status}</div>
       </div>
 
@@ -234,6 +282,19 @@
         <a href="catalog.html" class="btn btn-secondary">Continue Shopping</a>
       </div>
     `;
+  }
+
+  function loadOrder() {
+    const orderId = getOrderIdFromUrl();
+    const sessionId = getSessionIdFromUrl();
+
+    if (sessionId) {
+      document.getElementById("confirmation-container").innerHTML = '<div class="empty-state">Confirming your payment...</div>';
+      confirmPayment(sessionId);
+      return;
+    }
+
+    loadOrderById(orderId);
   }
 
   loadOrder();

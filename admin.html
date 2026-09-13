@@ -855,8 +855,8 @@
     const { data: orders, error } = await supabaseClient
       .from("orders")
       .select(`
-        id, status, total, created_at, shipping_address, phone, customer_notes, customer_email, shipping_method,
-        order_items ( quantity, price, options, products ( name ) )
+        id, status, payment_status, total, created_at, shipping_address, phone, customer_notes, customer_email, delivery_method, shipping_method,
+        order_items ( quantity, price, options, size, color, products ( name ) )
       `)
       .order("created_at", { ascending: false });
 
@@ -911,13 +911,18 @@
     const itemsHtml = (order.order_items || []).map(function(item) {
       const productName = item.products ? item.products.name : "Item";
       let opts = "";
-      if (item.options) {
-        if (item.options.size) opts = "Size: " + item.options.size;
-        if (item.options.color) opts = (opts ? opts + " | " : "") + "Color: " + item.options.color;
-        opts = opts ? ' <span style="color:#6b6b64">(' + opts + ')</span>' : "";
+      const sizeVal = item.size || (item.options && item.options.size) || "";
+      const colorVal = item.color || (item.options && item.options.color) || "";
+      if (sizeVal || colorVal) {
+        const bits = [];
+        if (sizeVal) bits.push("Size: " + sizeVal);
+        if (colorVal) bits.push("Color: " + colorVal);
+        opts = ' <span style="color:#6b6b64">(' + bits.join(" | ") + ')</span>';
       }
       return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}${opts}</div>`;
     }).join("");
+
+    const isPickup = (order.delivery_method || order.shipping_method) === "pickup";
 
     const shortId = order.id.slice(0, 8);
     const dateStr = new Date(order.created_at).toLocaleDateString();
@@ -930,7 +935,8 @@
         <div>
           <div class="order-id">Order #${shortId} &middot; ${dateStr}</div>
           <span class="status-pill status-${order.status}">${order.status}</span>
-          <span class="status-pill" style="background:${order.shipping_method === "pickup" ? "rgba(201,162,39,0.15);color:#8a6d13;border:1px solid rgba(201,162,39,0.4);" : "rgba(13,43,38,0.08);color:#0d2b26;border:1px solid rgba(13,43,38,0.15);"}">${order.shipping_method === "pickup" ? "Local Pickup" : "Delivery"}</span>
+          <span class="status-pill" style="background:${order.payment_status === "paid" ? "rgba(47,122,79,0.12);color:#2f7a4f;border:1px solid rgba(47,122,79,0.35);" : "rgba(181,133,15,0.12);color:#8a6d13;border:1px solid rgba(181,133,15,0.4);"}">${order.payment_status === "paid" ? "Paid" : "Unpaid"}</span>
+          <span class="status-pill" style="background:${isPickup ? "rgba(201,162,39,0.15);color:#8a6d13;border:1px solid rgba(201,162,39,0.4);" : "rgba(13,43,38,0.08);color:#0d2b26;border:1px solid rgba(13,43,38,0.15);"}">${isPickup ? "Local Pickup" : "Delivery"}</span>
         </div>
         <div class="order-total">$${Number(order.total).toFixed(2)}</div>
       </div>
@@ -938,7 +944,7 @@
       <div class="order-meta">
         ${order.customer_email ? `<div>Email: ${order.customer_email}</div>` : ""}
         ${order.phone ? `<div>Phone: ${order.phone}</div>` : ""}
-        ${order.shipping_address ? `<div>${order.shipping_method === "pickup" ? "Pickup: " : "Ships to: "}${order.shipping_address}</div>` : ""}
+        ${order.shipping_address ? `<div>${isPickup ? "Pickup: " : "Ships to: "}${order.shipping_address}</div>` : ""}
         ${order.customer_notes ? `<div>Note: ${order.customer_notes}</div>` : ""}
       </div>
       <div class="order-actions">

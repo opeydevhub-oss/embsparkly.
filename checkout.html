@@ -420,7 +420,7 @@
           <label for="c-notes">Order Notes (optional)</label>
           <textarea id="c-notes" placeholder="Sizing preferences, delivery instructions, etc."></textarea>
 
-          <button type="submit" class="place-order-btn" id="place-order-btn">Place Order</button>
+          <button type="submit" class="place-order-btn" id="place-order-btn">Pay Now</button>
           <div class="form-message" id="form-message"></div>
         </form>
       </div>
@@ -472,6 +472,7 @@
     const submitBtn = document.getElementById("place-order-btn");
     const messageEl = document.getElementById("form-message");
     submitBtn.disabled = true;
+    submitBtn.textContent = "Redirecting to Stripe...";
     messageEl.style.display = "none";
 
     try {
@@ -495,54 +496,37 @@
         ? "Local Pickup - " + fullName + ", " + addressOnly
         : fullName + ", " + addressOnly;
 
-      const { data: orderRow, error: orderError } = await supabaseClient
-        .from("orders")
-        .insert({
-          user_id: currentUser.id,
-          status: "pending",
-          total: total,
-          shipping_address: shippingAddress,
-          phone: phone,
-          customer_notes: notes,
-          customer_email: currentUser.email,
-          shipping_method: shippingMethod
-        })
-        .select()
-        .single();
+      const { data: sessionInfo } = await supabaseClient.auth.getSession();
+      const accessToken = sessionInfo.session ? sessionInfo.session.access_token : "";
 
-      if (orderError) throw new Error(orderError.message);
+      const { data: checkoutData, error: checkoutError } = await supabaseClient.functions.invoke(
+        "create-stripe-checkout-session",
+        {
+          headers: { Authorization: "Bearer " + accessToken },
+          body: {
+            cart_items: validCart.map(function(item) {
+              return { id: item.id, quantity: item.quantity, size: item.size || null, color: item.color || null };
+            }),
+            delivery_method: shippingMethod,
+            shipping_address: shippingAddress,
+            phone: phone,
+            customer_notes: notes
+          }
+        }
+      );
 
-      const orderItemsPayload = validCart.map(function(item) {
-        return {
-          order_id: orderRow.id,
-          product_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          options: { size: item.size || null, color: item.color || null }
-        };
-      });
+      if (checkoutError) throw new Error(checkoutError.message);
 
-      const { error: itemsError } = await supabaseClient
-        .from("order_items")
-        .insert(orderItemsPayload);
+      const checkoutPayload = checkoutData || {};
+      if (!checkoutPayload.url) throw new Error(checkoutPayload.error || "Could not start payment.");
 
-      if (itemsError) throw new Error(itemsError.message);
-
-      for (const item of validCart) {
-        await supabaseClient.rpc("decrement_stock", {
-          product_id_input: item.id,
-          quantity_input: item.quantity
-        });
-      }
-
-      localStorage.removeItem(CART_KEY);
-
-      window.location.href = "order-confirmation.html?order_id=" + orderRow.id;
+      window.location.href = checkoutPayload.url;
 
     } catch (err) {
       messageEl.textContent = err.message || "Something went wrong. Please try again.";
       messageEl.className = "form-message error";
       submitBtn.disabled = false;
+      submitBtn.textContent = "Pay Now";
     }
   }
 
