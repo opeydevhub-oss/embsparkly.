@@ -178,6 +178,31 @@
     font-family: 'Jost', sans-serif;
   }
 
+  .custom-option-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .custom-option-hint { font-size: 0.78rem; color: var(--gray); }
+
+  .custom-option-input {
+    flex: 1 1 160px;
+    min-width: 140px;
+    padding: 8px 10px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    color: var(--deep-green);
+    border: 1px solid rgba(13,43,38,0.3);
+    border-radius: 6px;
+    background: #fff;
+    outline: none;
+  }
+
+  .custom-option-input:focus { border-color: var(--deep-green); }
+
   .color-options { display: flex; flex-wrap: wrap; gap: 8px; }
 
   .color-chip {
@@ -407,7 +432,7 @@
   <div class="modal">
     <button type="button" class="modal-close" data-close="size-modal">&times;</button>
     <h3>Size Chart</h3>
-    <p class="modal-sub">Pick your size. Rows highlight with gold when you choose one.</p>
+    <p class="modal-sub">Pick your size, or type your own on the product page. Rows highlight with gold when you choose one.</p>
     <table class="chart-table" id="size-chart-table">
       <thead>
         <tr><th>Dubai</th><th>UK</th><th>US</th><th>Turkey</th></tr>
@@ -571,6 +596,10 @@
         <div class="option-block">
           <div class="option-label"><span>Select Size</span><span class="opt-value" id="size-selected">Choose a size</span></div>
           <div class="size-options">${sizes.map(s => `<button type="button" class="size-chip" data-size="${s}">Dubai ${s}</button>`).join("")}</div>
+          <div class="custom-option-row">
+            <span class="custom-option-hint">Can't find your size?</span>
+            <input type="text" class="custom-option-input" id="custom-size-input" placeholder="Type your size (e.g. 44, L, Free Size)" maxlength="40" autocomplete="off">
+          </div>
           <button type="button" class="view-more-btn" id="view-more-sizes-btn">View More Sizes - see UK/US/Turkey chart</button>
         </div>`;
     }
@@ -586,6 +615,10 @@
         <div class="option-block">
           <div class="option-label"><span>Select Color</span><span class="opt-value" id="color-selected">Choose a color</span></div>
           <div class="color-options">${swatches}</div>
+          <div class="custom-option-row">
+            <span class="custom-option-hint">Can't find your color?</span>
+            <input type="text" class="custom-option-input" id="custom-color-input" placeholder="Type your color (e.g. Cream, Purple)" maxlength="40" autocomplete="off">
+          </div>
           <button type="button" class="view-more-btn" id="view-more-colors-btn">View More Colors</button>
         </div>`;
     }
@@ -665,16 +698,44 @@
 
   function setupSizeSelection(availableSizes) {
     const chips = document.querySelectorAll(".size-chip");
+    const customInput = document.getElementById("custom-size-input");
+
+    function setCustomSize(value) {
+      selectedSize = value;
+      chips.forEach(c => c.classList.remove("selected"));
+      const sub = document.getElementById("size-selected");
+      if (sub) sub.textContent = sizeLabel(selectedSize);
+      const tbody = document.querySelector("#size-chart-table tbody");
+      if (tbody) tbody.querySelectorAll("tr").forEach(tr => tr.classList.remove("sel"));
+    }
+
     chips.forEach(function(chip) {
       chip.addEventListener("click", function() {
         selectedSize = chip.dataset.size;
         chips.forEach(c => c.classList.remove("selected"));
         chip.classList.add("selected");
+        if (customInput) customInput.value = "";
         const sub = document.getElementById("size-selected");
         if (sub) sub.textContent = sizeLabel(selectedSize);
         highlightSizeInChart(selectedSize, availableSizes);
       });
     });
+
+    if (customInput) {
+      customInput.addEventListener("input", function() {
+        const value = customInput.value.trim();
+        if (value) {
+          setCustomSize(value);
+        } else {
+          selectedSize = null;
+          chips.forEach(c => c.classList.remove("selected"));
+          const sub = document.getElementById("size-selected");
+          if (sub) sub.textContent = "Choose a size";
+          const tbody = document.querySelector("#size-chart-table tbody");
+          if (tbody) tbody.querySelectorAll("tr").forEach(tr => tr.classList.remove("sel"));
+        }
+      });
+    }
 
     const viewMoreBtn = document.getElementById("view-more-sizes-btn");
     if (viewMoreBtn) {
@@ -706,6 +767,8 @@
         document.querySelectorAll(".size-chip").forEach(function(c) {
           c.classList.toggle("selected", c.dataset.size === row.d);
         });
+        const customInput = document.getElementById("custom-size-input");
+        if (customInput) customInput.value = "";
         const sub = document.getElementById("size-selected");
         if (sub) sub.textContent = sizeLabel(selectedSize);
       });
@@ -723,16 +786,44 @@
 
   function setupColorSelection(productColors) {
     const colorChips = document.querySelectorAll(".color-chip");
+    const customInput = document.getElementById("custom-color-input");
+
+    function setCustomColor(value) {
+      selectedColor = value;
+      colorChips.forEach(c => c.classList.remove("selected"));
+      const sub = document.getElementById("color-selected");
+      if (sub) sub.textContent = selectedColor;
+      const grid = document.getElementById("color-picker-grid");
+      if (grid) grid.querySelectorAll(".color-picker-item").forEach(i => i.classList.remove("selected"));
+    }
+
     colorChips.forEach(function(chip) {
       chip.addEventListener("click", function() {
         selectedColor = chip.dataset.color;
         colorChips.forEach(c => c.classList.remove("selected"));
         chip.classList.add("selected");
+        if (customInput) customInput.value = "";
         const sub = document.getElementById("color-selected");
         if (sub) sub.textContent = selectedColor;
         highlightColorInModal(selectedColor);
       });
     });
+
+    if (customInput) {
+      customInput.addEventListener("input", function() {
+        const value = customInput.value.trim();
+        if (value) {
+          setCustomColor(value);
+        } else {
+          selectedColor = null;
+          colorChips.forEach(c => c.classList.remove("selected"));
+          const sub = document.getElementById("color-selected");
+          if (sub) sub.textContent = "Choose a color";
+          const grid = document.getElementById("color-picker-grid");
+          if (grid) grid.querySelectorAll(".color-picker-item").forEach(i => i.classList.remove("selected"));
+        }
+      });
+    }
 
     const viewMoreBtn = document.getElementById("view-more-colors-btn");
     if (viewMoreBtn) {
@@ -762,6 +853,8 @@
         document.querySelectorAll(".color-chip").forEach(function(chip) {
           chip.classList.toggle("selected", chip.dataset.color === c.name);
         });
+        const customInput = document.getElementById("custom-color-input");
+        if (customInput) customInput.value = "";
         const sub = document.getElementById("color-selected");
         if (sub) sub.textContent = selectedColor;
       });

@@ -231,6 +231,12 @@
 
   const CART_KEY = "emb_sparkly_cart";
 
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
   function getCart() {
     try {
       return JSON.parse(localStorage.getItem(CART_KEY)) || [];
@@ -328,8 +334,8 @@
       let optionLine = "";
       if (item.size || item.color) {
         const bits = [];
-        if (item.size) bits.push("Size: " + item.size);
-        if (item.color) bits.push("Color: " + item.color);
+        if (item.size) bits.push("Size: " + esc(item.size));
+        if (item.color) bits.push("Color: " + esc(item.color));
         optionLine = '<div class="unit-price">' + bits.join(" | ") + '</div>';
       }
       const key = item.id + "|" + (item.size || "") + "|" + (item.color || "");

@@ -161,6 +161,12 @@
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
   function getOrderIdFromUrl() {
     const params = new URLSearchParams(window.location.search);
     return params.get("order_id");
@@ -240,7 +246,7 @@
       const bits = [];
       if (item.size) bits.push("Size: " + item.size);
       if (item.color) bits.push("Color: " + item.color);
-      if (bits.length > 0) optionLine = " <span style=\"color:#6b6b64;\">(" + bits.join(" | ") + ")</span>";
+      if (bits.length > 0) optionLine = " <span style=\"color:#6b6b64;\">(" + bits.map(esc).join(" | ") + ")</span>";
       itemsHtml += `
         <div class="order-line">
           <span>${item.quantity} x ${productName}${optionLine}</span>

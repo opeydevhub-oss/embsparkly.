@@ -560,6 +560,12 @@
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const ADMIN_UID = "1ec1684c-db5b-4032-a385-ac006a47fc08";
 
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const gateScreen = document.getElementById("gate-screen");
@@ -915,11 +921,11 @@
       const colorVal = item.color || (item.options && item.options.color) || "";
       if (sizeVal || colorVal) {
         const bits = [];
-        if (sizeVal) bits.push("Size: " + sizeVal);
-        if (colorVal) bits.push("Color: " + colorVal);
+        if (sizeVal) bits.push("Size: " + esc(sizeVal));
+        if (colorVal) bits.push("Color: " + esc(colorVal));
         opts = ' <span style="color:#6b6b64">(' + bits.join(" | ") + ')</span>';
       }
-      return `<div>${item.quantity} x ${productName} - $${Number(item.price).toFixed(2)}${opts}</div>`;
+      return `<div>${item.quantity} x ${esc(productName)} - $${Number(item.price).toFixed(2)}${opts}</div>`;
     }).join("");
 
     const isPickup = (order.delivery_method || order.shipping_method) === "pickup";
