@@ -1099,6 +1099,7 @@
           <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
         </select>
         ${waLink ? `<a href="${waLink}" target="_blank" class="whatsapp-btn">Notify on WhatsApp</a>` : ""}
+        <button class="delete-btn order-delete-btn" data-id="${order.id}">Delete</button>
       </div>
     `;
 
@@ -1115,6 +1116,19 @@
         loadStats();
       } else {
         alert("Could not update status: " + error.message);
+      }
+    });
+
+    const delBtn = card.querySelector(".order-delete-btn");
+    delBtn.addEventListener("click", async function() {
+      if (!confirm("Delete order #" + shortId + "? This permanently removes it and its items.")) return;
+      const itemsResult = await supabaseClient.from("order_items").delete().eq("order_id", order.id);
+      const orderResult = await supabaseClient.from("orders").delete().eq("id", order.id);
+      if (orderResult.error || itemsResult.error) {
+        alert("Could not delete order: " + ((orderResult.error || itemsResult.error).message || "unknown error"));
+      } else {
+        loadOrders();
+        loadStats();
       }
     });
 
