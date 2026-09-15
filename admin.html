@@ -471,6 +471,29 @@
     white-space: nowrap;
   }
 
+  #order-item-preview {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    width: 300px;
+    max-width: 80vw;
+    max-height: 70vh;
+    background: #fff;
+    border: 1px solid rgba(13,43,38,0.15);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    overflow: hidden;
+    display: none;
+  }
+
+  #order-item-preview img,
+  #order-item-preview video {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    display: block;
+  }
+
   .order-meta { font-size: 0.78rem; color: var(--gray); margin-bottom: 10px; }
   .order-meta div { margin-bottom: 2px; }
 
@@ -677,6 +700,11 @@
   </div>
 
 </main>
+
+<div id="order-item-preview">
+  <img id="order-item-preview-img" alt="">
+  <video id="order-item-preview-video" muted loop playsinline></video>
+</div>
 
 <script>
   const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
@@ -988,7 +1016,7 @@
       .from("orders")
       .select(`
         id, status, payment_status, total, created_at, shipping_address, phone, customer_notes, customer_email, delivery_method, shipping_method,
-        order_items ( quantity, price, options, size, color, products ( name, image_url ) )
+        order_items ( quantity, price, options, size, color, products ( name, image_url, video_url ) )
       `)
       .order("created_at", { ascending: false });
 
@@ -1043,9 +1071,11 @@
     const itemsHtml = (order.order_items || []).map(function(item) {
       const product = item.products || {};
       const productName = product.name || "Deleted product";
-      const imgHtml = product.image_url
-        ? '<img src="' + esc(product.image_url) + '" alt="" class="order-item-thumb">'
-        : '<div class="order-item-thumb no-thumb">No photo</div>';
+      const imgSrc = product.image_url || "";
+      const vidSrc = product.video_url || "";
+      const imgHtml = imgSrc
+        ? '<img src="' + esc(imgSrc) + '" alt="" class="order-item-thumb" data-img="' + esc(imgSrc) + '" data-video="' + esc(vidSrc) + '">'
+        : '<div class="order-item-thumb no-thumb" data-img="" data-video="' + esc(vidSrc) + '">' + (vidSrc ? "Video" : "No photo") + '</div>';
       const sizeVal = item.size || (item.options && item.options.size) || "";
       const colorVal = item.color || (item.options && item.options.color) || "";
       const opts = [];
@@ -1099,9 +1129,11 @@
           <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
         </select>
         ${waLink ? `<a href="${waLink}" target="_blank" class="whatsapp-btn">Notify on WhatsApp</a>` : ""}
-        <button class="delete-btn order-delete-btn" data-id="${order.id}">Delete</button>
+        <button class="delete-btn order-delete-btn" data-id="${order.id}">Delete Permanently</button>
       </div>
     `;
+
+    bindOrderItemPreview(card);
 
     const select = card.querySelector(".status-select");
     select.addEventListener("change", async function() {
@@ -1121,7 +1153,7 @@
 
     const delBtn = card.querySelector(".order-delete-btn");
     delBtn.addEventListener("click", async function() {
-      if (!confirm("Delete order #" + shortId + "? This permanently removes it and its items.")) return;
+      if (!confirm("Delete order #" + shortId + " PERMANENTLY? This removes the order and its items forever.")) return;
       const itemsResult = await supabaseClient.from("order_items").delete().eq("order_id", order.id);
       const orderResult = await supabaseClient.from("orders").delete().eq("id", order.id);
       if (orderResult.error || itemsResult.error) {
@@ -1133,6 +1165,63 @@
     });
 
     return card;
+  }
+
+  function bindOrderItemPreview(card) {
+    const preview = document.getElementById("order-item-preview");
+    const previewImg = document.getElementById("order-item-preview-img");
+    const previewVideo = document.getElementById("order-item-preview-video");
+    const hasMedia = preview && (previewImg || previewVideo);
+    if (!hasMedia) return;
+
+    previewVideo.loop = true;
+    previewVideo.muted = true;
+
+    card.querySelectorAll(".order-item-thumb").forEach(function(thumb) {
+      const imgSrc = thumb.getAttribute("data-img") || "";
+      const vidSrc = thumb.getAttribute("data-video") || "";
+
+      thumb.style.cursor = imgSrc || vidSrc ? "zoom-in" : "default";
+
+      thumb.addEventListener("mouseenter", function() {
+        if (imgSrc) {
+          previewVideo.pause();
+          previewVideo.removeAttribute("src");
+          previewVideo.load();
+          previewVideo.style.display = "none";
+          previewImg.src = imgSrc;
+          previewImg.style.display = "block";
+          preview.style.display = "block";
+        } else if (vidSrc) {
+          previewImg.removeAttribute("src");
+          previewImg.style.display = "none";
+          previewVideo.src = vidSrc;
+          previewVideo.style.display = "block";
+          preview.style.display = "block";
+          previewVideo.play().catch(function() {});
+        } else {
+          preview.style.display = "none";
+        }
+      });
+
+      thumb.addEventListener("mousemove", function(e) {
+        if (preview.style.display === "none") return;
+        const pad = 16;
+        let x = e.clientX + pad;
+        let y = e.clientY + pad;
+        if (x + preview.offsetWidth > window.innerWidth - 8) x = e.clientX - preview.offsetWidth - pad;
+        if (y + preview.offsetHeight > window.innerHeight - 8) y = e.clientY - preview.offsetHeight - pad;
+        preview.style.left = x + "px";
+        preview.style.top = y + "px";
+      });
+
+      thumb.addEventListener("mouseleave", function() {
+        preview.style.display = "none";
+        previewVideo.pause();
+        previewVideo.removeAttribute("src");
+        previewVideo.load();
+      });
+    });
   }
 
   document.querySelectorAll(".filter-chip").forEach(function(chip) {
