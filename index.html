@@ -671,56 +671,9 @@
     <h2>Shop by Category</h2>
     <p>Tap a category to browse</p>
   </div>
-  <div class="category-grid">
-    <a class="category-card" href="catalog.html?category=turkey-wears" data-category="turkey-wears">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Turkey Wears</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=dubai-wears" data-category="dubai-wears">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Dubai Wears</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=african-ready-to-wear" data-category="african-ready-to-wear">
-      <div class="cat-icon">&#10022;</div>
-      <h3>African Ready-to-Wear</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=women" data-category="women">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Women</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=wigs" data-category="wigs">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Wigs</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=men" data-category="men">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Men</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=children" data-category="children">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Children</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=jewelries" data-category="jewelries">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Jewelries</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=bags" data-category="bags">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Bags &amp; Purses</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=glasses" data-category="glasses">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Glasses</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=shoes" data-category="shoes">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Shoes</h3>
-    </a>
-    <a class="category-card" href="catalog.html?category=bras" data-category="bras">
-      <div class="cat-icon">&#10022;</div>
-      <h3>Bras</h3>
-    </a>
-  </div>
+<div class="category-grid" id="home-category-grid">
+      <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading categories...</div>
+    </div>
 </section>
 
 <section class="occasion-section">
@@ -798,6 +751,12 @@
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
   document.getElementById("home-search").addEventListener("keydown", function(e) {
     if (e.key === "Enter" && e.target.value.trim() !== "") {
       window.location.href = "catalog.html?search=" + encodeURIComponent(e.target.value.trim());
@@ -853,6 +812,30 @@
   }
 
   loadNewArrivals();
+
+  async function loadHomeCategories() {
+    const grid = document.getElementById("home-category-grid");
+    const { data: cats, error } = await supabaseClient
+      .from("categories")
+      .select("id, name, slug")
+      .order("name");
+
+    if (error || !cats || cats.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Browse by category in the shop.</div>';
+      return;
+    }
+
+    grid.innerHTML = "";
+    cats.forEach(function(c) {
+      const card = document.createElement("a");
+      card.className = "category-card";
+      card.href = "catalog.html?category=" + encodeURIComponent(c.slug);
+      card.innerHTML = '<div class="cat-icon">&#10022;</div><h3>' + esc(c.name) + '</h3>';
+      grid.appendChild(card);
+    });
+  }
+
+  loadHomeCategories();
 
   /* HERO CAROUSEL */
   (function() {

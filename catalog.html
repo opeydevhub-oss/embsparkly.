@@ -282,18 +282,6 @@
 
   <div class="filter-bar" id="filter-bar">
     <div class="filter-chip active" data-category="all">All</div>
-    <div class="filter-chip" data-category="turkey-wears">Turkey Wears</div>
-    <div class="filter-chip" data-category="dubai-wears">Dubai Wears</div>
-    <div class="filter-chip" data-category="african-ready-to-wear">African Ready-to-Wear</div>
-    <div class="filter-chip" data-category="women">Women</div>
-    <div class="filter-chip" data-category="wigs">Wigs</div>
-    <div class="filter-chip" data-category="men">Men</div>
-    <div class="filter-chip" data-category="children">Children</div>
-    <div class="filter-chip" data-category="jewelries">Jewelries</div>
-    <div class="filter-chip" data-category="bags">Bags</div>
-    <div class="filter-chip" data-category="glasses">Glasses</div>
-    <div class="filter-chip" data-category="shoes">Shoes</div>
-    <div class="filter-chip" data-category="bras">Bras</div>
   </div>
 
   <div class="result-count" id="result-count"></div>
@@ -322,24 +310,29 @@
   let allProducts = [];
   let currentCategory = "all";
   let currentSearch = "";
+  let categoryNames = {};
 
   const gridEl = document.getElementById("product-grid");
   const countEl = document.getElementById("result-count");
+  const filterBar = document.getElementById("filter-bar");
 
-  const CATEGORY_NAMES = {
-    "turkey-wears": "Turkey Wears",
-    "dubai-wears": "Dubai Wears",
-    "african-ready-to-wear": "African Ready-to-Wear",
-    "women": "Women",
-    "wigs": "Wigs",
-    "men": "Men",
-    "children": "Children",
-    "jewelries": "Jewelries",
-    "bags": "Bags & Purses",
-    "glasses": "Glasses",
-    "shoes": "Shoes",
-    "bras": "Bras"
-  };
+  async function loadCatalogCategories() {
+    const { data: cats, error } = await supabaseClient
+      .from("categories")
+      .select("id, name, slug")
+      .order("name");
+
+    if (error || !cats || cats.length === 0) return;
+    categoryNames = {};
+    cats.forEach(function(c) { categoryNames[c.slug] = c.name; });
+    cats.forEach(function(c) {
+      const chip = document.createElement("div");
+      chip.className = "filter-chip";
+      chip.dataset.category = c.slug;
+      chip.textContent = c.name;
+      filterBar.appendChild(chip);
+    });
+  }
 
   async function loadAllProducts() {
     const { data, error } = await supabaseClient
@@ -421,15 +414,15 @@
     });
   }
 
-  document.querySelectorAll(".filter-chip").forEach(function(chip) {
-    chip.addEventListener("click", function() {
-      document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
-      currentCategory = chip.dataset.category;
-      const titleEl = document.getElementById("page-title-category");
-      titleEl.textContent = currentCategory === "all" ? "Shop" : (CATEGORY_NAMES[currentCategory] || "Shop");
-      applyFilters();
-    });
+  filterBar.addEventListener("click", function(e) {
+    const chip = e.target.closest(".filter-chip");
+    if (!chip) return;
+    filterBar.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    currentCategory = chip.dataset.category;
+    const titleEl = document.getElementById("page-title-category");
+    titleEl.textContent = currentCategory === "all" ? "Shop" : (categoryNames[currentCategory] || "Shop");
+    applyFilters();
   });
 
   document.getElementById("search-input").addEventListener("input", function(e) {
@@ -446,11 +439,11 @@
       currentCategory = catParam;
       const matchChip = document.querySelector(`.filter-chip[data-category="${catParam}"]`);
       if (matchChip) {
-        document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+        filterBar.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
         matchChip.classList.add("active");
       }
       const titleEl = document.getElementById("page-title-category");
-      titleEl.textContent = CATEGORY_NAMES[catParam] || "Shop";
+      titleEl.textContent = categoryNames[catParam] || "Shop";
     }
 
     if (searchParam) {
@@ -460,7 +453,7 @@
   }
 
   initFromUrl();
-  loadAllProducts();
+  loadCatalogCategories().then(loadAllProducts);
 </script>
 
 </body>

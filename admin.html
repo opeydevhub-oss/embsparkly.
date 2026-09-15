@@ -327,6 +327,66 @@
     flex-shrink: 0;
   }
 
+  .edit-btn {
+    background: none;
+    border: 1px solid rgba(13,43,38,0.35);
+    color: var(--deep-green);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .row-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 6px;
+  }
+
+  .cat-row .info { flex: 1; min-width: 0; }
+
+  .cat-row .info h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cat-row .info p { font-size: 0.75rem; color: var(--gray); }
+
+  .cat-row .cat-icon {
+    width: 40px; height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(201,162,39,0.15);
+    color: var(--gold-strong, #8a6d13);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .inline-rename { display: flex; gap: 8px; align-items: center; }
+
+  .inline-rename input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 7px 10px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+    border: 1px solid rgba(13,43,38,0.2);
+    border-radius: 6px;
+    background: #fff;
+  }
+
   .empty-state { text-align: center; color: var(--gray); font-size: 0.85rem; padding: 20px 0; }
 
   .order-card {
@@ -434,6 +494,7 @@
     <button class="tab-btn active" data-tab="overview">Overview</button>
     <button class="tab-btn" data-tab="orders">Orders</button>
     <button class="tab-btn" data-tab="products">Products</button>
+    <button class="tab-btn" data-tab="categories">Categories</button>
   </div>
 
   <div class="tab-panel active" id="tab-overview">
@@ -487,29 +548,19 @@
 
   <div class="tab-panel" id="tab-products">
     <div class="page-title">Products</div>
-    <div class="page-subtitle">Add new items or manage what is already listed</div>
+    <div class="page-subtitle">Add, edit, or remove items from the shop</div>
 
     <div class="card">
-      <h2>Add a Product</h2>
+      <h2 id="product-form-title">Add a Product</h2>
       <form id="product-form">
+        <input type="hidden" id="p-editing-id">
+
         <label for="p-name">Product Name</label>
         <input type="text" id="p-name" required placeholder="e.g. Blue Ankara Gown">
 
         <label for="p-category">Category</label>
         <select id="p-category" required>
           <option value="">Select a category</option>
-          <option value="turkey-wears">Turkey Wears</option>
-          <option value="dubai-wears">Dubai Wears</option>
-          <option value="african-ready-to-wear">African Ready-to-Wear</option>
-          <option value="women">Women</option>
-          <option value="wigs">Wigs</option>
-          <option value="men">Men</option>
-          <option value="children">Children</option>
-          <option value="jewelries">Jewelries</option>
-          <option value="bags">Designer Bags, Purses & Clutches</option>
-          <option value="glasses">Glasses</option>
-          <option value="shoes">Shoes</option>
-          <option value="bras">Bras</option>
         </select>
 
         <label for="p-price">Price (USD)</label>
@@ -526,7 +577,7 @@
 
         <label for="p-image">Product Photo (optional)</label>
         <input type="file" id="p-image" accept="image/*">
-        <p class="field-hint">Add a photo, a video, or both. At least one is required.</p>
+        <p class="field-hint" id="p-image-hint">Add a photo, a video, or both. At least one is required.</p>
 
         <label for="p-video">Product Video (optional)</label>
         <input type="file" id="p-video" accept="video/*">
@@ -540,7 +591,10 @@
         <div id="color-rows"></div>
         <button type="button" class="small-add-btn" id="add-color-btn">+ Add Color</button>
 
-        <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
+        <div style="display:flex; gap:10px; align-items:center; margin-top:18px;">
+          <button type="submit" class="submit-btn" id="submit-btn">Add Product</button>
+          <button type="button" class="edit-btn" id="cancel-edit-btn" style="display:none;">Cancel Edit</button>
+        </div>
         <div class="form-message" id="form-message"></div>
       </form>
     </div>
@@ -550,6 +604,29 @@
       <div class="product-list" id="product-list">
         <div class="empty-state">Loading products...</div>
       </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-categories">
+    <div class="page-title">Categories</div>
+    <div class="page-subtitle">Add, rename, or remove categories. Changes update the shop immediately.</div>
+
+    <div class="card">
+      <h2>Add a Category</h2>
+      <form id="category-form">
+        <label for="cat-name">Category Name</label>
+        <input type="text" id="cat-name" required placeholder="e.g. New Arrivals">
+        <button type="submit" class="submit-btn" id="cat-submit-btn">Add Category</button>
+        <div class="form-message" id="cat-form-message"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Current Categories</h2>
+      <div class="category-list" id="category-list">
+        <div class="empty-state">Loading categories...</div>
+      </div>
+      <p class="field-hint" style="margin-top:12px;">Renaming a category updates its name everywhere on the shop. Deleting a category leaves its products in the "All" view until you reassign them.</p>
     </div>
   </div>
 
@@ -567,6 +644,11 @@
   }
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let categoriesCache = [];
+  let editingId = null;
+  let currentEditImageUrl = "";
+  let currentEditVideoUrl = "";
 
   const gateScreen = document.getElementById("gate-screen");
   const gateMessage = document.getElementById("gate-message");
@@ -592,6 +674,7 @@
     loadProducts();
     loadOrders();
     loadStats();
+    loadCategories();
   }
 
   checkAccess();
@@ -612,9 +695,9 @@
 
   document.getElementById("product-form").addEventListener("submit", async function(e) {
     e.preventDefault();
-
     const submitBtn = document.getElementById("submit-btn");
     const messageEl = document.getElementById("form-message");
+    const isEditing = !!editingId;
     submitBtn.disabled = true;
     messageEl.style.display = "none";
 
@@ -627,87 +710,69 @@
       const description = document.getElementById("p-description").value.trim();
       const imageFile = document.getElementById("p-image").files[0];
       const videoFile = document.getElementById("p-video").files[0];
-
-      if (!imageFile && !videoFile) throw new Error("Please add a product photo or a video.");
-
       const sizes = collectSizes();
       const colors = collectColors();
 
+      if (!categorySlug) throw new Error("Please choose a category.");
+      if (!isEditing && !imageFile && !videoFile) throw new Error("Please add a product photo or a video.");
+
       const { data: categoryRow, error: categoryError } = await supabaseClient
-        .from("categories")
-        .select("id")
-        .eq("slug", categorySlug)
-        .single();
+        .from("categories").select("id").eq("slug", categorySlug).single();
 
       if (categoryError || !categoryRow) throw new Error("Could not find that category.");
 
-      let imageUrl = "";
-      let videoUrl = "";
+      let imageUrl = isEditing ? currentEditImageUrl : "";
+      let videoUrl = isEditing ? currentEditVideoUrl : "";
 
       if (imageFile) {
         const fileExt = imageFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-
         const { error: uploadError } = await supabaseClient
-          .storage
-          .from("product-image")
-          .upload(fileName, imageFile);
-
+          .storage.from("product-image").upload(fileName, imageFile);
         if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
-
-        const { data: publicUrlData } = supabaseClient
-          .storage
-          .from("product-image")
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrlData.publicUrl;
+        imageUrl = supabaseClient.storage.from("product-image").getPublicUrl(fileName).data.publicUrl;
       }
 
       if (videoFile) {
         const duration = await getVideoDuration(videoFile);
         if (duration > 30) throw new Error("Video must be 30 seconds or shorter.");
-
         const fileExt = videoFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-
         const { error: videoUploadError } = await supabaseClient
-          .storage
-          .from("product-image")
-          .upload(fileName, videoFile, { contentType: videoFile.type });
-
+          .storage.from("product-image").upload(fileName, videoFile, { contentType: videoFile.type });
         if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
-
-        const { data: videoUrlData } = supabaseClient
-          .storage
-          .from("product-image")
-          .getPublicUrl(fileName);
-
-        videoUrl = videoUrlData.publicUrl;
+        videoUrl = supabaseClient.storage.from("product-image").getPublicUrl(fileName).data.publicUrl;
       }
 
-      const { error: insertError } = await supabaseClient
-        .from("products")
-        .insert({
-          name: name,
-          description: description,
-          price: price,
-          stock: stock,
-          weight_kg: weight,
-          category_id: categoryRow.id,
-          image_url: imageUrl || null,
-          video_url: videoUrl || null,
-          sizes: sizes,
-          colors: colors
-        });
+      const payload = {
+        name,
+        description,
+        price,
+        stock,
+        weight_kg: weight,
+        category_id: categoryRow.id,
+        image_url: imageUrl || null,
+        video_url: videoUrl || null,
+        sizes,
+        colors
+      };
 
-      if (insertError) throw new Error(insertError.message);
+      let opError;
+      if (isEditing) {
+        const result = await supabaseClient.from("products").update(payload).eq("id", editingId);
+        opError = result.error;
+      } else {
+        const result = await supabaseClient.from("products").insert(payload);
+        opError = result.error;
+      }
 
-      messageEl.textContent = "Product added successfully.";
+      if (opError) throw new Error(opError.message);
+
+      messageEl.textContent = isEditing ? "Product updated successfully." : "Product added successfully.";
       messageEl.className = "form-message success";
-      document.getElementById("product-form").reset();
+      resetProductForm();
       loadProducts();
       loadStats();
-
     } catch (err) {
       messageEl.textContent = err.message || "Something went wrong.";
       messageEl.className = "form-message error";
@@ -814,7 +879,11 @@
 
     const { data: products, error } = await supabaseClient
       .from("products")
-      .select("id, name, price, image_url, stock, video_url")
+      .select(`
+        id, name, description, price, image_url, stock, video_url,
+        category_id, sizes, colors, weight_kg, created_at,
+        categories(name, slug)
+      `)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -830,24 +899,35 @@
     listEl.innerHTML = "";
     products.forEach(function(product) {
       const isLow = product.stock <= 2;
+      const categoryName = product.categories ? product.categories.name : "Uncategorized";
       const row = document.createElement("div");
       row.className = "product-row" + (isLow ? " low-stock" : "");
       row.innerHTML = `
-        ${product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '">' : '<div class="no-thumb">Video</div>'}
+        ${product.image_url ? '<img src="' + esc(product.image_url) + '" alt="' + esc(product.name) + '">' : '<div class="no-thumb">Video</div>'}
         <div class="info">
-          <h3>${product.name}</h3>
-          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} ${isLow ? '<span class="stock-badge">Low</span>' : ''} ${product.video_url ? '<span class="stock-badge">Video</span>' : ''}</p>
+          <h3>${esc(product.name)}</h3>
+          <p>$${Number(product.price).toFixed(2)} &middot; Stock: ${product.stock} &middot; ${esc(categoryName)} ${isLow ? '<span class="stock-badge">Low</span>' : ''} ${product.video_url ? '<span class="stock-badge">Video</span>' : ''}</p>
         </div>
-        <button class="delete-btn" data-id="${product.id}">Delete</button>
+        <div class="row-actions">
+          <button class="edit-btn" data-id="${product.id}">Edit</button>
+          <button class="delete-btn" data-id="${product.id}">Delete</button>
+        </div>
       `;
       listEl.appendChild(row);
+    });
+
+    document.querySelectorAll(".edit-btn").forEach(function(btn) {
+      btn.addEventListener("click", async function() {
+        const id = btn.getAttribute("data-id");
+        const product = products.find(p => p.id === id);
+        if (product) startEdit(product);
+      });
     });
 
     document.querySelectorAll(".delete-btn").forEach(function(btn) {
       btn.addEventListener("click", async function() {
         const id = btn.getAttribute("data-id");
         if (!confirm("Delete this product?")) return;
-
         const { error } = await supabaseClient.from("products").delete().eq("id", id);
         if (!error) { loadProducts(); loadStats(); }
       });
@@ -1007,6 +1087,218 @@
     document.getElementById("stat-revenue").textContent = "$" + revenue.toFixed(2);
     document.getElementById("stat-low-stock").textContent = lowStock;
   }
+
+  /* ---------- Category helpers ---------- */
+  function slugify(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/[\s]+/g, "-");
+  }
+
+  function populateCategorySelect() {
+    const sel = document.getElementById("p-category");
+    sel.innerHTML = '<option value="">Select a category</option>';
+    const seen = [];
+    categoriesCache.forEach(function(c) {
+      if (seen.indexOf(c.slug) !== -1) return;
+      seen.push(c.slug);
+      const opt = document.createElement("option");
+      opt.value = c.slug;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function loadCategories() {
+    const { data: cats, error } = await supabaseClient
+      .from("categories")
+      .select("id, name, slug")
+      .order("name");
+
+    if (error) {
+      document.getElementById("category-list").innerHTML = '<div class="empty-state">Could not load categories.</div>';
+      categoriesCache = [];
+    } else {
+      categoriesCache = cats || [];
+      renderCategoryList();
+    }
+    populateCategorySelect();
+  }
+
+  function renderCategoryList() {
+    const listEl = document.getElementById("category-list");
+    if (categoriesCache.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No categories yet.</div>';
+      return;
+    }
+    listEl.innerHTML = "";
+    categoriesCache.forEach(function(cat) {
+      const row = document.createElement("div");
+      row.className = "cat-row";
+      row.innerHTML = `
+        <div class="cat-icon">&#10022;</div>
+        <div class="info">
+          <h3>${esc(cat.name)}</h3>
+          <p>Slug: ${esc(cat.slug)}</p>
+        </div>
+        <div class="row-actions">
+          <button class="edit-btn cat-rename-btn" data-id="${cat.id}" data-name="${esc(cat.name)}">Rename</button>
+          <button class="delete-btn cat-delete-btn" data-id="${cat.id}" data-name="${esc(cat.name)}">Delete</button>
+        </div>
+      `;
+      listEl.appendChild(row);
+    });
+
+    listEl.querySelectorAll(".cat-rename-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const catId = btn.getAttribute("data-id");
+        const currentName = btn.getAttribute("data-name");
+        startCategoryRename(catId, currentName, btn.closest(".cat-row"));
+      });
+    });
+
+    listEl.querySelectorAll(".cat-delete-btn").forEach(function(btn) {
+      btn.addEventListener("click", async function() {
+        const catId = btn.getAttribute("data-id");
+        const catName = btn.getAttribute("data-name");
+        if (!confirm('Delete "' + catName + '"? Its products will move to "All" until you assign them to another category.')) return;
+        const { error } = await supabaseClient.from("categories").delete().eq("id", catId);
+        if (!error) {
+          loadCategories();
+          loadProducts();
+        } else {
+          alert("Could not delete category: " + error.message);
+        }
+      });
+    });
+  }
+
+  function startCategoryRename(catId, currentName, rowEl) {
+    const info = rowEl.querySelector(".info");
+    const actions = rowEl.querySelector(".row-actions");
+    info.innerHTML = `
+      <div class="inline-rename">
+        <input type="text" value="${esc(currentName)}" maxlength="60">
+        <button class="submit-btn" id="cat-save-btn" style="padding:7px 12px; font-size:0.78rem;">Save</button>
+        <button class="edit-btn cat-cancel-btn" style="padding:7px 12px; font-size:0.78rem;">Cancel</button>
+      </div>
+    `;
+    actions.style.display = "none";
+    const input = info.querySelector("input");
+    info.querySelector("#cat-save-btn").addEventListener("click", async function() {
+      const newName = input.value.trim();
+      if (!newName) { alert("Name cannot be empty."); return; }
+      const newSlug = slugify(newName);
+      if (!newSlug) { alert("Please enter a valid name."); return; }
+      if (categoriesCache.some(c => c.slug === newSlug && c.id !== catId)) {
+        alert("A category with that name already exists.");
+        return;
+      }
+      const { error } = await supabaseClient.from("categories").update({ name: newName, slug: newSlug }).eq("id", catId);
+      if (!error) {
+        loadCategories();
+        loadProducts();
+      } else {
+        alert("Could not rename category: " + error.message);
+        renderCategoryList();
+      }
+    });
+    info.querySelector(".cat-cancel-btn").addEventListener("click", function() { renderCategoryList(); });
+    input.focus();
+    input.select();
+  }
+
+  document.getElementById("category-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const submitBtn = document.getElementById("cat-submit-btn");
+    const messageEl = document.getElementById("cat-form-message");
+    submitBtn.disabled = true;
+    messageEl.style.display = "none";
+    try {
+      const name = document.getElementById("cat-name").value.trim();
+      if (!name) throw new Error("Please enter a category name.");
+      const slug = slugify(name);
+      if (!slug) throw new Error("Please enter a valid name.");
+      if (categoriesCache.some(c => c.slug === slug)) throw new Error("A category with that name already exists.");
+      const { error } = await supabaseClient.from("categories").insert({ name, slug });
+      if (error) throw new Error(error.message);
+      messageEl.textContent = "Category added successfully.";
+      messageEl.className = "form-message success";
+      document.getElementById("cat-name").value = "";
+      loadCategories();
+      loadProducts();
+    } catch (err) {
+      messageEl.textContent = err.message || "Something went wrong.";
+      messageEl.className = "form-message error";
+    }
+    submitBtn.disabled = false;
+  });
+
+  /* ---------- Product edit helpers ---------- */
+  function startEdit(product) {
+    editingId = product.id;
+    currentEditImageUrl = product.image_url || "";
+    currentEditVideoUrl = product.video_url || "";
+    document.getElementById("product-form-title").textContent = "Edit Product";
+    document.getElementById("submit-btn").textContent = "Save Changes";
+    document.getElementById("cancel-edit-btn").style.display = "inline-block";
+    document.getElementById("p-image-hint").innerHTML = currentEditImageUrl
+      ? "Current photo: <a href='" + esc(currentEditImageUrl) + "' target='_blank' style='text-decoration:underline;'>view</a>. Choose a file only if you want to replace it."
+      : (currentEditVideoUrl
+          ? "No photo. Video is currently used. Choose a file to add a photo."
+          : "Add a photo, a video, or both. At least one is required.");
+
+    document.getElementById("p-name").value = product.name || "";
+    document.getElementById("p-category").value = product.categories ? product.categories.slug : "";
+    document.getElementById("p-price").value = product.price != null ? product.price : "";
+    document.getElementById("p-stock").value = product.stock != null ? product.stock : "";
+    document.getElementById("p-weight").value = product.weight_kg != null ? product.weight_kg : "";
+    document.getElementById("p-description").value = product.description || "";
+
+    // set sizes
+    document.querySelectorAll("#p-sizes input").forEach(function(input) {
+      const checked = Array.isArray(product.sizes) && product.sizes.indexOf(input.value) !== -1;
+      input.checked = checked;
+      input.closest(".size-check").classList.toggle("checked", checked);
+    });
+    document.getElementById("p-sizes-custom").value =
+      (Array.isArray(product.sizes)
+        ? product.sizes.filter(function(s) { return SIZE_CHART.findIndex(r => r.d === s) === -1; })
+        : []
+      ).join(", ");
+
+    // set colors
+    document.getElementById("color-rows").innerHTML = "";
+    (Array.isArray(product.colors) ? product.colors : []).forEach(function(c) {
+      addColorRow(c.name, c.hex);
+    });
+    if (!Array.isArray(product.colors) || product.colors.length === 0) addColorRow("", "#0d2b26");
+
+    document.getElementById("tab-products").scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelector('.tab-btn[data-tab="products"]').classList.add("active");
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById("tab-products").classList.add("active");
+  }
+
+  function resetProductForm() {
+    editingId = null;
+    currentEditImageUrl = "";
+    currentEditVideoUrl = "";
+    document.getElementById("product-form").reset();
+    document.getElementById("product-form-title").textContent = "Add a Product";
+    document.getElementById("submit-btn").textContent = "Add Product";
+    document.getElementById("cancel-edit-btn").style.display = "none";
+    document.getElementById("p-image-hint").innerHTML = "Add a photo, a video, or both. At least one is required.";
+    document.getElementById("p-sizes").innerHTML = "";
+    buildSizesChecklist();
+    document.getElementById("color-rows").innerHTML = "";
+    addColorRow("", "#0d2b26");
+  }
+
+  document.getElementById("cancel-edit-btn").addEventListener("click", resetProductForm);
 </script>
 
 </body>
