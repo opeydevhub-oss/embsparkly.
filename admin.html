@@ -423,7 +423,53 @@
   .status-cancelled { background: #fdecea; color: var(--error); }
 
   .order-items-list { font-size: 0.82rem; color: var(--charcoal); margin: 8px 0; }
-  .order-items-list div { padding: 2px 0; }
+
+  .order-item-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(13,43,38,0.1);
+  }
+  .order-item-line:last-child { border-bottom: none; }
+
+  .order-item-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 5px;
+    background: #f3ead6;
+    flex-shrink: 0;
+  }
+
+  .order-item-thumb.no-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: var(--deep-green);
+    font-weight: 600;
+  }
+
+  .order-item-info { flex: 1; min-width: 0; }
+
+  .order-item-name {
+    font-weight: 600;
+    color: var(--deep-green);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .order-item-opts { font-size: 0.74rem; color: var(--gray); }
+
+  .order-item-right {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    white-space: nowrap;
+  }
 
   .order-meta { font-size: 0.78rem; color: var(--gray); margin-bottom: 10px; }
   .order-meta div { margin-bottom: 2px; }
@@ -942,7 +988,7 @@
       .from("orders")
       .select(`
         id, status, payment_status, total, created_at, shipping_address, phone, customer_notes, customer_email, delivery_method, shipping_method,
-        order_items ( quantity, price, options, size, color, products ( name ) )
+        order_items ( quantity, price, options, size, color, products ( name, image_url ) )
       `)
       .order("created_at", { ascending: false });
 
@@ -995,17 +1041,28 @@
     card.className = "order-card";
 
     const itemsHtml = (order.order_items || []).map(function(item) {
-      const productName = item.products ? item.products.name : "Item";
-      let opts = "";
+      const product = item.products || {};
+      const productName = product.name || "Deleted product";
+      const imgHtml = product.image_url
+        ? '<img src="' + esc(product.image_url) + '" alt="" class="order-item-thumb">'
+        : '<div class="order-item-thumb no-thumb">No photo</div>';
       const sizeVal = item.size || (item.options && item.options.size) || "";
       const colorVal = item.color || (item.options && item.options.color) || "";
-      if (sizeVal || colorVal) {
-        const bits = [];
-        if (sizeVal) bits.push("Size: " + esc(sizeVal));
-        if (colorVal) bits.push("Color: " + esc(colorVal));
-        opts = ' <span style="color:#6b6b64">(' + bits.join(" | ") + ')</span>';
-      }
-      return `<div>${item.quantity} x ${esc(productName)} - $${Number(item.price).toFixed(2)}${opts}</div>`;
+      const opts = [];
+      if (sizeVal) opts.push("Size: " + esc(sizeVal));
+      if (colorVal) opts.push("Color: " + esc(colorVal));
+      const optsHtml = opts.length > 0
+        ? '<div class="order-item-opts">' + opts.join(" &middot; ") + '</div>'
+        : "";
+      return `
+        <div class="order-item-line">
+          ${imgHtml}
+          <div class="order-item-info">
+            <div class="order-item-name">${esc(productName)}</div>
+            ${optsHtml}
+          </div>
+          <div class="order-item-right">${item.quantity} x $${Number(item.price).toFixed(2)}</div>
+        </div>`;
     }).join("");
 
     const isPickup = (order.delivery_method || order.shipping_method) === "pickup";
