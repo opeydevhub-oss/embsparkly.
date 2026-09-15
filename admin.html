@@ -1155,10 +1155,8 @@
     delBtn.addEventListener("click", async function() {
       if (!confirm("Delete order #" + shortId + " PERMANENTLY? This removes the order and its items forever.")) return;
       try {
-        const itemsResult = await supabaseClient.from("order_items").delete().eq("order_id", order.id);
-        const orderResult = await supabaseClient.from("orders").delete().eq("id", order.id);
-        if (orderResult.error) throw orderResult.error;
-        if (itemsResult.error) throw itemsResult.error;
+        const { error } = await supabaseClient.rpc("admin_delete_order", { p_order_id: order.id });
+        if (error) throw error;
         loadOrders();
         loadStats();
       } catch (err) {
