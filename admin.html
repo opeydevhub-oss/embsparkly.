@@ -1133,7 +1133,7 @@
       </div>
     `;
 
-    bindOrderItemPreview(card);
+    try { bindOrderItemPreview(card); } catch(e) { console.error("preview bind failed", e); }
 
     const select = card.querySelector(".status-select");
     select.addEventListener("change", async function() {
@@ -1154,13 +1154,15 @@
     const delBtn = card.querySelector(".order-delete-btn");
     delBtn.addEventListener("click", async function() {
       if (!confirm("Delete order #" + shortId + " PERMANENTLY? This removes the order and its items forever.")) return;
-      const itemsResult = await supabaseClient.from("order_items").delete().eq("order_id", order.id);
-      const orderResult = await supabaseClient.from("orders").delete().eq("id", order.id);
-      if (orderResult.error || itemsResult.error) {
-        alert("Could not delete order: " + ((orderResult.error || itemsResult.error).message || "unknown error"));
-      } else {
+      try {
+        const itemsResult = await supabaseClient.from("order_items").delete().eq("order_id", order.id);
+        const orderResult = await supabaseClient.from("orders").delete().eq("id", order.id);
+        if (orderResult.error) throw orderResult.error;
+        if (itemsResult.error) throw itemsResult.error;
         loadOrders();
         loadStats();
+      } catch (err) {
+        alert("Delete failed: " + (err.message || "unknown error") + "\n\nOpen browser console (F12) for details.");
       }
     });
 
@@ -1171,8 +1173,7 @@
     const preview = document.getElementById("order-item-preview");
     const previewImg = document.getElementById("order-item-preview-img");
     const previewVideo = document.getElementById("order-item-preview-video");
-    const hasMedia = preview && (previewImg || previewVideo);
-    if (!hasMedia) return;
+    if (!preview || !previewImg || !previewVideo) return;
 
     previewVideo.loop = true;
     previewVideo.muted = true;
