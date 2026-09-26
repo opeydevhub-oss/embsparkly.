@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shop | E.M.B SPARKLY</title>
+<title>New Arrivals | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,400;6..72,700&family=Red+Hat+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -149,6 +149,27 @@
   }
 
   .result-count { font-size: 0.8rem; color: var(--gray); margin-bottom: 18px; letter-spacing: 0.06em; }
+
+  .page-subtitle {
+    font-family: 'Red Hat Text', sans-serif;
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-bottom: 24px;
+  }
+
+  .new-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--gold, #c9a227);
+    color: #fff;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 20px;
+    z-index: 2;
+  }
 
   .product-grid {
     display: grid;
@@ -417,13 +438,8 @@
 </div>
 
 <div class="page-wrap">
-  <div class="page-title">
-    <span id="page-title-category">Shop</span>
-  </div>
-
-  <div class="filter-bar" id="filter-bar">
-    <div class="filter-chip active" data-category="all">All</div>
-  </div>
+  <div class="page-title">New Arrivals</div>
+  <div class="page-subtitle">The latest pieces added to the store, newest first.</div>
 
   <div class="result-count" id="result-count"></div>
   <div class="product-grid" id="product-grid">
@@ -514,37 +530,17 @@
   document.getElementById("cart-count").textContent = cartTotal;
 
   let allProducts = [];
-  let currentCategory = "all";
   let currentSearch = "";
-  let categoryNames = {};
 
   const gridEl = document.getElementById("product-grid");
   const countEl = document.getElementById("result-count");
-  const filterBar = document.getElementById("filter-bar");
 
-  async function loadCatalogCategories() {
-    const { data: cats, error } = await supabaseClient
-      .from("categories")
-      .select("id, name, slug")
-      .order("name");
-
-    if (error || !cats || cats.length === 0) return;
-    categoryNames = {};
-    cats.forEach(function(c) { categoryNames[c.slug] = c.name; });
-    cats.forEach(function(c) {
-      const chip = document.createElement("div");
-      chip.className = "filter-chip";
-      chip.dataset.category = c.slug;
-      chip.textContent = c.name;
-      filterBar.appendChild(chip);
-    });
-  }
-
-  async function loadAllProducts() {
+  async function loadNewArrivals() {
     const { data, error } = await supabaseClient
       .from("products")
-      .select("id, name, description, price, image_url, stock, video_url, categories(slug)")
-      .order("created_at", { ascending: false });
+      .select("id, name, description, price, image_url, stock, video_url")
+      .order("created_at", { ascending: false })
+      .limit(36);
 
     if (error) {
       gridEl.innerHTML = '<div class="empty-state">Could not load products right now.</div>';
@@ -557,10 +553,6 @@
 
   function applyFilters() {
     let filtered = allProducts;
-
-    if (currentCategory !== "all") {
-      filtered = filtered.filter(p => p.categories && p.categories.slug === currentCategory);
-    }
 
     if (currentSearch.trim() !== "") {
       const term = currentSearch.trim().toLowerCase();
@@ -578,7 +570,7 @@
     countEl.textContent = products.length + (products.length === 1 ? " item" : " items");
 
     if (products.length === 0) {
-      gridEl.innerHTML = '<div class="empty-state">No products match. Try a different search or category.</div>';
+      gridEl.innerHTML = '<div class="empty-state">No products match. Try a different search.</div>';
       return;
     }
 
@@ -597,6 +589,7 @@
       card.innerHTML = `
         <div class="img-wrap">
           ${videoHtml}
+          <span class="new-badge">New</span>
           ${imgHtml}
         </div>
         <div class="info">
@@ -620,46 +613,12 @@
     });
   }
 
-  filterBar.addEventListener("click", function(e) {
-    const chip = e.target.closest(".filter-chip");
-    if (!chip) return;
-    filterBar.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-    chip.classList.add("active");
-    currentCategory = chip.dataset.category;
-    const titleEl = document.getElementById("page-title-category");
-    titleEl.textContent = currentCategory === "all" ? "Shop" : (categoryNames[currentCategory] || "Shop");
-    applyFilters();
-  });
-
   document.getElementById("search-input").addEventListener("input", function(e) {
     currentSearch = e.target.value;
     applyFilters();
   });
 
-  function initFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const catParam = params.get("category");
-    const searchParam = params.get("search");
-
-    if (catParam) {
-      currentCategory = catParam;
-      const matchChip = document.querySelector(`.filter-chip[data-category="${catParam}"]`);
-      if (matchChip) {
-        filterBar.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
-        matchChip.classList.add("active");
-      }
-      const titleEl = document.getElementById("page-title-category");
-      titleEl.textContent = categoryNames[catParam] || "Shop";
-    }
-
-    if (searchParam) {
-      currentSearch = searchParam;
-      document.getElementById("search-input").value = searchParam;
-    }
-  }
-
-  initFromUrl();
-  loadCatalogCategories().then(loadAllProducts);
+  loadNewArrivals();
 </script>
 
 </body>

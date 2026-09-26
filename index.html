@@ -409,10 +409,27 @@
   }
 
   .new-arrivals {
-    padding: 0 20px 56px;
-    max-width: 1200px;
-    margin: 44px auto 0;
+    background: linear-gradient(180deg, #fffdf7 0%, #f5ead3 100%);
+    border-top: 3px solid var(--gold);
+    border-bottom: 3px solid var(--gold);
+    padding: 48px 20px 56px;
+    max-width: none;
+    margin: 44px 0 0;
   }
+
+  .new-arrivals-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .new-arrivals .section-heading h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--deep-green);
+    letter-spacing: 0.02em;
+  }
+
+  .new-arrivals .section-heading p { font-size: 0.9rem; }
 
   .new-arrivals-grid {
     display: grid;
@@ -425,7 +442,21 @@
   }
 
   @media (min-width: 960px) {
-    .new-arrivals-grid { grid-template-columns: repeat(5, 1fr); }
+    .new-arrivals-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .new-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--gold);
+    color: #fff;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    z-index: 2;
   }
 
   .arrival-card {
@@ -777,6 +808,7 @@
   <div class="menu-links">
     <a href="index.html">Home</a>
     <a href="catalog.html">Shop</a>
+    <a href="new-arrivals.html">New Arrivals</a>
     <a href="orders.html">Track Order</a>
     <a href="index.html#about">About</a>
   </div>
@@ -827,7 +859,7 @@
       <div class="hero-slide-inner">
         <h1>New Arrivals Just Landed</h1>
         <p>Fresh pieces added every week. Be the first to shop the latest styles.</p>
-        <a href="catalog.html" class="hero-cta">Shop New Arrivals</a>
+        <a href="new-arrivals.html" class="hero-cta">Shop New Arrivals</a>
       </div>
     </div>
 
@@ -940,15 +972,17 @@
 </section>
 
 <section class="new-arrivals" id="new-arrivals">
-  <div class="section-heading">
-    <h2>New Arrivals</h2>
-    <p>Fresh in the store</p>
-  </div>
-  <div class="new-arrivals-grid" id="new-arrivals-grid">
-    <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
-  </div>
-  <div class="view-all-wrap">
-    <a href="catalog.html" class="view-all-btn">View All Products</a>
+  <div class="new-arrivals-inner">
+    <div class="section-heading">
+      <h2>New Arrivals</h2>
+      <p>Fresh in the store — the latest pieces, just landed</p>
+    </div>
+    <div class="new-arrivals-grid" id="new-arrivals-grid">
+      <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
+    </div>
+    <div class="view-all-wrap">
+      <a href="new-arrivals.html" class="view-all-btn">View All New Arrivals</a>
+    </div>
   </div>
 </section>
 
@@ -964,7 +998,7 @@
     <div class="footer-col">
       <h4>Shop</h4>
       <a href="#categories">Categories</a>
-      <a href="#new-arrivals">New Arrivals</a>
+      <a href="new-arrivals.html">New Arrivals</a>
       <a href="orders.html">Track Order</a>
       <a href="returns.html">Returns &amp; Refunds</a>
       <a href="#about">About</a>
@@ -1075,7 +1109,7 @@
       .from("products")
       .select("id, name, price, image_url, video_url")
       .order("created_at", { ascending: false })
-      .limit(5);
+      .limit(8);
 
     if (error || !products || products.length === 0) {
       gridEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">No products yet, check back soon.</div>';
@@ -1095,6 +1129,7 @@
       card.innerHTML = `
         <div class="img-wrap">
           ${videoHtml}
+          <span class="new-badge">New</span>
           ${imgHtml}
         </div>
         <div class="info">
