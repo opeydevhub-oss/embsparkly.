@@ -700,6 +700,69 @@
   .menu-cat-link:hover { color: var(--gold, #b8860b); }
 
   .menu-cat-empty { color: var(--gray, #8a8a7e); font-size: 0.85rem; padding: 6px 4px; }
+.about-section {
+    background: var(--deep-green);
+    color: var(--cream);
+    padding: 56px 20px;
+  }
+
+  .about-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .about-heading { text-align: center; margin-bottom: 18px; }
+  .about-heading h2 { color: var(--gold-light); font-size: 2rem; letter-spacing: 0.02em; }
+  .about-heading p { color: rgba(250,246,238,0.7); font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 6px; }
+
+  .about-story {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 34px;
+    color: rgba(250,246,238,0.85);
+    font-size: 0.98rem;
+    line-height: 1.8;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 34px;
+  }
+
+  .about-point {
+    background: rgba(250,246,238,0.05);
+    border: 1px solid rgba(224,192,90,0.25);
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .about-point .icon { font-size: 1.4rem; color: var(--gold-light); margin-bottom: 8px; }
+  .about-point h3 { font-size: 1.1rem; color: var(--gold-light); margin-bottom: 6px; }
+  .about-point p { font-size: 0.85rem; color: rgba(250,246,238,0.75); line-height: 1.6; }
+
+  .about-cta-wrap { text-align: center; }
+
+  .about-cta {
+    display: inline-block;
+    background: var(--gold-light);
+    color: var(--deep-green-dark);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 12px 26px;
+    border-radius: 30px;
+  }
+
+  .about-cta:hover { background: var(--gold); }
+
+  @media (max-width: 640px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .about-heading h2 { font-size: 1.6rem; }
+  }
 </style>
 </head>
 <body>
@@ -715,6 +778,7 @@
     <a href="index.html">Home</a>
     <a href="catalog.html">Shop</a>
     <a href="orders.html">Track Order</a>
+    <a href="index.html#about">About</a>
   </div>
   <div class="menu-cat-title">Categories</div>
   <div class="menu-categories" id="menu-categories"><div class="menu-cat-empty">Loading...</div></div>
@@ -841,6 +905,40 @@
   </div>
 </section>
 
+<section class="about-section" id="about">
+  <div class="about-inner">
+    <div class="about-heading">
+      <h2>About E.M.B SPARKLY</h2>
+      <p>The story behind the store</p>
+    </div>
+    <p class="about-story">
+      E.M.B SPARKLY is a curated fashion destination blending the best of Turkey, Dubai and African
+      style — elegant ready-to-wear, sparkling jewelries, designer bags, shoes and more. Every piece is
+      handpicked with care, so you can shop with confidence and dress for every moment.
+    </p>
+    <div class="about-grid">
+      <div class="about-point">
+        <div class="icon">&#10022;</div>
+        <h3>Handpicked Quality</h3>
+        <p>Every item is chosen for style, fabric and finish.</p>
+      </div>
+      <div class="about-point">
+        <div class="icon">&#128666;</div>
+        <h3>Free US Shipping</h3>
+        <p>Free shipping on all US orders over $99.</p>
+      </div>
+      <div class="about-point">
+        <div class="icon">&#10084;</div>
+        <h3>Easy Returns</h3>
+        <p>Simple 48-hour returns if something's not right.</p>
+      </div>
+    </div>
+    <div class="about-cta-wrap">
+      <a href="catalog.html" class="about-cta">Shop the Collection</a>
+    </div>
+  </div>
+</section>
+
 <section class="new-arrivals" id="new-arrivals">
   <div class="section-heading">
     <h2>New Arrivals</h2>
@@ -869,6 +967,7 @@
       <a href="#new-arrivals">New Arrivals</a>
       <a href="orders.html">Track Order</a>
       <a href="returns.html">Returns &amp; Refunds</a>
+      <a href="#about">About</a>
     </div>
     <div class="footer-col">
       <h4>Contact</h4>
