@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Cart | E.M.B Sparkly</title>
+<title>Your Cart | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -200,15 +200,158 @@
     text-align: center;
     font-size: 0.8rem;
   }
+.header-top { position: relative; }
+  .header-top .header-brand { position: absolute; left: 50%; transform: translateX(-50%); margin: 0; }
+  .header-top .header-icons { margin-left: auto; }
+
+  .site-notice-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: var(--gold, #d9b26b);
+    color: var(--deep-green, #0e3029);
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .site-notice-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    flex: 0 0 auto;
+  }
+
+  .menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0;
+    min-width: 40px;
+    text-align: left;
+    color: var(--gold-light, currentColor);
+  }
+
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s ease, visibility .25s ease;
+    z-index: 9999;
+  }
+
+  .menu-backdrop.show { opacity: 1; visibility: visible; }
+
+  .menu-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: min(300px, 84vw);
+    background: var(--cream, #faf6ee);
+    color: var(--deep-green-dark, #081c18);
+    transform: translateX(-100%);
+    transition: transform .28s ease;
+    z-index: 10000;
+    overflow-y: auto;
+    padding: 20px 18px;
+  }
+
+  .menu-drawer.open { transform: translateX(0); }
+
+  .menu-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .menu-drawer-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .menu-drawer-close {
+    background: none;
+    border: none;
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+    padding: 0 4px;
+  }
+
+  .menu-links { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+
+  .menu-links a {
+    padding: 10px 4px;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .menu-links a:hover { color: var(--gold, #b8860b); }
+
+  .menu-cat-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gray, #8a8a7e);
+    margin: 10px 0 8px;
+  }
+
+  .menu-categories { display: flex; flex-direction: column; gap: 2px; }
+
+  .menu-cat-link {
+    padding: 9px 4px;
+    color: inherit;
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .menu-cat-link:hover { color: var(--gold, #b8860b); }
+
+  .menu-cat-empty { color: var(--gray, #8a8a7e); font-size: 0.85rem; padding: 6px 4px; }
 </style>
 </head>
 <body>
 
+<div id="site-notice"></div>
+<div class="menu-backdrop" id="menu-backdrop"></div>
+<nav class="menu-drawer" id="menu-drawer" aria-label="Site menu">
+  <div class="menu-drawer-head">
+    <span class="menu-drawer-title">Menu</span>
+    <button type="button" class="menu-drawer-close" id="menu-close" aria-label="Close menu">&times;</button>
+  </div>
+  <div class="menu-links">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">Shop</a>
+    <a href="orders.html">Track Order</a>
+  </div>
+  <div class="menu-cat-title">Categories</div>
+  <div class="menu-categories" id="menu-categories"><div class="menu-cat-empty">Loading...</div></div>
+</nav>
+
 <header>
   <div class="header-top">
+    <button type="button" class="menu-btn" id="menu-btn" title="Menu" aria-label="Open menu">&#9776;</button>
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
-      <span class="brand-name">E.M.B Sparkly</span>
+      <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
+      <span class="brand-name">E.M.B SPARKLY</span>
     </a>
   </div>
 </header>
@@ -221,12 +364,77 @@
 </div>
 
 <footer>
-  &copy; 2026 E.M.B Sparkly. All rights reserved.
+  &copy; 2026 E.M.B SPARKLY. All rights reserved.
 </footer>
 
 <script>
   const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+
+  /* SITE MENU + NOTIFICATIONS */
+  (function() {
+    var menuBtn = document.getElementById("menu-btn");
+    var drawer = document.getElementById("menu-drawer");
+    var backdrop = document.getElementById("menu-backdrop");
+    var closeBtn = document.getElementById("menu-close");
+    if (!menuBtn || !drawer || !backdrop || !closeBtn) return;
+
+    function openMenu() { drawer.classList.add("open"); backdrop.classList.add("show"); }
+    function closeMenu() { drawer.classList.remove("open"); backdrop.classList.remove("show"); }
+    menuBtn.addEventListener("click", openMenu);
+    closeBtn.addEventListener("click", closeMenu);
+    backdrop.addEventListener("click", closeMenu);
+    document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeMenu(); });
+
+    if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+      var client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      var catBox = document.getElementById("menu-categories");
+      if (catBox) {
+        client.from("categories").select("name, slug").order("name").then(function(res) {
+          if (res.error || !res.data || res.data.length === 0) {
+            catBox.innerHTML = '<div class="menu-cat-empty">Categories coming soon.</div>';
+            return;
+          }
+          catBox.innerHTML = "";
+          res.data.forEach(function(c) {
+            var a = document.createElement("a");
+            a.className = "menu-cat-link";
+            a.href = "catalog.html?category=" + encodeURIComponent(c.slug);
+            a.textContent = c.name;
+            catBox.appendChild(a);
+          });
+        });
+      }
+
+      var notice = document.getElementById("site-notice");
+      if (notice) {
+        client.from("site_notifications").select("id, message").eq("is_active", true)
+          .order("created_at", { ascending: false }).limit(1).then(function(res) {
+            if (res.error || !res.data || res.data.length === 0) return;
+            var n = res.data[0];
+            var key = "emb_notice_closed_" + n.id;
+            try { if (localStorage.getItem(key) === "1") return; } catch (e) {}
+            var bar = document.createElement("div");
+            bar.className = "site-notice-bar";
+            var msg = document.createElement("span");
+            msg.textContent = n.message;
+            var x = document.createElement("button");
+            x.type = "button";
+            x.className = "site-notice-close";
+            x.title = "Dismiss";
+            x.innerHTML = "&times;";
+            x.addEventListener("click", function() {
+              try { localStorage.setItem(key, "1"); } catch (e) {}
+              bar.remove();
+            });
+            bar.appendChild(msg);
+            bar.appendChild(x);
+            notice.appendChild(bar);
+          });
+      }
+    }
+  })();
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const CART_KEY = "emb_sparkly_cart";

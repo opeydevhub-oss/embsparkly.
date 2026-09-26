@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | E.M.B Sparkly</title>
+<title>Admin Dashboard | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -552,13 +552,41 @@
     color: var(--gold-light);
     border-color: var(--deep-green);
   }
+.category-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .notice-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid rgba(13,43,38,0.08);
+    border-radius: 6px;
+  }
+
+  .notice-row .notice-body { flex: 1; min-width: 0; }
+
+  .notice-row .notice-text { font-size: 0.9rem; line-height: 1.45; word-break: break-word; }
+
+  .notice-row .notice-date { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+
+  .notice-del-btn {
+    background: none;
+    border: 1px solid rgba(179,65,59,0.5);
+    color: var(--error, #b3413b);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-brand">
-    <img src="image/logo.jpg" alt="E.M.B Sparkly logo">
+    <img src="image/logo.jpg" alt="E.M.B SPARKLY logo">
     <span class="brand-name">Admin Dashboard</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
@@ -578,6 +606,7 @@
     <button class="tab-btn" data-tab="orders">Orders</button>
     <button class="tab-btn" data-tab="products">Products</button>
     <button class="tab-btn" data-tab="categories">Categories</button>
+    <button class="tab-btn" data-tab="notifications">Notifications</button>
   </div>
 
   <div class="tab-panel active" id="tab-overview">
@@ -713,6 +742,29 @@
     </div>
   </div>
 
+  <div class="tab-panel" id="tab-notifications">
+    <div class="page-title">Notifications</div>
+    <div class="page-subtitle">Send a notice that shows at the top of every site page until visitors tap the X.</div>
+
+    <div class="card">
+      <h2>Send a Notification</h2>
+      <form id="notice-form">
+        <label for="notice-message">Message</label>
+        <textarea id="notice-message" rows="3" required placeholder="e.g. Welcome Sale! 20% off all dresses until Sunday."></textarea>
+        <button type="submit" class="submit-btn" id="notice-submit-btn">Send Notification</button>
+        <div class="form-message" id="notice-form-message"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Sent Notifications</h2>
+      <div class="category-list" id="notice-list">
+        <div class="empty-state">Loading...</div>
+      </div>
+      <p class="field-hint" style="margin-top:12px;">Deleting a notification removes it from the site for everyone immediately.</p>
+    </div>
+  </div>
+
 </main>
 
 <div id="order-item-preview">
@@ -764,9 +816,85 @@
     loadOrders();
     loadStats();
     loadCategories();
+    loadNotifications();
   }
 
   checkAccess();
+
+  /* SITE NOTIFICATIONS */
+  const noticeForm = document.getElementById("notice-form");
+  const noticeMessage = document.getElementById("notice-message");
+  const noticeSubmitBtn = document.getElementById("notice-submit-btn");
+  const noticeFormMessage = document.getElementById("notice-form-message");
+  const noticeList = document.getElementById("notice-list");
+
+  async function loadNotifications() {
+    noticeList.innerHTML = '<div class="empty-state">Loading...</div>';
+    const { data, error } = await supabaseClient
+      .from("site_notifications")
+      .select("id, message, created_at, is_active")
+      .order("created_at", { ascending: false });
+    if (error) {
+      noticeList.innerHTML = '<div class="empty-state">Could not load notifications.</div>';
+      return;
+    }
+    if (!data || data.length === 0) {
+      noticeList.innerHTML = '<div class="empty-state">No notifications sent yet.</div>';
+      return;
+    }
+    noticeList.innerHTML = "";
+    data.forEach(function(n) {
+      const row = document.createElement("div");
+      row.className = "notice-row";
+      const body = document.createElement("div");
+      body.className = "notice-body";
+      const txt = document.createElement("div");
+      txt.className = "notice-text";
+      txt.textContent = n.message;
+      const date = document.createElement("div");
+      date.className = "notice-date";
+      const d = n.created_at ? new Date(n.created_at) : null;
+      date.textContent = d && !isNaN(d.getTime()) ? d.toLocaleString() : "";
+      body.appendChild(txt);
+      body.appendChild(date);
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "notice-del-btn";
+      del.textContent = "Delete";
+      del.addEventListener("click", async function() {
+        if (!confirm("Delete this notification from the site for everyone?")) return;
+        try {
+          const { error: derr } = await supabaseClient.from("site_notifications").delete().eq("id", n.id);
+          if (derr) throw derr;
+          loadNotifications();
+        } catch (err) {
+          alert("Delete failed: " + (err.message || "unknown error"));
+        }
+      });
+      row.appendChild(body);
+      row.appendChild(del);
+      noticeList.appendChild(row);
+    });
+  }
+
+  if (noticeForm) {
+    noticeForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const msg = noticeMessage.value.trim();
+      if (!msg) return;
+      noticeSubmitBtn.disabled = true;
+      noticeFormMessage.textContent = "Sending...";
+      const { error } = await supabaseClient.from("site_notifications").insert([{ message: msg, is_active: true }]);
+      noticeSubmitBtn.disabled = false;
+      if (error) {
+        noticeFormMessage.textContent = "Could not send notification: " + error.message;
+        return;
+      }
+      noticeFormMessage.textContent = "Notification sent and now shows on the site.";
+      noticeMessage.value = "";
+      loadNotifications();
+    });
+  }
 
   document.getElementById("logout-btn").addEventListener("click", async function() {
     await supabaseClient.auth.signOut();
@@ -1115,7 +1243,7 @@
     const shortId = order.id.slice(0, 8);
     const dateStr = new Date(order.created_at).toLocaleDateString();
     const phone = order.phone ? order.phone.replace(/[^0-9]/g, "") : "";
-    const waMessage = encodeURIComponent(`Hi, this is E.M.B Sparkly regarding your order #${shortId}. Current status: ${order.status}.`);
+    const waMessage = encodeURIComponent(`Hi, this is E.M.B SPARKLY regarding your order #${shortId}. Current status: ${order.status}.`);
     const waLink = phone ? `https://wa.me/${phone}?text=${waMessage}` : null;
 
     card.innerHTML = `
