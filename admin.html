@@ -22,6 +22,7 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100%; }
 
   body {
     font-family: 'Jost', sans-serif;
@@ -273,6 +274,16 @@
   }
 
   .product-row.low-stock { border-color: rgba(181,133,15,0.5); background: #fffaf0; }
+
+  .product-row.selected { background: #eef6f1; border-color: rgba(13,43,38,0.4); }
+
+  .row-select { display: flex; align-items: center; flex-shrink: 0; }
+
+  .row-select input {
+    width: 17px; height: 17px;
+    accent-color: var(--deep-green);
+    cursor: pointer;
+  }
 
   .product-row img {
     width: 52px; height: 52px;
@@ -612,6 +623,48 @@
 
   .view-toggle-btn:hover { background: rgba(13,43,38,0.06); }
 
+  .bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: #f4f7f5;
+    border: 1px solid rgba(13,43,38,0.12);
+    border-radius: 8px;
+  }
+
+  .bulk-bar label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--deep-green);
+    cursor: pointer;
+  }
+
+  .bulk-bar label input {
+    width: 16px; height: 16px;
+    accent-color: var(--deep-green);
+    cursor: pointer;
+  }
+
+  .bulk-count { font-size: 0.75rem; color: var(--gray); flex: 1; }
+
+  .delete-selected-btn {
+    border: 1px solid rgba(179,65,59,0.5);
+    background: #fdecea;
+    color: var(--error);
+    padding: 7px 14px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .delete-selected-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
   #product-list.square-view {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -619,8 +672,19 @@
   }
 
   #product-list.square-view .product-row {
+    position: relative;
     display: block;
     padding: 10px;
+  }
+
+  #product-list.square-view .product-row .row-select {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    background: rgba(255,255,255,0.88);
+    border-radius: 4px;
+    padding: 2px;
   }
 
   #product-list.square-view .product-row img,
@@ -654,7 +718,7 @@
 
 <header>
   <div class="header-brand">
-    <img src="image/logo.jpeg?v=3" alt="E.M.B SPARKLY logo">
+    <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
     <span class="brand-name">Admin Dashboard</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
@@ -783,6 +847,11 @@
       <div class="card-head">
         <h2>Current Products</h2>
         <button type="button" class="view-toggle-btn" id="product-view-toggle">Square view</button>
+      </div>
+      <div class="bulk-bar">
+        <label><input type="checkbox" id="select-all-products"> Select all</label>
+        <span class="bulk-count" id="selected-count">0 selected</span>
+        <button type="button" class="delete-selected-btn" id="delete-selected-btn" disabled>Delete selected</button>
       </div>
       <div class="product-list" id="product-list">
         <div class="empty-state">Loading products...</div>
@@ -1191,6 +1260,7 @@
       const row = document.createElement("div");
       row.className = "product-row" + (isLow ? " low-stock" : "");
       row.innerHTML = `
+        <label class="row-select"><input type="checkbox" class="product-check" value="${product.id}" aria-label="Select ${esc(product.name)}"></label>
         ${product.video_url
           ? '<video src="' + esc(product.video_url) + '" autoplay muted loop playsinline preload="metadata"></video>'
           : (product.image_url ? '<img src="' + esc(product.image_url) + '" alt="' + esc(product.name) + '">' : '<div class="no-thumb">No image</div>')}
@@ -1222,6 +1292,16 @@
         if (!error) { loadProducts(); loadStats(); }
       });
     });
+
+    visibleProductIds = (products || []).map(p => p.id);
+    document.querySelectorAll("#product-list .product-check").forEach(function(c) {
+      c.checked = selectedIds.has(c.value);
+      c.addEventListener("change", function() {
+        if (c.checked) selectedIds.add(c.value); else selectedIds.delete(c.value);
+        updateBulkBar();
+      });
+    });
+    updateBulkBar();
   }
 
   let productView = "list";
@@ -1241,6 +1321,55 @@
     });
   }
   applyProductView();
+
+  const selectedIds = new Set();
+  let visibleProductIds = [];
+  const selectAllBox = document.getElementById("select-all-products");
+  const selectedCountEl = document.getElementById("selected-count");
+  const deleteSelectedBtn = document.getElementById("delete-selected-btn");
+
+  function updateBulkBar() {
+    if (selectedCountEl) selectedCountEl.textContent = selectedIds.size + " selected";
+    if (deleteSelectedBtn) deleteSelectedBtn.disabled = selectedIds.size === 0;
+    if (selectAllBox) {
+      selectAllBox.checked = visibleProductIds.length > 0 && selectedIds.size === visibleProductIds.length;
+      selectAllBox.indeterminate = selectedIds.size > 0 && selectedIds.size < visibleProductIds.length;
+    }
+    document.querySelectorAll("#product-list .product-check").forEach(function(c) {
+      c.checked = selectedIds.has(c.value);
+    });
+    document.querySelectorAll("#product-list .product-row").forEach(function(r) {
+      const c = r.querySelector(".product-check");
+      r.classList.toggle("selected", !!c && selectedIds.has(c.value));
+    });
+  }
+
+  if (selectAllBox) {
+    selectAllBox.addEventListener("change", function() {
+      if (selectAllBox.checked) { visibleProductIds.forEach(id => selectedIds.add(id)); }
+      else { visibleProductIds.forEach(id => selectedIds.delete(id)); }
+      updateBulkBar();
+    });
+  }
+
+  if (deleteSelectedBtn) {
+    deleteSelectedBtn.addEventListener("click", async function() {
+      const ids = Array.from(selectedIds);
+      if (ids.length === 0) return;
+      if (!confirm("Delete " + ids.length + " selected product(s)? This cannot be undone.")) return;
+      let failed = null;
+      for (let i = 0; i < ids.length; i += 50) {
+        const chunk = ids.slice(i, i + 50);
+        const { error } = await supabaseClient.from("products").delete().in("id", chunk);
+        if (error) { failed = error; break; }
+      }
+      if (failed) { alert("Bulk delete failed: " + failed.message); return; }
+      selectedIds.clear();
+      selectedCountEl.textContent = "0 selected";
+      loadProducts();
+      loadStats();
+    });
+  }
 
   let currentFilter = "all";
   let allOrdersCache = [];

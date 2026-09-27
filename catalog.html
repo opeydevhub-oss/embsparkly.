@@ -23,6 +23,8 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html, body { overflow-x: hidden; max-width: 100%; }
+
   body {
     font-family: 'Red Hat Text', sans-serif;
     background: var(--white);
@@ -168,11 +170,11 @@
   .product-card:hover { opacity: 0.8; }
 
   .product-card .img-wrap {
+    position: relative;
     width: 100%;
-    aspect-ratio: 3 / 4;
+    padding-top: 133.333%;
     background: var(--cream);
     overflow: hidden;
-    position: relative;
   }
 
   .product-card .card-video {
@@ -198,7 +200,7 @@
     z-index: 2;
   }
 
-  .product-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .product-card img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: 100%; object-fit: cover; display: block; }
 
   .product-card .info { padding: 14px 4px 8px; }
 
@@ -421,11 +423,11 @@
   </div>
 </nav>
 
-<header>
+<header style="position:sticky;top:0;z-index:100;width:100%;max-width:100%">
   <div class="header-inner">
     <button type="button" class="menu-btn" id="menu-btn" title="Menu" aria-label="Open menu">&#9776;</button>
     <a href="index.html" class="header-brand">
-      <img src="image/logo.jpeg?v=3" alt="E.M.B SPARKLY logo">
+      <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
       <span class="brand-name">E.M.B SPARKLY</span>
     </a>
     <div class="header-icons">
@@ -451,7 +453,7 @@
   </div>
 
   <div class="result-count" id="result-count"></div>
-  <div class="product-grid" id="product-grid">
+  <div class="product-grid" id="product-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:2px;width:100%;max-width:100%">
     <div class="empty-state">Loading products...</div>
   </div>
 </div>
@@ -531,7 +533,9 @@
       }
     }
   })();
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let supabaseClient = null;
+  try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+  catch (e) { supabaseClient = null; }
 
   const CART_KEY = "emb_sparkly_cart";
   function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
@@ -566,13 +570,18 @@
   }
 
   async function loadAllProducts() {
+    if (!supabaseClient) {
+      gridEl.innerHTML = '<div class="empty-state">Could not reach the store. Check your internet connection and refresh the page.</div>';
+      return;
+    }
+
     const { data, error } = await supabaseClient
       .from("products")
       .select("id, name, description, price, image_url, stock, video_url, categories(slug)")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      gridEl.innerHTML = '<div class="empty-state">Could not load products right now.</div>';
+    if (error || !data) {
+      gridEl.innerHTML = '<div class="empty-state">Could not load products right now. Refresh to try again.</div>';
       return;
     }
 
@@ -615,12 +624,12 @@
       const isLow = product.stock > 0 && product.stock <= 2;
       const isOut = product.stock <= 0;
       const hasVideo = !!product.video_url;
-      const imgHtml = product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '">' : "";
+      const imgHtml = product.image_url ? '<img loading="lazy" decoding="async" style="position:absolute;top:0;left:0;width:100%;height:100%;max-width:100%;object-fit:cover;display:block" src="' + product.image_url + '" alt="' + product.name + '">' : "";
       const videoHtml = hasVideo
         ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" autoplay muted loop playsinline preload="auto"></video>'
         : "";
       card.innerHTML = `
-        <div class="img-wrap">
+        <div class="img-wrap" style="position:relative;width:100%;padding-top:133.333%;background:#faf6ee;overflow:hidden;max-width:100%">
           ${videoHtml}
           ${imgHtml}
         </div>

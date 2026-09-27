@@ -18,6 +18,7 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100%; }
 
   body {
     font-family: 'Jost', sans-serif;
@@ -482,11 +483,11 @@
   .arrival-card:hover { transform: translateY(-3px); border-color: var(--gold); }
 
   .arrival-card .img-wrap {
+    position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    padding-top: 100%;
     background: #eee;
     overflow: hidden;
-    position: relative;
   }
 
   .arrival-card .card-video {
@@ -512,7 +513,7 @@
     z-index: 2;
   }
 
-  .arrival-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .arrival-card img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: 100%; object-fit: cover; display: block; }
 
   .arrival-card .info { padding: 10px 12px 14px; }
 
@@ -855,7 +856,7 @@
   <div class="header-top">
     <button type="button" class="menu-btn" id="menu-btn" title="Menu" aria-label="Open menu">&#9776;</button>
     <a href="#" class="header-brand">
-      <img src="image/logo.jpeg?v=3" alt="E.M.B SPARKLY logo">
+      <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
       <span class="brand-name">E.M.B SPARKLY</span>
     </a>
     <div class="header-icons">
@@ -878,7 +879,7 @@
 
     <div class="hero-slide" style="--slide-bg: url('image/hero-bg.jpg');">
       <div class="hero-slide-inner">
-        <img src="image/logo.jpeg?v=3" alt="E.M.B SPARKLY" class="hero-logo">
+        <img src="image/logo.jpeg" alt="E.M.B SPARKLY" class="hero-logo">
         <h1>Turkey. Dubai. African. Sparkly.</h1>
         <p>Curated wears, jewelries, bags and shoes, sourced with care and styled for you.</p>
         <div class="hero-tags">
@@ -978,7 +979,7 @@
       <h2>New Arrivals</h2>
       <p>Fresh in the store: the latest pieces, just landed</p>
     </div>
-    <div class="new-arrivals-grid" id="new-arrivals-grid">
+    <div class="new-arrivals-grid" id="new-arrivals-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:100%;max-width:100%">
       <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
     </div>
     <div class="view-all-wrap">
@@ -1025,7 +1026,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <div class="header-brand">
-        <img src="image/logo.jpeg?v=3" alt="E.M.B SPARKLY logo">
+        <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
         <span class="brand-name">E.M.B SPARKLY</span>
       </div>
       <p>Turkey Wears | Dubai Wears | African Ready-to-Wear | Adult &amp; Children Wears | Jewelries | Designer Bags | Male &amp; Female Shoes</p>
@@ -1124,7 +1125,9 @@
       }
     }
   })();
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let supabaseClient = null;
+  try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+  catch (e) { supabaseClient = null; }
 
   function esc(value) {
     return String(value == null ? "" : value)
@@ -1140,6 +1143,11 @@
 
   async function loadNewArrivals() {
     const gridEl = document.getElementById("new-arrivals-grid");
+    if (!supabaseClient) {
+      gridEl.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Could not reach the store. Check your connection and refresh.</div>';
+      return;
+    }
+
     const { data: products, error } = await supabaseClient
       .from("products")
       .select("id, name, price, image_url, video_url")
@@ -1157,12 +1165,12 @@
       card.href = "product.html?id=" + product.id;
       card.className = "arrival-card";
       const hasVideo = !!product.video_url;
-      const imgHtml = product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '">' : "";
+      const imgHtml = product.image_url ? '<img loading="lazy" decoding="async" style="position:absolute;top:0;left:0;width:100%;height:100%;max-width:100%;object-fit:cover;display:block" src="' + product.image_url + '" alt="' + product.name + '">' : "";
       const videoHtml = hasVideo
         ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" autoplay muted loop playsinline preload="auto"></video>'
         : "";
       card.innerHTML = `
-        <div class="img-wrap">
+        <div class="img-wrap" style="position:relative;width:100%;padding-top:100%;background:#eee;overflow:hidden;max-width:100%">
           ${videoHtml}
           <span class="new-badge">New</span>
           ${imgHtml}
