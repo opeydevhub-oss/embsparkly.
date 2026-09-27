@@ -580,6 +580,66 @@
     cursor: pointer;
     flex-shrink: 0;
   }
+.card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .card-head h2 { margin: 0; }
+
+  .view-toggle-btn {
+    background: none;
+    border: 1px solid rgba(13,43,38,0.35);
+    color: var(--deep-green);
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .view-toggle-btn:hover { background: rgba(13,43,38,0.06); }
+
+  #product-list.square-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  #product-list.square-view .product-row {
+    display: block;
+    padding: 10px;
+  }
+
+  #product-list.square-view .product-row img,
+  #product-list.square-view .product-row .no-thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    border-radius: 6px;
+  }
+
+  #product-list.square-view .product-row .info h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #product-list.square-view .product-row .row-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  #product-list.square-view .product-row .row-actions .edit-btn,
+  #product-list.square-view .product-row .row-actions .delete-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+  }
 </style>
 </head>
 <body>
@@ -712,7 +772,10 @@
     </div>
 
     <div class="card">
-      <h2>Current Products</h2>
+      <div class="card-head">
+        <h2>Current Products</h2>
+        <button type="button" class="view-toggle-btn" id="product-view-toggle">Square view</button>
+      </div>
       <div class="product-list" id="product-list">
         <div class="empty-state">Loading products...</div>
       </div>
@@ -1150,6 +1213,24 @@
       });
     });
   }
+
+  let productView = "list";
+  try { productView = localStorage.getItem("emb_admin_product_view") || "list"; } catch (err) {}
+  const viewToggleBtn = document.getElementById("product-view-toggle");
+  const productListEl = document.getElementById("product-list");
+  function applyProductView() {
+    if (!viewToggleBtn || !productListEl) return;
+    viewToggleBtn.textContent = productView === "square" ? "Back to List" : "Square view";
+    productListEl.classList.toggle("square-view", productView === "square");
+  }
+  if (viewToggleBtn) {
+    viewToggleBtn.addEventListener("click", function() {
+      productView = productView === "square" ? "list" : "square";
+      try { localStorage.setItem("emb_admin_product_view", productView); } catch (err) {}
+      applyProductView();
+    });
+  }
+  applyProductView();
 
   let currentFilter = "all";
   let allOrdersCache = [];
