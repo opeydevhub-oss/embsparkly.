@@ -1055,7 +1055,19 @@
     const submitBtn = document.getElementById("submit-btn");
     const messageEl = document.getElementById("form-message");
     const isEditing = !!editingId;
+    const isBusy = submitBtn.getAttribute("data-busy") === "1";
+    if (isBusy) return;
+
+    function resetBtn() { submitBtn.disabled = false; submitBtn.removeAttribute("data-busy"); submitBtn.textContent = isEditing ? "Save Changes" : "Add Product"; }
+    function fail(msg) {
+      messageEl.textContent = msg || "Something went wrong. Please try again.";
+      messageEl.className = "form-message error";
+      resetBtn();
+    }
+
+    submitBtn.setAttribute("data-busy", "1");
     submitBtn.disabled = true;
+    submitBtn.textContent = "Working...";
     messageEl.style.display = "none";
 
     try {
@@ -1070,7 +1082,10 @@
       const sizes = collectSizes();
       const colors = collectColors();
 
+      if (!name) throw new Error("Please enter a product name.");
       if (!categorySlug) throw new Error("Please choose a category.");
+      if (isNaN(price) || price < 0) throw new Error("Please enter a valid price.");
+      if (isNaN(stock) || stock < 0) throw new Error("Please enter a valid stock quantity.");
       if (!isEditing && !imageFile && !videoFile) throw new Error("Please add a product photo or a video.");
 
       const { data: categoryRow, error: categoryError } = await supabaseClient
@@ -1125,17 +1140,15 @@
 
       if (opError) throw new Error(opError.message);
 
+      resetBtn();
       messageEl.textContent = isEditing ? "Product updated successfully." : "Product added successfully.";
       messageEl.className = "form-message success";
       resetProductForm();
       loadProducts();
       loadStats();
     } catch (err) {
-      messageEl.textContent = err.message || "Something went wrong.";
-      messageEl.className = "form-message error";
+      fail(err && err.message ? err.message : "Something went wrong.");
     }
-
-    submitBtn.disabled = false;
   });
 
   const SIZE_CHART = [
@@ -1854,6 +1867,17 @@
   }
 
   document.getElementById("cancel-edit-btn").addEventListener("click", resetProductForm);
+
+  window.addEventListener("error", function(ev) {
+    try {
+      var box = document.createElement("div");
+      box.style.cssText = "position:fixed;bottom:10px;right:10px;z-index:99999;background:#b3261e;color:#fff;padding:10px 14px;border-radius:6px;font:12px/1.4 Arial,sans-serif;max-width:80vw;box-shadow:0 4px 14px rgba(0,0,0,.3);";
+      box.textContent = "Dashboard error: " + (ev && ev.message ? ev.message : "unknown");
+      box.title = box.textContent;
+      document.body.appendChild(box);
+      setTimeout(function() { if (box.parentNode) box.parentNode.removeChild(box); }, 15000);
+    } catch (e) {}
+  });
 </script>
 
 </body>
