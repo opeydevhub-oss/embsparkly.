@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body><pre id="out">loading...</pre>
+<script src="supabase.js"></script>
+<script>
+const out = document.getElementById("out");
+(async function () {
+  try {
+    if (typeof supabase === "undefined") { out.textContent = "ERROR: global supabase missing"; return; }
+    const client = supabase.createClient("https://vaicofjsxjrbmirrphcc.supabase.co", "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc");
+    const res = await client.from("categories").select("name").limit(2);
+    out.textContent = "SDK OK - categories count: " + (res.data ? res.data.length : "none") + (res.error ? " err:" + res.error.message : "");
+  } catch (e) {
+    out.textContent = "ERROR: " + (e && e.message ? e.message : e);
+  }
+})();
+</script>
+</body></html>
