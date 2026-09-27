@@ -923,6 +923,36 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
 
+  async function getAdminToken() {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error || !data || !data.session || !data.session.access_token) return null;
+    return data.session.access_token;
+  }
+
+  async function uploadFileToBucket(file) {
+    const token = await getAdminToken();
+    if (!token) throw new Error("Your session expired. Please log out and log in again.");
+    const fileExt = (file.name.split(".").pop() || "bin").toLowerCase();
+    const fileName = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + fileExt;
+    const url = SUPABASE_URL + "/storage/v1/object/product-image/" + fileName;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        authorization: "Bearer " + token,
+        apikey: SUPABASE_ANON_KEY,
+        "Content-Type": file.type || "application/octet-stream"
+      },
+      body: file
+    });
+    if (!res.ok) {
+      let detail = "";
+      try { detail = (await res.text()) || ""; } catch (e) {}
+      if (detail.length > 160) detail = detail.slice(0, 160);
+      throw new Error("Upload failed (" + res.status + "). " + detail);
+    }
+    return SUPABASE_URL + "/storage/v1/object/public/product-image/" + fileName;
+  }
+
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let categoriesCache = [];
@@ -1058,7 +1088,7 @@
     const isBusy = submitBtn.getAttribute("data-busy") === "1";
     if (isBusy) return;
 
-    function resetBtn() { submitBtn.disabled = false; submitBtn.removeAttribute("data-busy"); submitBtn.textContent = isEditing ? "Save Changes" : "Add Product"; }
+    function resetBtn() { submitBtn.disabled = false; submitBtn.removeAttribute("data-busy"); submitBtn.textContent = isEditing ? "Save Changes" : "Add Product"; if (watchdog) clearTimeout(watchdog); }
     function fail(msg) {
       messageEl.textContent = msg || "Something went wrong. Please try again.";
       messageEl.className = "form-message error";
@@ -1069,6 +1099,10 @@
     submitBtn.disabled = true;
     submitBtn.textContent = "Working...";
     messageEl.style.display = "none";
+
+    var watchdog = setTimeout(function() {
+      fail("This is taking too long. The connection to the database seems to be stuck. Please retry; if it keeps happening, tell me the message you see here.");
+    }, 75000);
 
     try {
       const name = document.getElementById("p-name").value.trim();
@@ -1097,23 +1131,13 @@
       let videoUrl = isEditing ? currentEditVideoUrl : "";
 
       if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const { error: uploadError } = await supabaseClient
-          .storage.from("product-image").upload(fileName, imageFile);
-        if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
-        imageUrl = supabaseClient.storage.from("product-image").getPublicUrl(fileName).data.publicUrl;
+        imageUrl = await uploadFileToBucket(imageFile);
       }
 
       if (videoFile) {
         const duration = await getVideoDuration(videoFile);
         if (duration > 30) throw new Error("Video must be 30 seconds or shorter.");
-        const fileExt = videoFile.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const { error: videoUploadError } = await supabaseClient
-          .storage.from("product-image").upload(fileName, videoFile, { contentType: videoFile.type });
-        if (videoUploadError) throw new Error("Video upload failed: " + videoUploadError.message);
-        videoUrl = supabaseClient.storage.from("product-image").getPublicUrl(fileName).data.publicUrl;
+        videoUrl = await uploadFileToBucket(videoFile);
       }
 
       const payload = {
