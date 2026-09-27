@@ -825,7 +825,7 @@
 
         <label for="p-video">Product Video (optional)</label>
         <input type="file" id="p-video" accept="video/mp4,video/webm">
-        <p class="field-hint">Up to 30 seconds. Choose a video from your device. It will play on the home page, shop page, and product page.</p>
+        <p class="field-hint">Up to 1 minute. Choose a video from your device. It will play on the home page, shop page, and product page.</p>
 
         <label>Sizes (optional)</label>
         <div class="sizes-checklist" id="p-sizes"></div>
@@ -1157,7 +1157,7 @@
 
       if (videoFile) {
         const duration = await getVideoDuration(videoFile);
-        if (duration > 30) throw new Error("Video must be 30 seconds or shorter.");
+        if (duration > 60) throw new Error("Video must be 1 minute (60 seconds) or shorter.");
         videoUrl = await uploadFileToBucket(videoFile);
       }
 
