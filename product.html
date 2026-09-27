@@ -997,36 +997,39 @@
     });
   }
 
-  const fullOverlay = document.getElementById("product-fullscreen-overlay");
-  const fullContent = document.getElementById("product-fullscreen-content");
-
   function openFullscreenMedia(src, isVideo) {
-    if (!fullOverlay || !fullContent || !src) return;
-    fullContent.innerHTML = isVideo
+    const ov = document.getElementById("product-fullscreen-overlay");
+    const content = document.getElementById("product-fullscreen-content");
+    if (!ov || !content || !src) return;
+    content.innerHTML = isVideo
       ? '<video src="' + src + '" autoplay controls loop playsinline style="max-width:94vw; max-height:86vh; border-radius:8px; background:#000;"></video>'
       : '<img src="' + src + '" alt="Full screen preview" style="max-width:94vw; max-height:86vh; border-radius:8px; object-fit:contain; background:#000;">';
-    fullOverlay.classList.add("show");
+    ov.classList.add("show");
     document.body.style.overflow = "hidden";
   }
 
   function closeFullscreenMedia() {
-    if (!fullOverlay) return;
-    fullOverlay.classList.remove("show");
-    if (fullContent) fullContent.innerHTML = "";
+    const ov = document.getElementById("product-fullscreen-overlay");
+    const content = document.getElementById("product-fullscreen-content");
+    if (!ov) return;
+    ov.classList.remove("show");
+    if (content) content.innerHTML = "";
     document.body.style.overflow = "";
   }
 
-  if (fullOverlay) {
+  document.addEventListener("DOMContentLoaded", function() {
+    const ov = document.getElementById("product-fullscreen-overlay");
+    if (!ov) return;
     const fullClose = document.getElementById("product-fullscreen-close");
     if (fullClose) fullClose.addEventListener("click", closeFullscreenMedia);
-    fullOverlay.addEventListener("click", function(e) {
-      if (e.target === fullOverlay) closeFullscreenMedia();
+    ov.addEventListener("click", function(e) {
+      if (e.target === ov) closeFullscreenMedia();
       if (e.target.closest(".product-fullscreen-tip")) closeFullscreenMedia();
     });
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape") closeFullscreenMedia();
     });
-  }
+  });
 
   function sizeLabel(value) {
     const row = SIZE_CHART.find(r => r.d === String(value));
