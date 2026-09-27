@@ -547,6 +547,66 @@
   .menu-wa-link:hover { background: #1ead5a; color: #fff; }
 
   .menu-wa-link svg { width: 22px; height: 22px; flex-shrink: 0; }
+.product-img-wrap, .product-video-wrap { position: relative; }
+
+  .expand-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    width: 34px;
+    height: 34px;
+    background: rgba(13,43,38,0.65);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 50%;
+    cursor: zoom-in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .expand-btn svg { width: 16px; height: 16px; }
+
+  .product-fullscreen-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0,0,0,0.94);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  .product-fullscreen-overlay.show { display: flex; }
+
+  .product-fullscreen-overlay img,
+  .product-fullscreen-overlay video {
+    max-width: 94vw;
+    max-height: 86vh;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  .product-fullscreen-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .product-fullscreen-tip { color: #ccc; font-size: 0.75rem; margin-top: 14px; }
 </style>
 </head>
 <body>
@@ -860,18 +920,21 @@
         </div>`;
     }
 
+    const EXPAND_ICON = '<svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v24c0 6.6-5.4 12-12 12H48v100c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zm288-136v24c0 6.6 5.4 12 12 12h100v100c0 6.6 5.4 12 12 12h24c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm160 288v112c0 13.3-10.7 24-24 24H300c-6.6 0-12-5.4-12-12v-24c0-6.6 5.4-12 12-12h100V332c0-6.6 5.4-12 12-12h24c6.6 0 12 5.4 12 12zM160 468v-24c0-6.6-5.4-12-12-12H48V332c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v112c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"/></svg>';
+
     let videoHtml = "";
     if (product.video_url) {
       videoHtml = `
         <div class="product-video-wrap">
           <video id="product-video" src="${product.video_url}" controls muted loop playsinline preload="metadata"></video>
+          <button type="button" class="expand-btn" data-media="${product.video_url}" data-isvideo="1" aria-label="View full screen">${EXPAND_ICON}</button>
         </div>`;
     }
 
     container.innerHTML = `
       <div class="product-wrap">
         <div class="media-col">
-          ${product.image_url ? '<div class="product-img-wrap"><img src="' + product.image_url + '" alt="' + product.name + '"></div>' : ""}
+          ${product.image_url ? '<div class="product-img-wrap"><img src="' + product.image_url + '" alt="' + product.name + '"><button type="button" class="expand-btn" data-media="' + product.image_url + '" data-isvideo="0" aria-label="View full screen">' + EXPAND_ICON + '</button></div>' : ""}
           ${videoHtml}
         </div>
         <div class="product-info">
@@ -925,6 +988,44 @@
         }
       });
     }
+
+    document.querySelectorAll(".expand-btn").forEach(function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        openFullscreenMedia(btn.getAttribute("data-media"), btn.getAttribute("data-isvideo") === "1");
+      });
+    });
+  }
+
+  const fullOverlay = document.getElementById("product-fullscreen-overlay");
+  const fullContent = document.getElementById("product-fullscreen-content");
+
+  function openFullscreenMedia(src, isVideo) {
+    if (!fullOverlay || !fullContent || !src) return;
+    fullContent.innerHTML = isVideo
+      ? '<video src="' + src + '" autoplay controls loop playsinline style="max-width:94vw; max-height:86vh; border-radius:8px; background:#000;"></video>'
+      : '<img src="' + src + '" alt="Full screen preview" style="max-width:94vw; max-height:86vh; border-radius:8px; object-fit:contain; background:#000;">';
+    fullOverlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeFullscreenMedia() {
+    if (!fullOverlay) return;
+    fullOverlay.classList.remove("show");
+    if (fullContent) fullContent.innerHTML = "";
+    document.body.style.overflow = "";
+  }
+
+  if (fullOverlay) {
+    const fullClose = document.getElementById("product-fullscreen-close");
+    if (fullClose) fullClose.addEventListener("click", closeFullscreenMedia);
+    fullOverlay.addEventListener("click", function(e) {
+      if (e.target === fullOverlay) closeFullscreenMedia();
+      if (e.target.closest(".product-fullscreen-tip")) closeFullscreenMedia();
+    });
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeFullscreenMedia();
+    });
   }
 
   function sizeLabel(value) {
@@ -1183,6 +1284,12 @@
 
   loadProduct();
 </script>
+
+<div class="product-fullscreen-overlay" id="product-fullscreen-overlay">
+  <button type="button" class="product-fullscreen-close" id="product-fullscreen-close" aria-label="Close preview">&times;</button>
+  <div id="product-fullscreen-content"></div>
+  <div class="product-fullscreen-tip">Tap the background or press Esc to close</div>
+</div>
 
 </body>
 </html>
