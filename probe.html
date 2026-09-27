@@ -1,0 +1,92 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Laptop probe</title>
+<style>body{font-family:Consolas,monospace;background:#f5f0e6;color:#222;padding:24px;margin:0}h1{font-size:18px}#out{background:#fff;border:1px solid #ddd;padding:16px;white-space:pre-wrap;font-size:14px;line-height:1.6}span.ok{color:#15803d;font-weight:bold}span.bad{color:#b3261e;font-weight:bold}</style>
+</head>
+<body>
+<h1>Connection probe - run on the laptop, screenshot this page</h1>
+<pre id="out">starting...</pre>
+<script>
+const base = "https://vaicofjsxjrbmirrphcc.supabase.co";
+const key = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
+const out = document.getElementById("out");
+const t0 = Date.now();
+function span(ok, t) { return ok ? '<span class="ok">' + t + "</span>" : '<span class="bad">' + t + "</span>"; }
+function log(line) { out.innerHTML += line + "\n"; }
+function ts() { return ((Date.now() - t0) / 1000).toFixed(1) + "s"; }
+
+function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise(function (_, reject) {
+      setTimeout(function () { reject(new Error(label + " STUCK > " + (ms / 1000) + "s")); }, ms);
+    })
+  ]);
+}
+
+(async function () {
+  try {
+    // 1. READ test
+    try {
+      const r = await withTimeout(fetch(base + "/rest/v1/categories?select=name&limit=1", { headers: { apikey: key } }), 45000, "READ");
+      const body = await r.text();
+      log(ts() + " 1. READ categories  -> " + span(r.ok, "HTTP " + r.status) + " body: " + body.slice(0, 60));
+    } catch (e) { log(ts() + " 1. READ categories  -> " + span(false, "FAILED / " + e.message)); }
+
+    // 2. LOGIN (POST)
+    let token = null;
+    try {
+      const r = await withTimeout(fetch(base + "/auth/v1/token?grant_type=password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: key },
+        body: JSON.stringify({ email: "enochmercybella@gmail.com", password: "EmbSparkly2026!" })
+      }), 45000, "LOGIN-POST");
+      const j = await r.json();
+      token = j.access_token || null;
+      log(ts() + " 2. Login POST       -> " + span(r.ok && token, "HTTP " + r.status + " token " + (token ? "OK" : "missing")));
+    } catch (e) { log(ts() + " 2. Login POST       -> " + span(false, "FAILED / " + e.message)); }
+
+    if (!token) { log("\nSTOPPED before the write tests."); log("RESULT: The laptop cannot complete this step - tell me the whole message."); return; }
+
+    const ah = { Authorization: "Bearer " + token, apikey: key };
+
+    // 3. UPLOAD (POST a made-up tiny file)
+    let fileName = "";
+    try {
+      const f = new File([new Uint8Array([1, 2, 3, 4, 5])], "probe-" + Date.now() + ".png", { type: "image/png" });
+      fileName = "probe-" + Date.now() + ".png";
+      const r = await withTimeout(fetch(base + "/storage/v1/object/product-image/" + fileName, {
+        method: "POST",
+        headers: Object.assign({ "Content-Type": "image/png" }, ah),
+        body: f
+      }), 45000, "UPLOAD");
+      log(ts() + " 3. Upload tiny file USE -> " + span(r.ok, "HTTP " + r.status));
+    } catch (e) { log(ts() + " 3. Upload tiny file USE -> " + span(false, "FAILED / " + e.message)); }
+
+    // 4. DELETE that file (cleanup + write test)
+    try {
+      const r = await withTimeout(fetch(base + "/storage/v1/object/product-image/" + fileName, {
+        method: "DELETE",
+        headers: ah
+      }), 45000, "DELETE");
+      log(ts() + " 4. Delete file|DELETE -> " + span(r.ok, "HTTP " + r.status));
+    } catch (e) { log(ts() + " 4. Delete file|DELETE -> " + span(false, "FAILED / " + e.message)); }
+
+    // 5. DATABASE WRITE test (PATCH that matches zero rows - changes nothing)
+    try {
+      const r = await withTimeout(fetch(base + "/rest/v1/products?id=eq.00000000-0000-0000-0000-000000000000", {
+        method: "PATCH",
+        headers: Object.assign({ "Content-Type": "application/json" }, ah),
+        body: "{}"
+      }), 45000, "DB-WRITE");
+      log(ts() + " 5. Database save PATCH -> " + span(r.ok, "HTTP " + r.status));
+    } catch (e) { log(ts() + " 5. Database save PATCH -> " + span(false, "FAILED / " + e.message)); }
+
+    log("\nFINISHED. Send me a screenshot of this whole page.");
+    document.title = "PROBE DONE";
+  } catch (e) {
+    log("\nFATAL: " + e.message);
+    document.title = "PROBE ERROR";
+  }
+})();
+</script>
+</body></html>
