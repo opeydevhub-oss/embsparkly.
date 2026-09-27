@@ -720,7 +720,7 @@
   <div class="header-brand">
     <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
     <span class="brand-name">Admin Dashboard</span>
-    <span id="build-tag" style="background:#0d2b26;color:#fff;font:600 10px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px;margin-left:8px;letter-spacing:.5px;">v17</span>
+    <span id="build-tag" style="background:#0d2b26;color:#fff;font:600 10px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px;margin-left:8px;letter-spacing:.5px;">v18</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
 </header>
@@ -930,6 +930,15 @@
     return data.session.access_token;
   }
 
+  function withTimeout(promise, ms) {
+    return Promise.race([
+      promise,
+      new Promise(function(_, reject) {
+        setTimeout(function() { reject(new Error("Request took too long - the laptop/app connection stalled. Please retry.")); }, ms);
+      })
+    ]);
+  }
+
   async function uploadFileToBucket(file) {
     const token = await getAdminToken();
     if (!token) throw new Error("Your session expired. Please log out and log in again.");
@@ -1123,10 +1132,20 @@
       if (isNaN(stock) || stock < 0) throw new Error("Please enter a valid stock quantity.");
       if (!isEditing && !imageFile && !videoFile) throw new Error("Please add a product photo or a video.");
 
-      const { data: categoryRow, error: categoryError } = await supabaseClient
-        .from("categories").select("id").eq("slug", categorySlug).single();
+      const token = await getAdminToken();
+      if (!token) throw new Error("Your session expired. Please log out and log in again.");
 
-      if (categoryError || !categoryRow) throw new Error("Could not find that category.");
+      const catRes = await withTimeout(fetch(SUPABASE_URL + "/rest/v1/categories?select=id&slug=eq." + encodeURIComponent(categorySlug) + "&limit=1", {
+        headers: { authorization: "Bearer " + token, apikey: SUPABASE_ANON_KEY }
+      }), 30000);
+      if (catRes.status === 401) throw new Error("Your session expired. Please log out and log in again.");
+      if (!catRes.ok) {
+        const txt = await catRes.text().catch(function() { return ""; });
+        throw new Error("Could not find that category. (" + catRes.status + (txt ? " " + txt.slice(0, 120) : "") + ")");
+      }
+      const catBody = await catRes.json();
+      const categoryRow = catBody && catBody[0];
+      if (!categoryRow || !categoryRow.id) throw new Error("Could not find that category.");
 
       let imageUrl = isEditing ? currentEditImageUrl : "";
       let videoUrl = isEditing ? currentEditVideoUrl : "";
@@ -1154,16 +1173,26 @@
         colors
       };
 
-      let opError;
+      let writeUrl, writeInit;
       if (isEditing) {
-        const result = await supabaseClient.from("products").update(payload).eq("id", editingId);
-        opError = result.error;
+        writeUrl = SUPABASE_URL + "/rest/v1/products?id=eq." + encodeURIComponent(editingId);
+        writeInit = { method: "PATCH" };
       } else {
-        const result = await supabaseClient.from("products").insert(payload);
-        opError = result.error;
+        writeUrl = SUPABASE_URL + "/rest/v1/products";
+        writeInit = { method: "POST" };
       }
-
-      if (opError) throw new Error(opError.message);
+      const opRes = await withTimeout(fetch(writeUrl, {
+        method: writeInit.method,
+        headers: { authorization: "Bearer " + token, apikey: SUPABASE_ANON_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }), 30000);
+      if (opRes.status === 401) throw new Error("Your session expired. Please log out and log in again.");
+      if (!opRes.ok) {
+        let detail = "";
+        try { detail = (await opRes.text()) || ""; } catch (e2) {}
+        if (detail.length > 160) detail = detail.slice(0, 160);
+        throw new Error("Could not save. Try again. (" + opRes.status + (detail ? " " + detail : "") + ")");
+      }
 
       resetBtn();
       messageEl.textContent = isEditing ? "Product updated successfully." : "Product added successfully.";
