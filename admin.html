@@ -720,12 +720,12 @@
   <div class="header-brand">
     <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
     <span class="brand-name">Admin Dashboard</span>
-    <span id="build-tag" style="background:#0d2b26;color:#fff;font:600 10px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px;margin-left:8px;letter-spacing:.5px;">v20</span>
+    <span id="build-tag" style="background:#0d2b26;color:#fff;font:600 10px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px;margin-left:8px;letter-spacing:.5px;">v21</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
 </header>
 
-<div id="dbg-strip" style="position:fixed;bottom:6px;left:6px;z-index:99998;background:#0d2b26;color:#e0c05a;font:11px/1.6 Consolas,monospace;padding:6px 10px;border-radius:4px;opacity:.97;max-width:92vw">debug v20 · <span id="dbg-state">waiting</span></div>
+<div id="dbg-strip" style="position:fixed;bottom:6px;left:6px;z-index:99998;background:#0d2b26;color:#e0c05a;font:11px/1.6 Consolas,monospace;padding:6px 10px;border-radius:4px;opacity:.97;max-width:92vw">debug v21 · <span id="dbg-state">waiting</span></div>
 
 <div id="gate-screen">
   <div>
@@ -1124,6 +1124,9 @@
     function fail(msg) {
       messageEl.textContent = msg || "Something went wrong. Please try again.";
       messageEl.className = "form-message error";
+      var m = msg || "unknown";
+      if (m.length > 260) m = m.slice(0, 260);
+      dbgTick("err:" + m);
       resetBtn();
     }
 
