@@ -720,10 +720,12 @@
   <div class="header-brand">
     <img src="image/logo.jpeg" alt="E.M.B SPARKLY logo">
     <span class="brand-name">Admin Dashboard</span>
-    <span id="build-tag" style="background:#0d2b26;color:#fff;font:600 10px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px;margin-left:8px;letter-spacing:.5px;">v18</span>
+    <span id="build-tag" style="background:#0d2b26;color:#fff;font:600 10px/1 Arial,sans-serif;padding:3px 6px;border-radius:4px;margin-left:8px;letter-spacing:.5px;">v19</span>
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
 </header>
+
+<div id="dbg-strip" style="position:fixed;bottom:6px;left:6px;z-index:99998;background:#0d2b26;color:#e0c05a;font:11px/1.6 Consolas,monospace;padding:6px 10px;border-radius:4px;opacity:.97;max-width:92vw">debug v19 · <span id="dbg-state">waiting</span></div>
 
 <div id="gate-screen">
   <div>
@@ -914,6 +916,17 @@
 </div>
 
 <script>
+  window._dbgT0 = Date.now();
+  function dbgTick(label) {
+    try {
+      var el = document.getElementById("dbg-state");
+      if (!el) return;
+      var now = ((Date.now() - window._dbgT0) / 1000).toFixed(1);
+      var prev = el.textContent === "waiting" ? "" : el.textContent + " -> ";
+      el.textContent = prev + label + "@" + now + "s";
+    } catch (e) {}
+  }
+
   const SUPABASE_URL = "https://vaicofjsxjrbmirrphcc.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_UkqihD8tVKi5Y9Ih6n418A_6r5GhMCc";
   const ADMIN_UID = "1ec1684c-db5b-4032-a385-ac006a47fc08";
@@ -964,6 +977,7 @@
   }
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  dbgTick("sdk-ok");
 
   let categoriesCache = [];
   let editingId = null;
@@ -977,6 +991,7 @@
   const adminMain = document.getElementById("admin-main");
 
   async function checkAccess() {
+    dbgTick("gate");
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (!session) {
@@ -1090,8 +1105,15 @@
     });
   });
 
+  dbgTick("attach");
+  var _subProbe = document.getElementById("submit-btn");
+  if (_subProbe) {
+    _subProbe.addEventListener("click", function() { dbgTick("click"); }, true);
+  }
+
   document.getElementById("product-form").addEventListener("submit", async function(e) {
     e.preventDefault();
+    dbgTick("handler");
     const submitBtn = document.getElementById("submit-btn");
     const messageEl = document.getElementById("form-message");
     const isEditing = !!editingId;
@@ -1109,6 +1131,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = "Working...";
     messageEl.style.display = "none";
+    dbgTick("working");
 
     var watchdog = setTimeout(function() {
       fail("This is taking too long. The connection to the database seems to be stuck. Please retry; if it keeps happening, tell me the message you see here.");
@@ -1134,6 +1157,7 @@
 
       const token = await getAdminToken();
       if (!token) throw new Error("Your session expired. Please log out and log in again.");
+      dbgTick("token");
 
       const catRes = await withTimeout(fetch(SUPABASE_URL + "/rest/v1/categories?select=id&slug=eq." + encodeURIComponent(categorySlug) + "&limit=1", {
         headers: { authorization: "Bearer " + token, apikey: SUPABASE_ANON_KEY }
@@ -1146,6 +1170,7 @@
       const catBody = await catRes.json();
       const categoryRow = catBody && catBody[0];
       if (!categoryRow || !categoryRow.id) throw new Error("Could not find that category.");
+      dbgTick("cat-ok");
 
       let imageUrl = isEditing ? currentEditImageUrl : "";
       let videoUrl = isEditing ? currentEditVideoUrl : "";
@@ -1159,6 +1184,7 @@
         if (duration > 30) throw new Error("Video must be 30 seconds or shorter.");
         videoUrl = await uploadFileToBucket(videoFile);
       }
+      dbgTick("media-ok");
 
       const payload = {
         name,
@@ -1193,6 +1219,7 @@
         if (detail.length > 160) detail = detail.slice(0, 160);
         throw new Error("Could not save. Try again. (" + opRes.status + (detail ? " " + detail : "") + ")");
       }
+      dbgTick("save-ok");
 
       resetBtn();
       messageEl.textContent = isEditing ? "Product updated successfully." : "Product added successfully.";
@@ -1201,6 +1228,7 @@
       loadProducts();
       loadStats();
     } catch (err) {
+      dbgTick("err");
       fail(err && err.message ? err.message : "Something went wrong.");
     }
   });
