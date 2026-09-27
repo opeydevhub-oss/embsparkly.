@@ -70,13 +70,69 @@
     align-items: center;
   }
 
-  .cart-item img {
+  .cart-thumb-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+    cursor: zoom-in;
+    line-height: 0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .cart-thumb-btn img,
+  .cart-thumb-btn video {
     width: 66px;
     height: 66px;
     object-fit: cover;
     border-radius: 6px;
     background: #eee;
-    flex-shrink: 0;
+  }
+
+  .media-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.92);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  .media-overlay.show { display: flex; }
+
+  .media-overlay img,
+  .media-overlay video {
+    max-width: 92vw;
+    max-height: 84vh;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  .media-overlay-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .media-overlay-tip {
+    color: #ccc;
+    font-size: 0.75rem;
+    margin-top: 14px;
+    text-align: center;
   }
 
   .cart-item .info { flex: 1; min-width: 0; }
@@ -343,6 +399,7 @@
     <a href="new-arrivals.html">New Arrivals</a>
     <a href="orders.html">Track Order</a>
     <a href="index.html#about">About</a>
+    <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank" rel="noopener">WhatsApp Us</a>
   </div>
   <div class="menu-cat-title">Categories</div>
   <div class="menu-categories" id="menu-categories"><div class="menu-cat-empty">Loading...</div></div>
@@ -511,6 +568,7 @@
         name: liveProduct.name,
         price: liveProduct.price,
         image_url: liveProduct.image_url,
+        video_url: liveProduct.video_url || null,
         stock: liveProduct.stock,
         weight_kg: liveProduct.weight_kg || 0.5,
         quantity: cappedQty,
@@ -550,9 +608,13 @@
       }
       const key = item.id + "|" + (item.size || "") + "|" + (item.color || "");
 
+      const thumb = item.video_url
+        ? '<video class="cart-thumb" src="' + item.video_url + '" muted loop playsinline preload="metadata"></video>'
+        : '<img class="cart-thumb" src="' + item.image_url + '" alt="' + esc(item.name) + '">';
+
       itemsHtml += `
         <div class="cart-item" data-key="${key}">
-          <img src="${item.image_url}" alt="${item.name}">
+          <button type="button" class="cart-thumb-btn" data-media="${item.video_url ? item.video_url : item.image_url}" data-isvideo="${item.video_url ? "1" : "0"}" aria-label="Preview this item" title="Tap to preview">${thumb}</button>
           <div class="info">
             <h3>${item.name}</h3>
             <div class="unit-price">$${Number(item.price).toFixed(2)} each</div>
@@ -620,6 +682,12 @@
       });
     });
 
+    document.querySelectorAll(".cart-thumb-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        openMediaPreview(btn.getAttribute("data-media"), btn.getAttribute("data-isvideo") === "1");
+      });
+    });
+
     const checkoutBtn = document.getElementById("checkout-btn");
     if (checkoutBtn) {
       checkoutBtn.addEventListener("click", function() {
@@ -647,8 +715,44 @@
     renderCart();
   }
 
+  function openMediaPreview(src, isVideo) {
+    const overlay = document.getElementById("media-overlay");
+    const content = document.getElementById("media-overlay-content");
+    if (!overlay || !content) return;
+    content.innerHTML = isVideo
+      ? '<video src="' + src + '" autoplay controls loop playsinline style="max-width:92vw; max-height:84vh; border-radius:8px; background:#000;"></video>'
+      : '<img src="' + src + '" alt="Preview" style="max-width:92vw; max-height:84vh; border-radius:8px; object-fit:contain; background:#000;">';
+    overlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMediaPreview() {
+    const overlay = document.getElementById("media-overlay");
+    if (!overlay) return;
+    overlay.classList.remove("show");
+    const content = document.getElementById("media-overlay-content");
+    if (content) content.innerHTML = "";
+    document.body.style.overflow = "";
+  }
+
+  const mediaOverlayEl = document.getElementById("media-overlay");
+  if (mediaOverlayEl) {
+    mediaOverlayEl.addEventListener("click", function(e) {
+      if (e.target === mediaOverlayEl) closeMediaPreview();
+    });
+    const mediaCloseEl = document.getElementById("media-overlay-close");
+    if (mediaCloseEl) mediaCloseEl.addEventListener("click", closeMediaPreview);
+    document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeMediaPreview(); });
+  }
+
   renderCart();
 </script>
+
+<div class="media-overlay" id="media-overlay">
+  <button type="button" class="media-overlay-close" id="media-overlay-close" aria-label="Close preview">&times;</button>
+  <div id="media-overlay-content"></div>
+  <div class="media-overlay-tip">Tap outside or press Esc to close</div>
+</div>
 
 </body>
 </html>

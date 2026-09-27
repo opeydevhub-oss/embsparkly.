@@ -190,12 +190,22 @@
     gap: 8px;
   }
 
-  .hero-tags span {
+  .hero-tags a {
     font-size: 0.75rem;
     padding: 5px 12px;
     border: 1px solid rgba(201,162,39,0.5);
     border-radius: 16px;
     color: var(--gold-light);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .hero-tags a:hover {
+    background: var(--gold-light);
+    color: var(--deep-green-dark);
   }
 
   .hero-cta {
@@ -811,6 +821,7 @@
     <a href="new-arrivals.html">New Arrivals</a>
     <a href="orders.html">Track Order</a>
     <a href="index.html#about">About</a>
+    <a href="https://wa.me/message/NKLSS5LINWZ2H1" target="_blank" rel="noopener">WhatsApp Us</a>
   </div>
   <div class="menu-cat-title">Categories</div>
   <div class="menu-categories" id="menu-categories"><div class="menu-cat-empty">Loading...</div></div>
@@ -847,10 +858,10 @@
         <h1>Turkey. Dubai. African. Sparkly.</h1>
         <p>Curated wears, jewelries, bags and shoes, sourced with care and styled for you.</p>
         <div class="hero-tags">
-          <span>Turkey Wears</span>
-          <span>Dubai Wears</span>
-          <span>African Ready-to-Wear</span>
-          <span>Designer Bags</span>
+          <a href="catalog.html?category=turkey-wears">Turkey Wears</a>
+          <a href="catalog.html?category=dubai-wears">Dubai Wears</a>
+          <a href="catalog.html?category=african-ready-to-wear">African Ready-to-Wear</a>
+          <a href="catalog.html?category=bags">Designer Bags</a>
         </div>
       </div>
     </div>
@@ -937,6 +948,21 @@
   </div>
 </section>
 
+<section class="new-arrivals" id="new-arrivals">
+  <div class="new-arrivals-inner">
+    <div class="section-heading">
+      <h2>New Arrivals</h2>
+      <p>Fresh in the store: the latest pieces, just landed</p>
+    </div>
+    <div class="new-arrivals-grid" id="new-arrivals-grid">
+      <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
+    </div>
+    <div class="view-all-wrap">
+      <a href="new-arrivals.html" class="view-all-btn">View All New Arrivals</a>
+    </div>
+  </div>
+</section>
+
 <section class="about-section" id="about">
   <div class="about-inner">
     <div class="about-heading">
@@ -945,7 +971,7 @@
     </div>
     <p class="about-story">
       E.M.B SPARKLY is a curated fashion destination blending the best of Turkey, Dubai and African
-      style — elegant ready-to-wear, sparkling jewelries, designer bags, shoes and more. Every piece is
+      style, elegant ready-to-wear, sparkling jewelries, designer bags, shoes and more. Every piece is
       handpicked with care, so you can shop with confidence and dress for every moment.
     </p>
     <div class="about-grid">
@@ -967,21 +993,6 @@
     </div>
     <div class="about-cta-wrap">
       <a href="catalog.html" class="about-cta">Shop the Collection</a>
-    </div>
-  </div>
-</section>
-
-<section class="new-arrivals" id="new-arrivals">
-  <div class="new-arrivals-inner">
-    <div class="section-heading">
-      <h2>New Arrivals</h2>
-      <p>Fresh in the store — the latest pieces, just landed</p>
-    </div>
-    <div class="new-arrivals-grid" id="new-arrivals-grid">
-      <div style="grid-column:1/-1; text-align:center; color:#6b6b64; font-size:0.85rem; padding:20px 0;">Loading...</div>
-    </div>
-    <div class="view-all-wrap">
-      <a href="new-arrivals.html" class="view-all-btn">View All New Arrivals</a>
     </div>
   </div>
 </section>
@@ -1124,7 +1135,7 @@
       const hasVideo = !!product.video_url;
       const imgHtml = product.image_url ? '<img src="' + product.image_url + '" alt="' + product.name + '">' : "";
       const videoHtml = hasVideo
-        ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" muted loop playsinline preload="none"></video>'
+        ? '<span class="video-badge">&#9654; Video</span><video class="card-video" src="' + product.video_url + '" autoplay muted loop playsinline preload="auto"></video>'
         : "";
       card.innerHTML = `
         <div class="img-wrap">
