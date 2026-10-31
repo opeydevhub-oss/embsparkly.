@@ -813,6 +813,33 @@ main{margin-left:248px}
  .admin-module-grid{grid-template-columns:1fr}
  .module-tile{min-height:112px}
 }
+
+/* Mobile workspace refinement: keep navigation compact and content unobstructed */
+@media(max-width:900px){
+  .app-sidebar{width:68px;padding:18px 7px;align-items:center}
+  .sidebar-brand{font-size:.72rem;padding:0 0 20px;text-align:center}
+  .sidebar-brand span{display:block;font-size:.68rem}
+  .sidebar-label,.sidebar-foot{display:none}
+  .sidebar-link{width:100%;justify-content:center;gap:0;padding:13px 3px;font-size:0;min-height:44px}
+  .sidebar-link span{font-size:1.12rem;width:auto}
+  header,main{margin-left:68px;min-width:0}
+  header{padding:11px 14px}
+  .tab-panel{width:100%;max-width:none;padding:22px 16px 48px}
+  .page-title{font-size:1.55rem}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  .app-sidebar{width:58px;padding:14px 5px}
+  header,main{margin-left:58px}
+  .header-brand{gap:7px}
+  .header-brand img{width:27px;height:27px}
+  .brand-name{font-size:1rem}
+  .logout-btn{font-size:.72rem;padding:6px 9px}
+  .tab-panel{padding:18px 12px 40px}
+  .card{padding:15px}
+  .social-layout{grid-template-columns:minmax(0,1fr)}
+  .social-side{overflow-x:auto}
+}
 </style>
 <style id="workspace-layout">
 :root{--workspace-bg:#f3f2f8;--panel:#fff;--ink:#24302d;--muted:#78817e;--line:#e9e8ef;--accent:#4b8a70;--lavender:#eeeafd}
@@ -911,15 +938,6 @@ input,textarea,select{border-radius:9px;border-color:#e4e6e3;padding:11px 12px}
   <div class="tab-panel active" id="tab-overview">
     <div class="page-title">Store command centre</div>
     <div class="page-subtitle">Choose an area to manage. Your store operations stay in one workspace.</div>
-    <div class="admin-module-grid">
-      <button class="module-tile featured" data-open-module="overview"><span class="module-icon">⌂</span><span class="module-kicker">STORE</span><strong>Overview</strong><small>Performance and recent activity</small></button>
-      <button class="module-tile" data-open-module="orders"><span class="module-icon">▤</span><span class="module-kicker">FULFILMENT</span><strong>Orders</strong><small>Review and process customer orders</small></button>
-      <button class="module-tile" data-open-module="products"><span class="module-icon">◇</span><span class="module-kicker">CATALOGUE</span><strong>Products</strong><small>Manage products and inventory</small></button>
-      <button class="module-tile" data-open-module="categories"><span class="module-icon">▦</span><span class="module-kicker">CATALOGUE</span><strong>Categories</strong><small>Organize the store collection</small></button>
-      <button class="module-tile" data-open-module="social"><span class="module-icon">◎</span><span class="module-kicker">GROWTH</span><strong>Social Studio</strong><small>Create, plan and manage content</small></button>
-      <button class="module-tile" data-open-module="economics"><span class="module-icon">₦</span><span class="module-kicker">CAMPAIGNS</span><strong>Campaign Economics</strong><small>Pre-orders, deposits and shipment planning</small></button>
-      <button class="module-tile" data-open-module="notifications"><span class="module-icon">♧</span><span class="module-kicker">ACTIVITY</span><strong>Notifications</strong><small>Store updates and alerts</small></button>
-    </div>
     <div class="page-title overview-heading">Overview</div>
     <div class="page-subtitle">A quick look at how the shop is doing</div>
 
@@ -1299,6 +1317,7 @@ document.querySelectorAll("[data-open-module]").forEach(function(button){
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
+  document.querySelectorAll(".sidebar-link").forEach(function(link){ link.title = link.textContent.trim(); link.setAttribute("aria-label", link.textContent.trim()); });
   // Campaign economics quick calculations (uses only values entered by the admin).
   (function() {
     const button = document.getElementById("econ-calculate");
