@@ -814,6 +814,14 @@ input,textarea,select{border-radius:9px;border-color:#e4e6e3;padding:11px 12px}
 header{margin-left:0!important}
 #admin-main{margin:0!important}
 @media(max-width:620px){#admin-main{grid-template-columns:minmax(0,1fr);padding:12px}.workspace-sidebar{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 14px;min-height:0}.workspace-sidebar .sidebar-brand{flex:1 0 100%}.workspace-sidebar .sidebar-label{display:none}.workspace-sidebar .sidebar-link{width:auto;flex:1 1 auto;justify-content:center;white-space:nowrap}.workspace-sidebar .sidebar-footer{display:none}.tab-panel{grid-column:1;grid-row:auto;min-width:0}}
+
+.overview-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin:8px 0 24px}
+.overview-header .page-title{margin:4px 0 3px}
+.overview-header .page-subtitle{margin:0}
+.eyebrow{font-size:9px;letter-spacing:.14em;font-weight:700;color:#8b9290}
+.overview-date{border:1px solid var(--line);background:#fff;color:#78817e;border-radius:999px;padding:8px 12px;font-size:10px;white-space:nowrap}
+.stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:620px){.overview-header{align-items:flex-start}.overview-date{display:none}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -853,10 +861,10 @@ header{margin-left:0!important}
 
 
   <div class="tab-panel active" id="tab-overview">
-    <div class="page-title">Store command centre</div>
-    <div class="page-subtitle">Choose an area to manage. Your store operations stay in one workspace.</div>
-    <div class="page-title overview-heading">Overview</div>
-    <div class="page-subtitle">A quick look at how the shop is doing</div>
+    <div class="overview-header">
+      <div><div class="eyebrow">EMB SPARKLY · WORKSPACE</div><div class="page-title">Overview</div><div class="page-subtitle">A quick look at your store performance and recent activity.</div></div>
+      <span class="overview-date">Store overview</span>
+    </div>
 
     <div class="stats-grid">
       <div class="stat-box">
