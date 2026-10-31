@@ -6,7 +6,9 @@
 <title>Admin Dashboard | E.M.B SPARKLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="supabase.js"></script>
+<script src="supabase.js">// Dashboard module cards open the existing content panels.
+document.querySelectorAll("[data-open-module]").forEach(function(card){card.addEventListener("click",function(){const target=card.dataset.openModule;document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));const panel=document.getElementById("tab-"+target);if(panel)panel.classList.add("active");window.scrollTo({top:0,behavior:"smooth"});});});
+(function initCampaignEconomics(){const ids=["econ-campaign-days","econ-target-kg","econ-current-kg","econ-goods-value","econ-shipping-cost","econ-deposit"];const get=id=>Number(document.getElementById(id).value||0);const fmt=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}).format(n);document.getElementById("econ-deposit").addEventListener("input",e=>document.getElementById("econ-deposit-value").textContent=Math.max(0,Math.min(100,Number(e.target.value)||0))+"%");document.getElementById("econ-calculate").addEventListener("click",()=>{const target=get("econ-target-kg"),demand=get("econ-current-kg"),goods=get("econ-goods-value"),freight=get("econ-shipping-cost"),deposit=Math.max(0,Math.min(100,get("econ-deposit")));document.getElementById("econ-progress").textContent=(target>0?Math.min(100,demand/target*100):0).toFixed(1)+"%";document.getElementById("econ-total").textContent=goods+freight>0?fmt(goods+freight):"Enter verified costs";document.getElementById("econ-per-kg").textContent=target>0&&freight>0?fmt(freight/target)+"/kg":"Enter target and freight";document.getElementById("econ-deposit-value").textContent=deposit+"%";document.getElementById("econ-status").textContent=demand>=target&&target>0?"Target reached":get("econ-campaign-days")>0?"Campaign collecting demand":"Set campaign duration";});})();</script>
 <style>
   :root {
     --deep-green: #0d2b26;
@@ -739,6 +741,26 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .planner-empty{display:grid;justify-items:center;text-align:center;padding:34px 18px;border:1px dashed #dfe5dc;border-radius:12px;color:#737b72}.planner-empty>span{font-size:1.8rem;color:#b39a5d;margin-bottom:10px}.planner-empty strong{color:#294336;font-size:.95rem}.planner-empty p{max-width:430px;font-size:.8rem;line-height:1.6;margin-top:8px}
 .account-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #edf0eb}.account-row>div{flex:1;min-width:0}.account-row strong,.account-row small{display:block}.account-row strong{font-size:.85rem}.account-row small{font-size:.73rem;color:#7b837a;margin-top:3px}.account-state{font-size:.68rem;color:#7a7e76;background:#f3f4f0;border-radius:99px;padding:6px 9px;white-space:nowrap}.social-draft-list{display:grid;gap:10px;margin-top:16px}.social-draft{padding:13px;border:1px solid #e7eae5;border-radius:10px;background:#fbfcfa}.social-draft strong{font-size:.8rem}.social-draft p{font-size:.78rem;color:#737b72;white-space:pre-wrap;margin-top:5px}
 @media(max-width:760px){.social-summary{grid-template-columns:1fr}.social-layout{grid-template-columns:1fr}.social-side{position:static;display:flex;overflow-x:auto;gap:5px;padding:8px}.social-side-title,.social-side-note{display:none}.social-nav{white-space:nowrap;width:auto;flex:0 0 auto;padding:10px}.composer-bottom{grid-template-columns:1fr}.social-save{width:100%}.social-heading{flex-direction:column}.tab-btn{padding:13px 12px}}
+/* Dashboard-first module navigation and campaign economics */
+.tab-bar{display:none!important}
+.admin-module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0 30px}
+.module-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:164px;padding:20px;background:#fff;border:1px solid #e6e9e3;border-radius:16px;box-shadow:0 8px 24px rgba(22,45,32,.035);cursor:pointer;color:#1d2923;transition:transform .16s,border-color .16s,box-shadow .16s}
+.module-tile:hover{transform:translateY(-2px);border-color:#c7a45b;box-shadow:0 12px 28px rgba(22,45,32,.08)}
+.module-tile.featured{background:linear-gradient(145deg,#123b32,#1c5143);color:#fff}
+.module-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:#f3f0e7;color:#987a39;font-size:1.25rem;margin-bottom:15px}
+.module-tile.featured .module-icon{background:#ffffff20;color:#f1d99c}
+.module-kicker{font-size:.62rem;letter-spacing:.14em;color:#a18b5a;font-weight:700;margin-bottom:4px}
+.module-tile.featured .module-kicker{color:#e8d29a}
+.module-tile strong{font-size:1rem;font-weight:700;color:inherit}
+.module-tile small{font-size:.75rem;color:#7b8279;margin-top:5px;line-height:1.45}
+.module-tile.featured small{color:#d2e0d7}
+.overview-heading{margin-top:8px}
+.economics-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.econ-results{display:grid;gap:0}
+.econ-results>div{display:flex;justify-content:space-between;gap:12px;padding:15px 0;border-bottom:1px solid #edf0eb}
+.econ-results span{font-size:.8rem;color:#727b72}.econ-results strong{font-size:.9rem;color:#173d32;text-align:right}
+@media(max-width:760px){.admin-module-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module-tile{min-height:150px;padding:15px}.economics-grid{grid-template-columns:1fr}}
+@media(max-width:380px){.admin-module-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -760,17 +782,22 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 
 <main id="admin-main">
 
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tab="overview">Overview</button>
-    <button class="tab-btn" data-tab="orders">Orders</button>
-    <button class="tab-btn" data-tab="products">Products</button>
-    <button class="tab-btn" data-tab="categories">Categories</button>
-    <button class="tab-btn" data-tab="notifications">Notifications</button>
-    <button class="tab-btn" data-tab="social">Social Media</button>
-  </div>
+  <div class="tab-bar" aria-hidden="true"></div>
+
 
   <div class="tab-panel active" id="tab-overview">
-    <div class="page-title">Overview</div>
+    <div class="page-title">Store command centre</div>
+    <div class="page-subtitle">Choose an area to manage. Your store operations stay in one workspace.</div>
+    <div class="admin-module-grid">
+      <button class="module-tile featured" data-open-module="overview"><span class="module-icon">⌂</span><span class="module-kicker">STORE</span><strong>Overview</strong><small>Performance and recent activity</small></button>
+      <button class="module-tile" data-open-module="orders"><span class="module-icon">▤</span><span class="module-kicker">FULFILMENT</span><strong>Orders</strong><small>Review and process customer orders</small></button>
+      <button class="module-tile" data-open-module="products"><span class="module-icon">◇</span><span class="module-kicker">CATALOGUE</span><strong>Products</strong><small>Manage products and inventory</small></button>
+      <button class="module-tile" data-open-module="categories"><span class="module-icon">▦</span><span class="module-kicker">CATALOGUE</span><strong>Categories</strong><small>Organize the store collection</small></button>
+      <button class="module-tile" data-open-module="social"><span class="module-icon">◎</span><span class="module-kicker">GROWTH</span><strong>Social Studio</strong><small>Create, plan and manage content</small></button>
+      <button class="module-tile" data-open-module="economics"><span class="module-icon">₦</span><span class="module-kicker">CAMPAIGNS</span><strong>Campaign Economics</strong><small>Pre-orders, deposits and shipment planning</small></button>
+      <button class="module-tile" data-open-module="notifications"><span class="module-icon">♧</span><span class="module-kicker">ACTIVITY</span><strong>Notifications</strong><small>Store updates and alerts</small></button>
+    </div>
+    <div class="page-title overview-heading">Overview</div>
     <div class="page-subtitle">A quick look at how the shop is doing</div>
 
     <div class="stats-grid">
