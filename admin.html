@@ -765,81 +765,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(max-width:760px){.admin-module-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module-tile{min-height:150px;padding:15px}.economics-grid{grid-template-columns:1fr}}
 @media(max-width:380px){.admin-module-grid{grid-template-columns:1fr}}
 
-/* SaaS workspace layout inspired by the supplied reference */
-:root{--shell:#f4f3f8;--panel:#fff;--ink:#26332d;--muted:#81877f;--line:#e9e8ed;--accent:#716bd8}
-body{background:var(--shell)}
-header{margin-left:248px;background:#fff;border-bottom:1px solid var(--line);padding:15px 28px}
-.brand-name{color:#24483c}
-.logout-btn{border-color:#e6e3ee;color:#5d5b76}
-.app-sidebar{position:fixed;inset:0 auto 0 0;width:248px;background:#fff;border-right:1px solid var(--line);z-index:60;padding:28px 17px;display:flex;flex-direction:column;gap:5px}
-.sidebar-brand{font:700 1.35rem 'Cormorant Garamond',serif;color:#243c34;padding:0 12px 30px}
-.sidebar-brand span{color:#7b75d5}
-.sidebar-label{font-size:.62rem;letter-spacing:.14em;font-weight:700;color:#a0a1a8;padding:15px 12px 6px}
-.sidebar-link{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:0;border-radius:10px;background:transparent;color:#727780;text-align:left;font:500 .84rem 'Jost',sans-serif;cursor:pointer}
-.sidebar-link span{width:20px;text-align:center;font-size:1.05rem}
-.sidebar-link:hover{background:#f5f4fb;color:#514ca7}
-.sidebar-link.active{background:#252c3b;color:#fff;box-shadow:0 5px 14px #252c3b20}
-.sidebar-foot{margin-top:auto;padding:14px 12px;border-top:1px solid var(--line);font-size:.72rem;color:#9699a0;line-height:1.7}
-.sidebar-foot strong{color:#35443b}
-main{margin-left:248px}
-.tab-panel{max-width:1280px;padding:30px 30px 60px}
-.card,.stat-box,.module-tile{border-radius:16px;box-shadow:0 8px 28px rgba(40,43,58,.045);border-color:#ebeaf0}
-.page-title{font-size:1.8rem}
-.admin-module-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-.module-tile{min-height:150px}
-.module-tile.featured{background:linear-gradient(145deg,#f0effb,#fff);color:#283b34;border-color:#dedcf3}
-.module-tile.featured .module-icon{background:#e8e6fb;color:#6861c9}
-.module-tile.featured .module-kicker{color:#7770c7}
-.module-tile.featured small{color:#788078}
-.tab-bar{display:none!important}
-@media(max-width:850px){
- .app-sidebar{width:76px;padding:20px 9px;align-items:center}
- .sidebar-brand{font-size:.8rem;padding:0 0 22px;text-align:center}
- .sidebar-brand span{display:block}
- .sidebar-label,.sidebar-foot{display:none}
- .sidebar-link{justify-content:center;padding:12px 4px;font-size:0}
- .sidebar-link span{font-size:1.15rem}
- header,main{margin-left:76px}
- header{padding:12px 15px}
- .tab-panel{padding:24px 16px 50px}
- .admin-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:520px){
- .app-sidebar{width:62px;padding:16px 6px}
- header,main{margin-left:62px}
- .header-brand img{width:29px;height:29px}
- .brand-name{font-size:1.05rem}
- .logout-btn{padding:6px 9px}
- .admin-module-grid{grid-template-columns:1fr}
- .module-tile{min-height:112px}
-}
-
-/* Mobile workspace refinement: keep navigation compact and content unobstructed */
-@media(max-width:900px){
-  .app-sidebar{width:68px;padding:18px 7px;align-items:center}
-  .sidebar-brand{font-size:.72rem;padding:0 0 20px;text-align:center}
-  .sidebar-brand span{display:block;font-size:.68rem}
-  .sidebar-label,.sidebar-foot{display:none}
-  .sidebar-link{width:100%;justify-content:center;gap:0;padding:13px 3px;font-size:0;min-height:44px}
-  .sidebar-link span{font-size:1.12rem;width:auto}
-  header,main{margin-left:68px;min-width:0}
-  header{padding:11px 14px}
-  .tab-panel{width:100%;max-width:none;padding:22px 16px 48px}
-  .page-title{font-size:1.55rem}
-  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:520px){
-  .app-sidebar{width:58px;padding:14px 5px}
-  header,main{margin-left:58px}
-  .header-brand{gap:7px}
-  .header-brand img{width:27px;height:27px}
-  .brand-name{font-size:1rem}
-  .logout-btn{font-size:.72rem;padding:6px 9px}
-  .tab-panel{padding:18px 12px 40px}
-  .card{padding:15px}
-  .social-layout{grid-template-columns:minmax(0,1fr)}
-  .social-side{overflow-x:auto}
-}
 </style>
 <style id="workspace-layout">
 :root{--workspace-bg:#f3f2f8;--panel:#fff;--ink:#24302d;--muted:#78817e;--line:#e9e8ef;--accent:#4b8a70;--lavender:#eeeafd}
@@ -884,6 +809,11 @@ input,textarea,select{border-radius:9px;border-color:#e4e6e3;padding:11px 12px}
 .submit-btn{border-radius:10px;background:#315d4d;color:#fff}
 @media(max-width:850px){#admin-main{grid-template-columns:190px minmax(0,1fr);padding-right:12px}.workspace-sidebar{padding-left:12px}.tab-panel{padding-left:10px;padding-right:10px}.admin-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){header{padding:11px 15px}#admin-main{display:none;grid-template-columns:1fr;padding:12px 12px 28px}.workspace-sidebar{position:static;min-height:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-bottom:12px}.sidebar-brand{grid-column:1/-1;padding:4px 6px 10px}.sidebar-label{grid-column:1/-1;padding:8px 6px 2px}.sidebar-link{justify-content:flex-start;padding:9px 7px;font-size:11px;gap:6px}.sidebar-link span{width:16px;font-size:14px}.sidebar-footer{display:none}.tab-panel{grid-column:1;grid-row:2;padding:8px 2px 35px}.admin-module-grid{gap:9px}.module-tile{min-height:118px;padding:13px}.page-title{font-size:21px}.card{padding:16px;border-radius:13px}}
+
+/* One workspace sidebar only; mobile navigation stays within the workspace */
+header{margin-left:0!important}
+#admin-main{margin:0!important}
+@media(max-width:620px){#admin-main{grid-template-columns:minmax(0,1fr);padding:12px}.workspace-sidebar{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 14px;min-height:0}.workspace-sidebar .sidebar-brand{flex:1 0 100%}.workspace-sidebar .sidebar-label{display:none}.workspace-sidebar .sidebar-link{width:auto;flex:1 1 auto;justify-content:center;white-space:nowrap}.workspace-sidebar .sidebar-footer{display:none}.tab-panel{grid-column:1;grid-row:auto;min-width:0}}
 </style>
 </head>
 <body>
@@ -895,20 +825,7 @@ input,textarea,select{border-radius:9px;border-color:#e4e6e3;padding:11px 12px}
   </div>
   <button class="logout-btn" id="logout-btn">Log Out</button>
 </header>
-<aside class="app-sidebar" aria-label="Admin workspace navigation">
-  <div class="sidebar-brand">EMB <span>SPARKLY</span></div>
-  <div class="sidebar-label">WORKSPACE</div>
-  <button class="sidebar-link active" data-open-module="overview"><span>⌂</span> Overview</button>
-  <div class="sidebar-label">STORE</div>
-  <button class="sidebar-link" data-open-module="orders"><span>▤</span> Orders</button>
-  <button class="sidebar-link" data-open-module="products"><span>◇</span> Products</button>
-  <button class="sidebar-link" data-open-module="categories"><span>▦</span> Categories</button>
-  <div class="sidebar-label">GROWTH</div>
-  <button class="sidebar-link" data-open-module="social"><span>◎</span> Social Studio</button>
-  <button class="sidebar-link" data-open-module="economics"><span>₦</span> Campaign Economics</button>
-  <button class="sidebar-link" data-open-module="notifications"><span>♧</span> Notifications</button>
-  <div class="sidebar-foot">Store management<br><strong>Admin workspace</strong></div>
-</aside>
+
 
 <div id="gate-screen">
   <div>
