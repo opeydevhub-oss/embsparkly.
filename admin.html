@@ -8,9 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="supabase.js"></script>
 <script>
-// Dashboard module cards open the existing content panels.
-document.querySelectorAll("[data-open-module]").forEach(function(card){card.addEventListener("click",function(){const target=card.dataset.openModule;document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));const panel=document.getElementById("tab-"+target);if(panel)panel.classList.add("active");window.scrollTo({top:0,behavior:"smooth"});});});
-(function initCampaignEconomics(){const ids=["econ-campaign-days","econ-target-kg","econ-current-kg","econ-goods-value","econ-shipping-cost","econ-deposit"];const get=id=>Number(document.getElementById(id).value||0);const fmt=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}).format(n);document.getElementById("econ-deposit").addEventListener("input",e=>document.getElementById("econ-deposit-value").textContent=Math.max(0,Math.min(100,Number(e.target.value)||0))+"%");document.getElementById("econ-calculate").addEventListener("click",()=>{const target=get("econ-target-kg"),demand=get("econ-current-kg"),goods=get("econ-goods-value"),freight=get("econ-shipping-cost"),deposit=Math.max(0,Math.min(100,get("econ-deposit")));document.getElementById("econ-progress").textContent=(target>0?Math.min(100,demand/target*100):0).toFixed(1)+"%";document.getElementById("econ-total").textContent=goods+freight>0?fmt(goods+freight):"Enter verified costs";document.getElementById("econ-per-kg").textContent=target>0&&freight>0?fmt(freight/target)+"/kg":"Enter target and freight";document.getElementById("econ-deposit-value").textContent=deposit+"%";document.getElementById("econ-status").textContent=demand>=target&&target>0?"Target reached":get("econ-campaign-days")>0?"Campaign collecting demand":"Set campaign duration";});})();
+// EMB SPARKLY admin layout uses the original store dashboard styles.
 </script>
 <style>
   :root {
@@ -823,9 +821,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <button class="sidebar-link" data-open-module="orders"><span>▤</span>Orders</button>
     <button class="sidebar-link" data-open-module="products"><span>◇</span>Products</button>
     <button class="sidebar-link" data-open-module="categories"><span>▦</span>Categories</button>
-    <div class="sidebar-label">GROWTH & FINANCE</div>
-    <button class="sidebar-link" data-open-module="social"><span>◎</span>Social Studio</button>
-    <button class="sidebar-link" data-open-module="economics"><span>₦</span>Campaign Economics</button>
+    <div class="sidebar-label">STORE</div>
     <button class="sidebar-link" data-open-module="notifications"><span>♧</span>Notifications</button>
     <div class="sidebar-footer"><span class="status-dot"></span>Store workspace</div>
   </aside>
@@ -999,23 +995,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     </div>
   </div>
 
-  <div class="tab-panel social-panel" id="tab-social">
-    <div class="social-heading"><div><div class="eyebrow">EMB SPARKLY · SOCIAL STUDIO</div><div class="page-title">Social media</div><div class="page-subtitle">Plan and prepare content alongside your store operations.</div></div><span class="connection-status"><i></i> Setup in progress</span></div>
-    <div class="social-summary"><article><span>Channels</span><strong>2</strong><small>Facebook · Instagram</small></article><article><span>Drafts</span><strong id="social-queue-count">0</strong><small>Saved on this device</small></article><article><span>Publishing</span><strong>Approval first</strong><small>No automatic publishing in this preview</small></article></div>
-    <div class="social-layout"><aside class="social-side card"><div class="social-side-title">WORKSPACE</div><button class="social-nav active" data-social-view="composer">✦ Create post</button><button class="social-nav" data-social-view="calendar">▦ Planner</button><button class="social-nav" data-social-view="library">▧ Media library</button><button class="social-nav" data-social-view="accounts">◎ Social accounts</button><button class="social-nav" data-social-view="analytics">↗ Insights</button><div class="social-side-note">Meta authorization and cloud publishing will be enabled after the secure backend is configured.</div></aside>
-    <div class="social-main">
-      <section class="card social-view active" id="social-view-composer"><div class="card-head"><div><h2>Create a post</h2><p class="social-muted">Choose channels, add media and write your caption.</p></div><span class="draft-pill">Draft</span></div>
-        <div class="channel-selectors"><label><input type="checkbox" id="social-facebook" checked><span class="channel-icon fb">f</span> Facebook</label><label><input type="checkbox" id="social-instagram" checked><span class="channel-icon ig">◎</span> Instagram</label></div>
-        <label for="social-caption">Caption</label><textarea id="social-caption" rows="6" placeholder="Write a caption for your next EMB SPARKLY post…"></textarea>
-        <div class="composer-bottom"><div><label for="social-media">Photo or video</label><input type="file" id="social-media" accept="image/*,video/*"><p class="field-hint">Preview is local to this page. Cloud media storage will be connected in the next phase.</p></div><button class="submit-btn social-save" type="button" id="social-save-draft">Save draft</button></div><div class="social-message" id="social-message" role="status"></div>
-        <div class="social-preview"><div class="preview-top"><span class="preview-avatar">E</span><div><strong>EMB SPARKLY</strong><small>Post preview</small></div></div><p id="social-preview-caption">Your caption preview will appear here.</p><div id="social-preview-media" class="preview-media">Media preview</div></div>
-      </section>
-      <section class="card social-view" id="social-view-calendar"><div class="card-head"><div><h2>Content planner</h2><p class="social-muted">A calendar and publishing queue will use cloud-saved posts.</p></div></div><div class="planner-empty"><span>▦</span><strong>Your publishing calendar</strong><p>Drafts saved in this browser appear below. Cloud scheduling activates after publishing services are configured.</p></div><div id="social-draft-list" class="social-draft-list"></div></section>
-      <section class="card social-view" id="social-view-library"><h2>Media library</h2><p class="social-muted">Organize campaign photos and videos. Storage folders and uploads will be wired to Supabase Storage after the data model is reviewed.</p><div class="planner-empty"><span>▧</span><strong>Campaign media</strong><p>Reusable media library is staged for the next backend phase.</p></div></section>
-      <section class="card social-view" id="social-view-accounts"><h2>Social accounts</h2><p class="social-muted">Existing channels reported from your Publer setup.</p><div class="account-row"><span class="channel-icon fb">f</span><div><strong>Facebook Page</strong><small>Emb_sparkly · Publer connection confirmed by you</small></div><span class="account-state">External</span></div><div class="account-row"><span class="channel-icon ig">◎</span><div><strong>Instagram Professional</strong><small>emb_sparkly · Publer connection confirmed by you</small></div><span class="account-state">External</span></div><button type="button" class="edit-btn" id="social-connect-meta">Connect through Meta</button><p class="field-hint">Meta OAuth is not wired yet. App credentials, redirect URLs and secure token storage are required before enabling it.</p></section>
-      <section class="card social-view" id="social-view-analytics"><h2>Insights</h2><p class="social-muted">Reach, engagement, post performance and best-time guidance will appear when Meta insights access is connected.</p><div class="planner-empty"><span>↗</span><strong>Performance reporting</strong><p>Analytics integration is staged for the backend phase.</p></div></section>
-    </div></div>
-  </div>
 </main>
 
 <div id="order-item-preview">
